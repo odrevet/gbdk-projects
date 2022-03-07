@@ -28,16 +28,25 @@ typedef enum directions_e
     LEFT
 } directions_e;
 
+typedef enum enemy_type_e
+{
+    DOPPLEDANGER,
+    GHOST,
+    BAT
+} enemy_type_e;
+
 typedef struct hero_t
 {
     unsigned short x;
     unsigned short y;
+    unsigned short tile_index;
 } hero_t;
 
 typedef struct enemy_t
 {
     unsigned short x;
     unsigned short y;
+    enemy_type_e type;
 } enemy_t;
 
 inline unsigned char get_tile(unsigned short x, unsigned short y)
@@ -88,7 +97,7 @@ unsigned short get_possible_moves(int x, int y)
         moves |= 1UL << DOWN;
     }
 
-    //LEFT
+    // LEFT
     if (can_move(x - TILE_SIZE, y))
     {
         moves |= 1UL << LEFT;
@@ -163,6 +172,10 @@ void init_level_002(hero_t *hero, enemy_t *enemy)
 
 bool on_hero_move(hero_t *hero, enemy_t *enemy)
 {
+    // update hero tile
+    hero->tile_index = (++hero->tile_index) % 2;
+    set_sprite_tile(0, hero->tile_index);
+
     enemy_move(enemy, hero);
     move_sound();
     if (has_collision(hero, enemy))
@@ -171,7 +184,7 @@ bool on_hero_move(hero_t *hero, enemy_t *enemy)
         return true;
     }
 
-    //check if exit reached
+    // check if exit reached
     if (get_tile(hero->x, hero->y) == 0x03)
     {
         level_number++;
@@ -187,6 +200,8 @@ bool on_hero_move(hero_t *hero, enemy_t *enemy)
 int game(void)
 {
     hero_t hero;
+    hero.tile_index = 0;
+
     enemy_t enemy;
 
     init_level_001(&hero, &enemy);
@@ -195,8 +210,8 @@ int game(void)
     set_bkg_data(0, 4, level_bg);
 
     // init hero graphics
-    set_sprite_data(0, 1, hero_tiles);
-    set_sprite_tile(0, 0);
+    set_sprite_data(0, 2, hero_tiles);
+    set_sprite_tile(0, hero.tile_index);
 
     while (1)
     {
