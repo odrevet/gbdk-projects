@@ -109,16 +109,26 @@ unsigned short get_possible_moves(int x, int y)
 void enemy_move(enemy_t *enemy, hero_t *hero)
 {
     int possible_moves = get_possible_moves(enemy->x, enemy->y);
-    int bit = (possible_moves >> LEFT) & 1U;
-    if ((possible_moves >> LEFT) & 1U && hero->x < enemy->x)
+
+    // Gravity
+    if (get_tile(enemy->x, enemy->y + TILE_SIZE) == 0x00)
     {
-        enemy->x -= TILE_SIZE;
-        scroll_sprite(ENEMY_SPRITE_INDEX, -TILE_SIZE, 0);
+        enemy->y += TILE_SIZE;
+        scroll_sprite(ENEMY_SPRITE_INDEX, 0, TILE_SIZE);
     }
-    else if ((possible_moves >> RIGHT) & 1U && hero->x >= enemy->x)
+    else
     {
-        enemy->x += TILE_SIZE;
-        scroll_sprite(ENEMY_SPRITE_INDEX, +TILE_SIZE, 0);
+        int bit = (possible_moves >> LEFT) & 1U;
+        if ((possible_moves >> LEFT) & 1U && hero->x < enemy->x)
+        {
+            enemy->x -= TILE_SIZE;
+            scroll_sprite(ENEMY_SPRITE_INDEX, -TILE_SIZE, 0);
+        }
+        else if ((possible_moves >> RIGHT) & 1U && hero->x >= enemy->x)
+        {
+            enemy->x += TILE_SIZE;
+            scroll_sprite(ENEMY_SPRITE_INDEX, +TILE_SIZE, 0);
+        }
     }
 }
 
@@ -203,6 +213,7 @@ int game(void)
     hero.tile_index = 0;
 
     enemy_t enemy;
+    enemy.type = DOPPLEDANGER;
 
     init_level_001(&hero, &enemy);
 
@@ -215,6 +226,7 @@ int game(void)
 
     while (1)
     {
+        // gravity
         if (get_tile(hero.x, hero.y + TILE_SIZE) == 0x00)
         {
             hero.y += TILE_SIZE;
