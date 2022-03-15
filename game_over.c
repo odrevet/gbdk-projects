@@ -2,7 +2,7 @@
 
 void game_over()
 {
-    font_init();
+/*    font_init();
     font_color(WHITE, DKGREY);
     
     font_t min_font = font_load(font_min);
@@ -10,5 +10,5 @@ void game_over()
 
     printf("GAME OVER\nPRESS A TO RETRY");
     
-    waitpad(J_A);
+    waitpad(J_A);*/
 }

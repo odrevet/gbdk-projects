@@ -220,9 +220,12 @@ int game(void)
     // init level graphics
     set_bkg_data(0, 4, level_bg);
 
-    // init hero graphics
-    set_sprite_data(0, 2, hero_tiles);
-    set_sprite_tile(0, hero.tile_index);
+    // init sprite graphics
+    set_sprite_data(0, 4, hero_tiles);
+    // set hero graphics
+    set_sprite_tile(HERO_SPRITE_INDEX, hero.tile_index);
+    // set enemy graphics
+    set_sprite_tile(1, 2);
 
     while (1)
     {
@@ -246,6 +249,7 @@ int game(void)
             {
                 hero.x -= TILE_SIZE;
                 scroll_sprite(HERO_SPRITE_INDEX, -TILE_SIZE, 0);
+                set_sprite_prop(HERO_SPRITE_INDEX, S_FLIPX);
 
                 if (on_hero_move(&hero, &enemy))
                 {
@@ -264,6 +268,7 @@ int game(void)
             {
                 hero.x += TILE_SIZE;
                 scroll_sprite(HERO_SPRITE_INDEX, TILE_SIZE, 0);
+                set_sprite_prop(HERO_SPRITE_INDEX, get_sprite_prop(HERO_SPRITE_INDEX) & ~S_FLIPX);
 
                 if (on_hero_move(&hero, &enemy))
                 {
