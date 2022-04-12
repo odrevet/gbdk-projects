@@ -40,8 +40,17 @@ bool on_hero_move(hero_t *hero, enemy_t *enemy)
     hero->tile_index = (++hero->tile_index) % 2;
     set_sprite_tile(0, hero->tile_index);
 
-    enemy_move(enemy, hero, current_map);
+    if (enemy->type == BAT)
+    {
+        enemy_move_bat(enemy, hero, current_map);
+    }
+    else
+    {
+        enemy_move(enemy, hero, current_map);
+    }
+
     move_sound();
+
     if (has_collision(hero, enemy))
     {
         game_over();
@@ -68,6 +77,7 @@ int game(void)
     enemy_t enemy;
     enemy.type = SKULL;
 
+    level_number = 0;
     init_level_001(&hero, &enemy, &level_number, current_map);
 
     // init level graphics

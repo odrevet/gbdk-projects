@@ -96,3 +96,33 @@ unsigned short get_possible_moves(int x, int y, unsigned char *map)
 
     return moves;
 }
+
+unsigned short get_possible_moves_bat(int x, int y, unsigned char *map)
+{
+    unsigned short moves = 0;
+
+    if (can_move(x, y - TILE_SIZE, map))
+    {
+        moves |= 1UL << UP;
+    }
+
+    // RIGHT
+    if (can_move(x + TILE_SIZE, y, map))
+    {
+        moves |= 1UL << RIGHT;
+    }
+
+    // DOWN
+    if (can_move(x, y + TILE_SIZE, map))
+    {
+        moves |= 1UL << DOWN;
+    }
+
+    // LEFT
+    if (can_move(x - TILE_SIZE, y, map))
+    {
+        moves |= 1UL << LEFT;
+    }
+
+    return moves;
+}

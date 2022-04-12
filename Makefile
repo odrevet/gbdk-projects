@@ -5,8 +5,8 @@ LCC = $(GBDK_HOME)bin/lcc
 
 PROJECTNAME = GAME
 BINS	    = $(PROJECTNAME).gb
-CSOURCES   := $(wildcard *.c) $(wildcard graphics/*.c) $(wildcard maps/*.c)
-ASMSOURCES := $(wildcard *.s)
+CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c)
+ASMSOURCES := $(wildcard src/*.s)
 
 all:	$(BINS)
 

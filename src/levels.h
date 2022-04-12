@@ -26,4 +26,6 @@ inline bool can_move(int x, int y, unsigned char *map);
 
 unsigned short get_possible_moves(int x, int y, unsigned char *map);
 
+unsigned short get_possible_moves_bat(int x, int y, unsigned char *map);
+
 #endif

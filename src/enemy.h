@@ -8,6 +8,8 @@
 #include "structs.h"
 #include "levels.h"
 
+
 void enemy_move(enemy_t *enemy, hero_t *hero, unsigned char *map);
+void enemy_move_bat(enemy_t *enemy, hero_t *hero, unsigned char *map);
 
 #endif

@@ -23,7 +23,6 @@ typedef enum enemy_type_e
     BAT
 } enemy_type_e;
 
-
 typedef struct enemy_t
 {
     unsigned short x;

@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "structs.h": "c",
+        "game_over.h": "c",
+        "levels.h": "c"
+    }
+}
