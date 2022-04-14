@@ -5,7 +5,6 @@
 #define OFFSET_X 8
 #define OFFSET_Y 16
 #define HERO_SPRITE_INDEX 0
-#define ENEMY_SPRITE_INDEX 1
 #define MAP_WIDTH 20
 
 typedef enum directions_e
@@ -28,6 +27,7 @@ typedef struct enemy_t
     unsigned short x;
     unsigned short y;
     enemy_type_e type;
+    int index;
 } enemy_t;
 
 #endif

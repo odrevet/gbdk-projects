@@ -12,9 +12,9 @@
 #include "maps/map_002.h"
 #include "maps/map_003.h"
 
-void init_level_001(hero_t *hero, enemy_t *enemy, int *level_number, unsigned char *map);
-void init_level_002(hero_t *hero, enemy_t *enemy, int *level_number, unsigned char *map);
-void init_level_003(hero_t *hero, enemy_t *enemy, int *level_number, unsigned char *map);
+void init_level_001(hero_t *hero, enemy_t *enemy, int * enemy_count,  int *level_number, unsigned char *map);
+void init_level_002(hero_t *hero, enemy_t *enemy, int * enemy_count,  int *level_number, unsigned char *map);
+void init_level_003(hero_t *hero, enemy_t *enemy, int * enemy_count,  int *level_number, unsigned char *map);
 
 inline unsigned char get_tile(unsigned short x, unsigned short y, unsigned char *map);
 

@@ -21,46 +21,49 @@ bool has_collision(hero_t *hero, enemy_t *ennemy)
     return hero->x == ennemy->x && hero->y == ennemy->y;
 }
 
-void on_exit_reached(hero_t *hero, enemy_t *enemy)
+void on_exit_reached(hero_t *hero, enemy_t *enemy, int *enemy_count)
 {
     level_number++;
     if (level_number == 1)
     {
-        init_level_002(hero, enemy, &level_number, current_map);
+        init_level_002(hero, enemy, enemy_count, &level_number, current_map);
     }
     else
     {
-        init_level_003(hero, enemy, &level_number, current_map);
+        init_level_003(hero, enemy, enemy_count, &level_number, current_map);
     }
 }
 
-bool on_hero_move(hero_t *hero, enemy_t *enemy)
+bool on_hero_move(hero_t *hero, enemy_t enemy[], int enemy_count)
 {
     // update hero tile
     hero->tile_index = (++hero->tile_index) % 2;
-    set_sprite_tile(0, hero->tile_index);
+    set_sprite_tile(HERO_SPRITE_INDEX, hero->tile_index);
 
-    if (enemy->type == BAT)
+    for (int index = 0; index < enemy_count; index++)
     {
-        enemy_move_bat(enemy, hero, current_map);
-    }
-    else
-    {
-        enemy_move(enemy, hero, current_map);
+        if (enemy[index].type == BAT)
+        {
+            enemy_move_bat(enemy + index, hero, current_map);
+        }
+        else
+        {
+            enemy_move(enemy + index, hero, current_map);
+        }
+
+        if (has_collision(hero, enemy + index))
+        {
+            game_over();
+            return true;
+        }
     }
 
     move_sound();
 
-    if (has_collision(hero, enemy))
-    {
-        game_over();
-        return true;
-    }
-
     // check if exit reached
     if (get_tile(hero->x, hero->y, current_map) == 0x03)
     {
-        on_exit_reached(hero, enemy);
+        on_exit_reached(hero, enemy, enemy_count);
         return false;
     }
 
@@ -74,11 +77,10 @@ int game(void)
     hero_t hero;
     hero.tile_index = 0;
 
-    enemy_t enemy;
-    enemy.type = SKULL;
-
+    enemy_t enemy[2];
     level_number = 0;
-    init_level_001(&hero, &enemy, &level_number, current_map);
+    int enemy_count;
+    init_level_001(&hero, enemy, &enemy_count, &level_number, current_map);
 
     // init level graphics
     set_bkg_data(0, 4, level_bg);
@@ -87,8 +89,6 @@ int game(void)
     set_sprite_data(0, 5, characters_tiles);
     // set hero graphics
     set_sprite_tile(HERO_SPRITE_INDEX, hero.tile_index);
-    // set enemy graphics
-    set_sprite_tile(1, 4);
 
     while (1)
     {
@@ -98,7 +98,7 @@ int game(void)
             hero.y += TILE_SIZE;
             scroll_sprite(HERO_SPRITE_INDEX, 0, TILE_SIZE);
 
-            if (on_hero_move(&hero, &enemy))
+            if (on_hero_move(&hero, enemy, enemy_count))
             {
                 return 0;
             }
@@ -114,7 +114,7 @@ int game(void)
                 scroll_sprite(HERO_SPRITE_INDEX, -TILE_SIZE, 0);
                 set_sprite_prop(HERO_SPRITE_INDEX, S_FLIPX);
 
-                if (on_hero_move(&hero, &enemy))
+                if (on_hero_move(&hero, enemy, enemy_count))
                 {
                     return 0;
                 }
@@ -133,7 +133,7 @@ int game(void)
                 scroll_sprite(HERO_SPRITE_INDEX, TILE_SIZE, 0);
                 set_sprite_prop(HERO_SPRITE_INDEX, get_sprite_prop(HERO_SPRITE_INDEX) & ~S_FLIPX);
 
-                if (on_hero_move(&hero, &enemy))
+                if (on_hero_move(&hero, enemy, enemy_count))
                 {
                     return 0;
                 }
@@ -151,7 +151,7 @@ int game(void)
                 hero.y += TILE_SIZE;
                 scroll_sprite(HERO_SPRITE_INDEX, 0, TILE_SIZE);
 
-                if (on_hero_move(&hero, &enemy))
+                if (on_hero_move(&hero, enemy, enemy_count))
                 {
                     return 0;
                 }
@@ -169,7 +169,7 @@ int game(void)
                 hero.y -= TILE_SIZE;
                 scroll_sprite(HERO_SPRITE_INDEX, 0, -TILE_SIZE);
 
-                if (on_hero_move(&hero, &enemy))
+                if (on_hero_move(&hero, enemy, enemy_count))
                 {
                     return 0;
                 }
