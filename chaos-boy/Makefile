@@ -1,4 +1,4 @@
-GBDK_HOME = ../gbdk/
+GBDK_HOME = ../../gbdk/
 
 LCC = $(GBDK_HOME)bin/lcc 
 # LCC = $(LCC) -debug
