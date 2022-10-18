@@ -15,7 +15,8 @@ $(BINS):	$(CSOURCES) $(ASMSOURCES)
 	$(LCC) -o $@ $(CSOURCES) $(ASMSOURCES)
 
 run: 
-	sameboy $(BINS)
+# sameboy $(BINS)
+	bash ~/./retro.sh gearboy $(BINS)
 
 clean:
 	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm
