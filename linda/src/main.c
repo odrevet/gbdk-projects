@@ -6,12 +6,12 @@
 
 #include "graphics/linda.h"
 #include "graphics/city.h"
+#include "graphics/lindagb.h"
 #include "maps/map_001.h"
 
 #include "gbt_player.h"
 
-extern const unsigned char * double_dragon_tune_Data[];
-
+extern const unsigned char *double_dragon_tune_Data[];
 
 #define HERO_SPRITE_INDEX 0
 #define SPR_NUM_START 0
@@ -41,18 +41,34 @@ uint8_t is_facing_left = false;
 int game(void)
 {
 
-    pos_x = pos_y = 64 << 4;
+    pos_x = pos_y = 96 << 4;
     speed_x = speed_y = 0;
     idx = 0;
     animation_delay = 0;
 
+    set_bkg_data(0, lindagb_TILE_COUNT, lindagb_tiles);
+    set_bkg_tiles(0, 0, lindagb_WIDTH / 8, lindagb_HEIGHT / 8, lindagb_map);
+
+    bool done = false;
+    while (!done)
+    {
+        switch (joypad())
+        {
+        case J_START:
+        case J_A:
+        case J_B:
+            done = true;
+            break;
+        }
+    }
+
     set_bkg_data(0, 16, city_data);
     set_bkg_tiles(0, 0, map_001Width, map_001Height, map_001);
-
     set_sprite_data(HERO_SPRITE_INDEX, sizeof(linda_data) >> 4, linda_data);
 
     while (1)
     {
+
         switch (joypad())
         {
         case J_LEFT:
