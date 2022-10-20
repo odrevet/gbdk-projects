@@ -12,7 +12,7 @@ all:	$(BINS)
 
 # Compile and link all source files in a single call to LCC
 $(BINS):	$(CSOURCES) $(ASMSOURCES)
-	$(LCC) -o $@ $(CSOURCES) $(ASMSOURCES)
+	$(LCC) -Wa-l -Wl-m -Wl-j -DUSE_SFR_FOR_REG -Wl-yt1 -Wl-yo4 -Wl-ya0 -o $@ $(CSOURCES) $(ASMSOURCES)
 
 run: 
 # sameboy $(BINS)

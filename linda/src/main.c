@@ -8,6 +8,11 @@
 #include "graphics/city.h"
 #include "maps/map_001.h"
 
+#include "gbt_player.h"
+
+extern const unsigned char * double_dragon_tune_Data[];
+
+
 #define HERO_SPRITE_INDEX 0
 #define SPR_NUM_START 0
 
@@ -107,11 +112,20 @@ int game(void)
         speed_y = 0;
 
         wait_vbl_done();
+        gbt_update();
     }
 }
 
 void main(void)
 {
+    disable_interrupts();
+
+    gbt_play(double_dragon_tune_Data, 2, 7);
+    gbt_loop(1);
+
+    set_interrupts(VBL_IFLAG);
+    enable_interrupts();
+
     DISPLAY_ON;
     SHOW_BKG;
     SHOW_SPRITES;
