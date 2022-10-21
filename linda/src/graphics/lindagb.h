@@ -10,16 +10,16 @@
 #define lindagb_TILE_H 8
 #define lindagb_WIDTH 160
 #define lindagb_HEIGHT 144
-#define lindagb_TILE_COUNT 145
+#define lindagb_TILE_COUNT 106
 #define lindagb_MAP_ATTRIBUTES 0
 #define lindagb_TILE_PALS lindagb_tile_pals
 
 BANKREF_EXTERN(lindagb)
 
 extern const palette_color_t lindagb_palettes[4];
-extern const uint8_t lindagb_tiles[2320];
+extern const uint8_t lindagb_tiles[1696];
 
 extern const unsigned char lindagb_map[360];
-extern const unsigned char* lindagb_tile_pals[145];
+extern const unsigned char* lindagb_tile_pals[106];
 
 #endif
