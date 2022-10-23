@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "graphics/linda.h"
-#include "graphics/city.h"
+#include "graphics/city_data.h"
 #include "graphics/lindagb.h"
 #include "maps/map_001.h"
 
