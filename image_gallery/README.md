@@ -1,14 +1,14 @@
 Display an full screen image
 
-To convert the input image into a 4 colors image, `ImageMagick` must be installed.
+To convert the input images into 4 colors images, `ImageMagick` must be installed.
 
-* Use the `build_assets.sh` with the image to use as parameter.
+* Put images in `assets/original`
 
-An example `image.png` is provided (fun fact: this image is generated unsing Stable Diffusion)
+* Use the `build_assets.sh`
 
 example:
 
-`bash build_assets.sh` will convert images to `assets/gb`, generate image as C array to `src/image.h` and `src/image.c`
+`bash build_assets.sh` will convert images to `assets/gb`, generate image as C array to `src`
 
 * build the rom with `make`
 
