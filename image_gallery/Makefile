@@ -19,3 +19,6 @@ run:
 
 clean:
 	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm
+	rm -f src/image*
+	rm -f assets/gb/*
+	rm -f assets/original/*
