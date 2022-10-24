@@ -6,12 +6,13 @@ LCC = $(GBDK_HOME)bin/lcc
 PROJECTNAME = image
 BINS	    = $(PROJECTNAME).gb
 CSOURCES   := $(wildcard src/*.c)
+LCCFLAGS += -Wl-yt0x1B -Wl-j -Wm-yoA -Wm-ya4 -autobank -Wb-ext=.rel -Wb-v
 
 all:	$(BINS)
 
 # Compile and link all source files in a single call to LCC
 $(BINS):	$(CSOURCES) $(ASMSOURCES)
-	$(LCC)  -o $@ $(CSOURCES) $(ASMSOURCES)
+	$(LCC) $(LCCFLAGS) -o $@ $(CSOURCES) $(ASMSOURCES)
 
 run:
 # sameboy $(BINS)

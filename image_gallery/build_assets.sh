@@ -3,7 +3,7 @@ nb_images=0
 for image in ./assets/original/*; do
     image_gb="./assets/gb/image_$nb_images.png"
     convert "$image" -resize 160x144! +dither -colors 4 $image_gb
-    png2asset $image_gb -map -c "src/image_$nb_images.c"
+    png2asset $image_gb -map -b 255 -c "src/image_$nb_images.c"
     nb_images=$(( nb_images + 1 ))
 done 
 
@@ -53,7 +53,14 @@ do
 done
 image_list_h+="};\n"
 
-image_list_h+="\n"
+
+# switch bank function
+image_list_h+="inline void switch_bank(uint8_t index){\nswitch (index)\n{"
+for ((i=0; i<$nb_images; i++))
+do
+   image_list_h+="case ${i}:\n SWITCH_ROM(BANK(image_$i));\nbreak;\n"
+done
+image_list_h+="}}\n\n"
 
 # end include guard
 image_list_h+="#endif"
