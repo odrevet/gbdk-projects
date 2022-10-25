@@ -15,6 +15,7 @@ extern const unsigned char *double_dragon_tune_Data[];
 
 #define HERO_SPRITE_INDEX 0
 #define SPR_NUM_START 0
+#define JUMP_MAX 32
 
 uint16_t pos_x, pos_y;
 int16_t speed_x, speed_y;
@@ -36,7 +37,61 @@ uint8_t walk_animation[] = {ANIMATION_STILL, ANIMATION_WALK_0, ANIMATION_STILL, 
 const uint8_t ANIMATION_SPEED = 8;
 const uint8_t SPEED = 8;
 uint8_t is_crouching = false;
+uint8_t is_jumping = false;
 uint8_t is_facing_left = false;
+bool freeze_movement = false;
+uint8_t jump_current = 0;
+
+void draw_linda(void)
+{
+    if (is_jumping)
+    {
+        if (is_facing_left)
+        {
+            move_metasprite_vflip(linda_metasprites[ANIMATION_JUMP], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+        else
+        {
+            move_metasprite(linda_metasprites[ANIMATION_JUMP], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+    }
+    else if (is_crouching)
+    {
+        if (is_facing_left)
+        {
+            move_metasprite_vflip(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+        else
+        {
+            move_metasprite(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+    }
+    else
+    {
+        // cycle through metasprite walk animations
+        if ((speed_x || speed_y) && animation_delay == 0)
+        {
+            idx++;
+            if (idx > 3)
+            {
+                idx = 0;
+            }
+            animation_delay = ANIMATION_SPEED;
+        }
+
+        if (animation_delay)
+            animation_delay--;
+
+        if (is_facing_left)
+        {
+            move_metasprite_vflip(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+        else
+        {
+            move_metasprite(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+    }
+}
 
 int game(void)
 {
@@ -72,57 +127,57 @@ int game(void)
         switch (joypad())
         {
         case J_LEFT:
-            speed_x -= SPEED;
-            is_facing_left = true;
+            if (!freeze_movement)
+            {
+                speed_x -= SPEED;
+                is_facing_left = true;
+            }
             break;
         case J_RIGHT:
-            speed_x += SPEED;
-            is_facing_left = false;
+            if (!freeze_movement)
+            {
+                speed_x += SPEED;
+                is_facing_left = false;
+            }
             break;
         case J_DOWN:
-            speed_y += SPEED;
+            if (!freeze_movement)
+            {
+                speed_y += SPEED;
+            }
             break;
         case J_UP:
-            speed_y -= SPEED;
+            if (!freeze_movement)
+            {
+                speed_y -= SPEED;
+            }
             break;
-        case J_B:
-            is_crouching = true;
-            break;
-        case J_A:
-            is_crouching = false;
+        case J_A | J_B:
+            is_jumping = true;
             break;
         }
 
-        // cycle through metasprite walk animations
-        if ((speed_x || speed_y) && animation_delay == 0)
+        freeze_movement = is_crouching || is_jumping;
+
+        draw_linda();
+
+        if (is_jumping)
         {
-            idx++;
-            if (idx > 3)
+
+            if (jump_current < JUMP_MAX)
             {
-                idx = 0;
+                speed_y -= SPEED;
+                jump_current += 1;
             }
-            animation_delay = ANIMATION_SPEED;
+            else{
+                is_jumping = false;
+                jump_current = 0;
+            }
+
         }
 
-        if (animation_delay)
-            animation_delay--;
-
-        if (is_crouching)
-        {
-            move_metasprite(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
-        }
-        else
-        {
-            pos_x += speed_x, pos_y += speed_y;
-            if (is_facing_left)
-            {
-                move_metasprite_vflip(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
-            }
-            else
-            {
-                move_metasprite(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
-            }
-        }
+        pos_x += speed_x;
+        pos_y += speed_y;
 
         speed_x = 0;
         speed_y = 0;
