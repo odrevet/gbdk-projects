@@ -16,6 +16,7 @@ extern const unsigned char *double_dragon_tune_Data[];
 #define HERO_SPRITE_INDEX 0
 #define SPR_NUM_START 0
 #define JUMP_MAX 32
+#define SPEED 12
 
 uint16_t pos_x, pos_y;
 int16_t speed_x, speed_y;
@@ -35,7 +36,6 @@ enum ANIMATION_INDEX
 uint8_t walk_animation[] = {ANIMATION_STILL, ANIMATION_WALK_0, ANIMATION_STILL, ANIMATION_WALK_1};
 
 const uint8_t ANIMATION_SPEED = 8;
-const uint8_t SPEED = 8;
 uint8_t is_crouching = false;
 uint8_t is_jumping = false;
 uint8_t is_facing_left = false;
@@ -203,8 +203,17 @@ int game(void)
             }
         }
 
-        pos_x += speed_x;
-        pos_y += speed_y;
+        if (pos_x + speed_x > 100 << 4)
+        {
+            speed_x = 0;
+            scroll_bkg(1, 0);
+        }
+        else if(pos_x + speed_x > 16 << 4){
+            pos_x += speed_x;
+            pos_y += speed_y;
+        }
+
+
 
         speed_x = 0;
         speed_y = 0;
