@@ -44,7 +44,7 @@ uint8_t jump_current = 0;
 
 void draw_linda(void)
 {
-    if (is_jumping)
+    if (is_jumping || jump_current > 0)
     {
         if (is_facing_left)
         {
@@ -152,12 +152,15 @@ int game(void)
                 speed_y -= SPEED;
             }
             break;
-        case J_A | J_B:
-            is_jumping = true;
+        case (J_A | J_B):
+            if ((is_jumping == false || jump_current == 0) && !freeze_movement)
+            {
+                is_jumping = true;
+            }
             break;
         }
 
-        freeze_movement = is_crouching || is_jumping;
+        freeze_movement = is_crouching || is_jumping || jump_current > 0;
 
         draw_linda();
 
@@ -167,13 +170,37 @@ int game(void)
             if (jump_current < JUMP_MAX)
             {
                 speed_y -= SPEED;
-                jump_current += 1;
+                if (is_facing_left)
+                {
+                    speed_x -= SPEED;
+                }
+                else
+                {
+                    speed_x += SPEED;
+                }
+                jump_current++;
             }
-            else{
+            else
+            {
                 is_jumping = false;
-                jump_current = 0;
             }
-
+        }
+        else
+        {
+            // gravity
+            if (jump_current > 0)
+            {
+                jump_current--;
+                speed_y += SPEED;
+                if (is_facing_left)
+                {
+                    speed_x -= SPEED;
+                }
+                else
+                {
+                    speed_x += SPEED;
+                }
+            }
         }
 
         pos_x += speed_x;
