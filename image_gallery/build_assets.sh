@@ -3,8 +3,18 @@ nb_images=0
 for image in ./assets/original/*; do
     image_gb="./assets/gb/image_$nb_images.png"
     convert "$image" -resize 160x144! +dither -colors 4 $image_gb
-    png2asset $image_gb -map -b 255 -c "src/image_$nb_images.c"
-    nb_images=$(( nb_images + 1 ))
+    
+    if png2asset $image_gb -map -b 255 -c "src/image_$nb_images.c" | grep -q "found more than 256 tiles"; then
+      echo "ERROR image $nb_images named $image" 
+      echo "cannot be converted and will be ignored because it does not contains enougth repeating patterns."
+      echo "Try again with -colors 2 or -border 2.5x2.5 or -blur 0.5 options"
+      echo ""
+      rm src/image_$nb_images.h src/image_$nb_images.c
+    else
+      nb_images=$(( nb_images + 1 ))
+    fi
+
+    
 done 
 
 # generate image_list.h
