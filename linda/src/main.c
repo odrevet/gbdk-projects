@@ -208,12 +208,12 @@ int game(void)
             speed_x = 0;
             scroll_bkg(1, 0);
         }
-        else if(pos_x + speed_x > 16 << 4){
+        else if (pos_x + speed_x > 16 << 4)
+        {
             pos_x += speed_x;
-            pos_y += speed_y;
         }
 
-
+        pos_y += speed_y;
 
         speed_x = 0;
         speed_y = 0;
