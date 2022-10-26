@@ -118,8 +118,7 @@ int game(void)
     }
 
     set_bkg_data(0, 16, city_data);
-    //set_bkg_tiles(0, 0, map_001Width, map_001Height, map_001);
-    set_bkg_submap(0, 0, map_001Width, map_001Height, map_001, 42);
+    set_bkg_submap(0, 0, map_001Width, map_001Height, map_001, map_001Width);
     set_sprite_data(HERO_SPRITE_INDEX, sizeof(linda_data) >> 4, linda_data);
 
     while (1)
@@ -214,7 +213,10 @@ int game(void)
             pos_x += speed_x;
         }
 
-        pos_y += speed_y;
+        if (pos_y + speed_y < 144 << 4 && pos_y + speed_y > 74 << 4)
+        {
+            pos_y += speed_y;
+        }
 
         speed_x = 0;
         speed_y = 0;
