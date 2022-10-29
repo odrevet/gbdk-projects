@@ -141,13 +141,14 @@ int game(void)
             }
             break;
         case J_DOWN:
-            if (!freeze_movement)
+            if (!freeze_movement && pos_y + speed_y < 144 << 4)
+
             {
                 speed_y += SPEED;
             }
             break;
         case J_UP:
-            if (!freeze_movement)
+            if (!freeze_movement && pos_y + speed_y > 74 << 4)
             {
                 speed_y -= SPEED;
             }
@@ -213,10 +214,7 @@ int game(void)
             pos_x += speed_x;
         }
 
-        if (pos_y + speed_y < 144 << 4 && pos_y + speed_y > 74 << 4)
-        {
-            pos_y += speed_y;
-        }
+        pos_y += speed_y;
 
         speed_x = 0;
         speed_y = 0;
