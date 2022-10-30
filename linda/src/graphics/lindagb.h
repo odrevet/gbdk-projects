@@ -7,12 +7,15 @@
 #include <gbdk/metasprites.h>
 
 #define lindagb_TILE_ORIGIN 0
+#define lindagb_TILE_W 8
 #define lindagb_TILE_H 8
 #define lindagb_WIDTH 160
 #define lindagb_HEIGHT 144
 #define lindagb_TILE_COUNT 106
+#define lindagb_PALETTE_COUNT 1
+#define lindagb_COLORS_PER_PALETTE 4
+#define lindagb_TOTAL_COLORS 4
 #define lindagb_MAP_ATTRIBUTES 0
-#define lindagb_TILE_PALS lindagb_tile_pals
 
 BANKREF_EXTERN(lindagb)
 
@@ -20,6 +23,5 @@ extern const palette_color_t lindagb_palettes[4];
 extern const uint8_t lindagb_tiles[1696];
 
 extern const unsigned char lindagb_map[360];
-extern const unsigned char* lindagb_tile_pals[106];
 
 #endif

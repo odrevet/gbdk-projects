@@ -119,7 +119,7 @@ int game(void)
 
     set_bkg_data(0, 16, city_data);
     set_bkg_submap(0, 0, map_001Width, map_001Height, map_001, map_001Width);
-    set_sprite_data(HERO_SPRITE_INDEX, sizeof(linda_data) >> 4, linda_data);
+    set_sprite_data(HERO_SPRITE_INDEX, sizeof(linda_tiles) >> 4, linda_tiles);
 
     while (1)
     {
