@@ -137,41 +137,49 @@ int game(void)
     while (1)
     {
 
-        switch (joypad())
+        int j = joypad();
+
+        if (j & J_LEFT)
         {
-        case J_LEFT:
             if (!freeze_movement)
             {
                 speed_x -= SPEED;
                 is_facing_left = true;
             }
-            break;
-        case J_RIGHT:
+        }
+
+        if (j & J_RIGHT)
+        {
             if (!freeze_movement)
             {
                 speed_x += SPEED;
                 is_facing_left = false;
             }
-            break;
-        case J_DOWN:
+        }
+
+        if (j & J_DOWN)
+        {
             if (!freeze_movement && pos_y + speed_y < 144 << 4)
 
             {
                 speed_y += SPEED;
             }
-            break;
-        case J_UP:
+        }
+
+        if (j & J_UP)
+        {
             if (!freeze_movement && pos_y + speed_y > 74 << 4)
             {
                 speed_y -= SPEED;
             }
-            break;
-        case (J_A | J_B):
+        }
+
+        if (j & (J_A | J_B))
+        {
             if ((is_jumping == false || jump_current == 0) && !freeze_movement)
             {
                 is_jumping = true;
             }
-            break;
         }
 
         freeze_movement = is_crouching || is_jumping || jump_current > 0;
