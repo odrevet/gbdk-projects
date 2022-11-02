@@ -1,23 +1,16 @@
 GBDK_HOME = ../../gbdk/
 
 LCC = $(GBDK_HOME)bin/lcc 
-# LCC = $(LCC) -debug
 
-PROJECTNAME = GAME
+PROJECTNAME = linda
 BINS	    = $(PROJECTNAME).gb
-CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c)
-ASMSOURCES := $(wildcard src/*.s)
+CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c) $(wildcard src/songs/*.c)
 
 all:	$(BINS)
 
-# Compile and link all source files in a single call to LCC
-$(BINS):	$(CSOURCES) $(ASMSOURCES)
-	$(LCC) -Wa-l -Wl-m -Wl-j -DUSE_SFR_FOR_REG -Wl-yt1 -Wl-yo4 -Wl-ya0 -o $@ $(CSOURCES) $(ASMSOURCES)
-
-run: 
-# sameboy $(BINS)
-	bash ~/./retro.sh gearboy $(BINS)
+$(BINS):	$(CSOURCES)
+	$(LCC) -Isrc -Wa-l -Wl-m -Wl-j -o $@ hUGEDriver.obj.o $(CSOURCES)
 
 clean:
-	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm
+	rm -f *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm
 

@@ -9,9 +9,10 @@
 #include "graphics/lindagb.h"
 #include "maps/map_001.h"
 
-#include "gbt_player.h"
+#include "hUGEDriver.h"
 
-extern const unsigned char *double_dragon_tune_Data[];
+extern const hUGESong_t softworld;
+extern const hUGESong_t a_sad_touch;
 
 #define HERO_SPRITE_INDEX 0
 #define SPR_NUM_START 0
@@ -101,9 +102,11 @@ int game(void)
     idx = 0;
     animation_delay = 0;
 
+    // Intro screen
     set_bkg_data(0, lindagb_TILE_COUNT, lindagb_tiles);
     set_bkg_tiles(0, 0, lindagb_WIDTH / 8, lindagb_HEIGHT / 8, lindagb_map);
 
+    hUGE_init(&softworld);
     bool done = false;
     while (!done)
     {
@@ -115,7 +118,17 @@ int game(void)
             done = true;
             break;
         }
+
+        hUGE_dosound();
+        wait_vbl_done();
     }
+
+    // Level screen
+    hUGE_mute_channel(HT_CH1, 1);
+    hUGE_mute_channel(HT_CH2, 1);
+    hUGE_mute_channel(HT_CH3, 1);
+    hUGE_mute_channel(HT_CH4, 1);
+    hUGE_init(&a_sad_touch);
 
     set_bkg_data(0, 16, city_data);
     set_bkg_submap(0, 0, map_001Width, map_001Height, map_001, map_001Width);
@@ -219,20 +232,16 @@ int game(void)
         speed_x = 0;
         speed_y = 0;
 
+        hUGE_dosound();
         wait_vbl_done();
-        gbt_update();
     }
 }
 
 void main(void)
 {
-    disable_interrupts();
-
-    gbt_play(double_dragon_tune_Data, 2, 7);
-    gbt_loop(1);
-
-    set_interrupts(VBL_IFLAG);
-    enable_interrupts();
+    NR52_REG = 0x80;
+    NR51_REG = 0xFF;
+    NR50_REG = 0x77;
 
     DISPLAY_ON;
     SHOW_BKG;
