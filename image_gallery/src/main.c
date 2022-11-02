@@ -6,15 +6,14 @@
 void load_image(uint8_t index)
 {
     switch_bank(index);
-    HIDE_BKG;
     set_bkg_data(0, TILE_COUNT[index], TILES[index]);
     set_bkg_tiles(0, 0, image_0_WIDTH / 8, image_0_HEIGHT / 8, MAP[index]);
-    SHOW_BKG;
 }
 
 void main(void)
 {
     DISPLAY_ON;
+    SHOW_BKG;
 
     uint8_t index = 0;
     load_image(index);
