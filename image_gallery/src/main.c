@@ -3,7 +3,6 @@
 
 #include "image_list.h"
 
-
 void load_image(uint8_t index)
 {
     switch_bank(index);
@@ -17,7 +16,6 @@ void main(void)
 {
     DISPLAY_ON;
 
-    uint8_t is_button_pressed = 0;
     uint8_t index = 0;
     load_image(index);
 
@@ -26,23 +24,18 @@ void main(void)
         switch (joypad())
         {
         case J_LEFT:
-            if (!is_button_pressed && index > 0)
+            if (index > 0)
             {
-                index--;
-                load_image(index);
+                load_image(--index);
             }
-            is_button_pressed = 1;
+            waitpadup();
             break;
         case J_RIGHT:
-            if (!is_button_pressed && index < NB_IMAGES - 1)
+            if (index < NB_IMAGES - 1)
             {
-                index++;
-                load_image(index);
+                load_image(++index);
             }
-            is_button_pressed = 1;
-            break;
-        case !J_RIGHT || !J_LEFT:
-            is_button_pressed = 0;
+            waitpadup();
             break;
         }
     }
