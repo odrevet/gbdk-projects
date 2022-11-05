@@ -9,22 +9,22 @@
 #define linda_TILE_ORIGIN 0
 #define linda_TILE_W 8
 #define linda_TILE_H 16
-#define linda_WIDTH 16
+#define linda_WIDTH 32
 #define linda_HEIGHT 32
-#define linda_TILE_COUNT 40
-#define linda_PALETTE_COUNT 1
+#define linda_TILE_COUNT 80
+#define linda_PALETTE_COUNT 2
 #define linda_COLORS_PER_PALETTE 4
-#define linda_TOTAL_COLORS 4
-#define linda_PIVOT_X 8
+#define linda_TOTAL_COLORS 8
+#define linda_PIVOT_X 16
 #define linda_PIVOT_Y 16
-#define linda_PIVOT_W 16
+#define linda_PIVOT_W 32
 #define linda_PIVOT_H 32
 
 BANKREF_EXTERN(linda)
 
-extern const palette_color_t linda_palettes[4];
-extern const uint8_t linda_tiles[640];
+extern const palette_color_t linda_palettes[8];
+extern const uint8_t linda_tiles[1280];
 
-extern const metasprite_t* const linda_metasprites[6];
+extern const metasprite_t* const linda_metasprites[9];
 
 #endif

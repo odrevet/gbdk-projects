@@ -31,7 +31,10 @@ enum ANIMATION_INDEX
     ANIMATION_WALK_1,
     ANIMATION_JUMP,
     ANIMATION_CROUCH,
-    ANIMATION_CLIMB
+    ANIMATION_CLIMB,
+    ANIMATION_JUMP_KICK,
+    ANIMATION_FALL,
+    ANIMATION_ON_GROUND
 };
 
 uint8_t walk_animation[] = {ANIMATION_STILL, ANIMATION_WALK_0, ANIMATION_STILL, ANIMATION_WALK_1};
@@ -49,11 +52,11 @@ void draw_linda(void)
     {
         if (is_facing_left)
         {
-            move_metasprite_vflip(linda_metasprites[ANIMATION_JUMP], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            move_metasprite_vflip(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
         else
         {
-            move_metasprite(linda_metasprites[ANIMATION_JUMP], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            move_metasprite(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
     else if (is_crouching)
