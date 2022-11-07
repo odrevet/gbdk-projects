@@ -46,6 +46,8 @@ uint8_t is_facing_left = false;
 bool freeze_movement = false;
 uint8_t jump_current = 0;
 
+joypads_t joypads;
+
 void draw_linda(void)
 {
     uint8_t hw_sprites = 0;
@@ -143,10 +145,9 @@ int game(void)
 
     while (1)
     {
+        joypad_ex(&joypads);
 
-        int j = joypad();
-
-        if (j & J_LEFT)
+        if (joypads.joy0 & J_LEFT)
         {
             if (!freeze_movement)
             {
@@ -155,7 +156,7 @@ int game(void)
             }
         }
 
-        if (j & J_RIGHT)
+        if (joypads.joy0 & J_RIGHT)
         {
             if (!freeze_movement)
             {
@@ -164,7 +165,7 @@ int game(void)
             }
         }
 
-        if (j & J_DOWN)
+        if (joypads.joy0 & J_DOWN)
         {
             if (!freeze_movement && pos_y + speed_y < 144 << 4)
 
@@ -173,7 +174,7 @@ int game(void)
             }
         }
 
-        if (j & J_UP)
+        if (joypads.joy0 & J_UP)
         {
             if (!freeze_movement && pos_y + speed_y > 74 << 4)
             {
@@ -181,7 +182,7 @@ int game(void)
             }
         }
 
-        if (j & (J_A | J_B))
+        if (joypads.joy0 & J_A && joypads.joy0 & J_B)
         {
             if ((is_jumping == false || jump_current == 0) && !freeze_movement)
             {
@@ -262,6 +263,8 @@ void main(void)
     SHOW_BKG;
     SHOW_SPRITES;
     SPRITES_8x16;
+
+    joypad_init(1, &joypads);
 
     while (1)
     {

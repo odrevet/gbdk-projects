@@ -26,17 +26,17 @@ Area                       Addr        Size        Decimal Bytes (Attributes)
      00000002  l__HEADER |    00000003  l__HEADER |    00000003  l__HRAM12
      00000005  l__HEADER |    00000006  l__HEADER |    00000007  l__HEADER
      00000008  l__HEADER |    0000000C  l__GSINIT |    00000030  l__HEADER
-     0000004C  l__HEADER |    00000084  l__DATA   |    00000084  l__HEADER
-     00000200  s__CODE   |    00000222  l__HOME   |    00000330  l__INITIA
+     0000004C  l__HEADER |    00000084  l__HEADER |    00000089  l__DATA  
+     00000200  s__CODE   |    000002BB  l__HOME   |    00000330  l__INITIA
      00000330  l__INITIA |    00002000  _rROMB0   |    00003000  _rROMB1  
-     00004000  _rRAMB    |    000045BB  l__CODE   |    000047BB  s__HOME  
-     000049DD  s__BASE   |    000049DD  s__CODE_0 |    000049DD  s__INITIA
-     000049DD  s__LIT    |    00004D0D  s__GSINIT |    00004D19  s__GSFINA
+     00004000  _rRAMB    |    0000466E  l__CODE   |    0000486E  s__HOME  
+     00004B29  s__BASE   |    00004B29  s__CODE_0 |    00004B29  s__INITIA
+     00004B29  s__LIT    |    00004E59  s__GSINIT |    00004E65  s__GSFINA
      00008000  __VRAM    |    00008000  __VRAM800 |    00008800  __VRAM880
      00009000  __VRAM900 |    00009800  __SCRN0   |    00009C00  __SCRN1  
      0000A000  __SRAM    |    0000C000  __RAM     |    0000C000  _shadow_O
-     0000C0A0  s__DATA   |    0000C124  s__BSS    |    0000C124  s__INITIA
-     0000C454  s__HEAP   |    0000C454  s__HEAP_E |    0000D000  __RAMBANK
+     0000C0A0  s__DATA   |    0000C129  s__BSS    |    0000C129  s__INITIA
+     0000C459  s__HEAP   |    0000C459  s__HEAP_E |    0000D000  __RAMBANK
      0000E000  .STACK    |    0000FE00  __OAMRAM  |    0000FF00  _P1_REG  
      0000FF00  __IO      |    0000FF01  _SB_REG   |    0000FF02  _SC_REG  
      0000FF04  _DIV_REG  |    0000FF05  _TIMA_REG |    0000FF06  _TMA_REG 
@@ -73,7 +73,7 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_CODE                  00000200    000045BB =       17851. bytes (REL,CON)
+_CODE                  00000200    0000466E =       18030. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -82,17 +82,19 @@ _CODE                  00000200    000045BB =       17851. bytes (REL,CON)
      0000022D  hUGE_init |    00000283  hUGE_mute |    000004BC  hUGE_set_
      0000067D  _hUGE_dos |    0000067D  _hUGE_dos |    0000067D  hUGE_doso
      000009A9  _draw_lin |    00000B78  _ANIMATIO |    00000B79  _game    
-     00000E0A  _main     |    00000E33  ___func_c |    00000E33  _city_pal
-     00000E43  _city_til |    00000E83  _city_met |    00000E8B  _city_met
-     00000E93  _city_met |    00000E9B  _city_met |    00000EA3  _city_met
-     00000EAB  ___func_l |    00000EAB  _linda_pa |    00000EBB  _linda_ti
-     000013BB  _linda_me |    000013CF  _linda_me |    000013E3  _linda_me
-     000013F7  _linda_me |    0000140B  _linda_me |    0000141F  _linda_me
-     00001433  _linda_me |    00001457  _linda_me |    0000147B  _linda_me
-     0000148F  _linda_me |    000014A1  ___func_l |    000014A1  _lindagb_
-     000014A9  _lindagb_ |    00001B49  _lindagb_ |    00002F60  _a_sad_to
-     0000466C  _softworl |    00004681  _hide_spr |    000046B1  ___move_m
-     000046F0  ___move_m |    00004733  ___move_m |    00004776  ___move_m
+     00000E22  _main     |    00000E58  ___func_c |    00000E58  _city_pal
+     00000E68  _city_til |    00000EA8  _city_met |    00000EB0  _city_met
+     00000EB8  _city_met |    00000EC0  _city_met |    00000EC8  _city_met
+     00000ED0  ___func_l |    00000ED0  _linda_pa |    00000EE0  _linda_ti
+     000013E0  _linda_me |    000013F4  _linda_me |    00001408  _linda_me
+     0000141C  _linda_me |    00001430  _linda_me |    00001444  _linda_me
+     00001458  _linda_me |    0000147C  _linda_me |    000014A0  _linda_me
+     000014B4  _linda_me |    000014C6  ___func_l |    000014C6  _lindagb_
+     000014CE  _lindagb_ |    00001B6E  _lindagb_ |    00002F85  _a_sad_to
+     00004691  _softworl |    000046A6  _hide_spr |    000046D6  ___move_m
+     00004715  .sgb_chec |    00004715  _sgb_chec |    0000475D  _sgb_tran
+     00004762  .sgb_tran |    000047A3  ___move_m |    000047E6  ___move_m
+     00004829  ___move_m
 ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
 Hexadecimal  [32-Bits]
 
@@ -267,26 +269,27 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_HOME                  000047BB    00000222 =         546. bytes (REL,CON)
+_HOME                  0000486E    000002BB =         699. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     000047BB  .memset_s |    000047C4  .memcpy_s |    000047E1  .remove_V
-     000047E4  .remove_i |    00004801  .add_VBL  |    00004804  .add_int 
-     0000480F  .wait_vbl |    0000480F  _wait_vbl |    0000481F  .display_
-     0000481F  _display_ |    00004837  _remove_V |    00004842  _add_VBL 
-     0000484D  _set_tile |    00004852  _set_bkg_ |    00004852  _set_win_
-     0000485A  _set_spri |    0000488A  _set_bkg_ |    000048CD  .set_xy_w
-     000048D6  .set_xy_b |    000048E5  .set_xy_s |    0000492F  .padup   
-     0000492F  _waitpadu |    0000493F  .jpad     |    0000493F  _joypad  
-     00004967  _waitpad  |    00004968  .wait_pad |    0000496F  _set_bkg_
-     00004983  .set_xy_w |    0000498C  .set_xy_b |    0000499B  .set_xy_t
+     0000486E  .memset_s |    00004877  .memcpy_s |    00004894  .remove_V
+     00004897  .remove_i |    000048B4  .add_VBL  |    000048B7  .add_int 
+     000048C2  .wait_vbl |    000048C2  _wait_vbl |    000048D2  .display_
+     000048D2  _display_ |    000048EA  _remove_V |    000048F5  _add_VBL 
+     00004900  _set_tile |    00004905  _set_bkg_ |    00004905  _set_win_
+     0000490D  _set_spri |    0000493D  _joypad_i |    0000498B  .joypad_e
+     0000498B  _joypad_e |    000049D6  _set_bkg_ |    00004A19  .set_xy_w
+     00004A22  .set_xy_b |    00004A31  .set_xy_s |    00004A7B  .padup   
+     00004A7B  _waitpadu |    00004A8B  .jpad     |    00004A8B  _joypad  
+     00004AB3  _waitpad  |    00004AB4  .wait_pad |    00004ABB  _set_bkg_
+     00004ACF  .set_xy_w |    00004AD8  .set_xy_b |    00004AE7  .set_xy_t
 ASxxxx Linker V03.00 + NoICE + sdld,  page 23.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_INITIALIZER           000049DD    00000330 =         816. bytes (REL,CON)
+_INITIALIZER           00004B29    00000330 =         816. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -295,17 +298,17 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSINIT                00004D0D    0000000C =          12. bytes (REL,CON)
+_GSINIT                00004E59    0000000C =          12. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     00004D0D  gsinit   
+     00004E59  gsinit   
 ASxxxx Linker V03.00 + NoICE + sdld,  page 25.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSFINAL               00004D19    00000001 =           1. bytes (REL,CON)
+_GSFINAL               00004E65    00000001 =           1. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -314,7 +317,7 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_DATA                  0000C0A0    00000084 =         132. bytes (REL,CON)
+_DATA                  0000C0A0    00000089 =         137. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -323,20 +326,21 @@ _DATA                  0000C0A0    00000084 =         132. bytes (REL,CON)
      0000C0CD  _hUGE_cur |    0000C0CD  hUGE_curr |    0000C0CE  _hUGE_mut
      0000C115  _pos_x    |    0000C117  _pos_y    |    0000C119  _speed_x 
      0000C11B  _speed_y  |    0000C11D  _idx      |    0000C11F  _animatio
-     0000C120  .image_ti |    0000C121  ___curren |    0000C123  ___curren
+     0000C120  _joypads  |    0000C125  .image_ti |    0000C126  ___curren
+     0000C128  ___curren
 ASxxxx Linker V03.00 + NoICE + sdld,  page 27.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_INITIALIZED           0000C124    00000330 =         816. bytes (REL,CON)
+_INITIALIZED           0000C129    00000330 =         816. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     0000C124  _walk_ani |    0000C128  _is_crouc |    0000C129  _is_jumpi
-     0000C12A  _is_facin |    0000C12B  _freeze_m |    0000C12C  _jump_cur
-     0000C12D  _city_dat |    0000C15D  _map_001  |    0000C451  __submap_
-     0000C452  ___render |    0000C453  __map_til
+     0000C129  _walk_ani |    0000C12D  _is_crouc |    0000C12E  _is_jumpi
+     0000C12F  _is_facin |    0000C130  _freeze_m |    0000C131  _jump_cur
+     0000C132  _city_dat |    0000C162  _map_001  |    0000C456  __submap_
+     0000C457  ___render |    0000C458  __map_til
 ASxxxx Linker V03.00 + NoICE + sdld,  page 28.
 Hexadecimal  [32-Bits]
 
@@ -353,14 +357,14 @@ Files Linked                              [ module(s) ]
 
 ../../gbdk/lib/gb/crt0.o                  [ Runtime ]
 hUGEDriver.obj.o                          [ hUGEDriver_obj ]
-/tmp/lcc73870.o                           [ main ]
-/tmp/lcc73871.o                           [ city ]
-/tmp/lcc73872.o                           [ city_data ]
-/tmp/lcc73873.o                           [ linda ]
-/tmp/lcc73874.o                           [ lindagb ]
-/tmp/lcc73875.o                           [ map_001 ]
-/tmp/lcc73876.o                           [ a_sad_touch ]
-/tmp/lcc73877.o                           [ softworld ]
+/tmp/lcc100710.o                          [ main ]
+/tmp/lcc100711.o                          [ city ]
+/tmp/lcc100712.o                          [ city_data ]
+/tmp/lcc100713.o                          [ linda ]
+/tmp/lcc100714.o                          [ lindagb ]
+/tmp/lcc100715.o                          [ map_001 ]
+/tmp/lcc100716.o                          [ a_sad_touch ]
+/tmp/lcc100717.o                          [ softworld ]
 
 
 Libraries Linked                          [ object file ]
@@ -368,9 +372,11 @@ Libraries Linked                          [ object file ]
 ../../gbdk/lib/gb/gb.lib                  [ sfr.o ]
 ../../gbdk/lib/gb/gb.lib                  [ metasprites_hide_spr.o ]
 ../../gbdk/lib/gb/gb.lib                  [ set_data.o ]
+../../gbdk/lib/gb/gb.lib                  [ pad_ex.o ]
 ../../gbdk/lib/gb/gb.lib                  [ set_tile_submap.o ]
 ../../gbdk/lib/gb/gb.lib                  [ pad.o ]
 ../../gbdk/lib/gb/gb.lib                  [ metasprites.o ]
+../../gbdk/lib/gb/gb.lib                  [ sgb.o ]
 ../../gbdk/lib/gb/gb.lib                  [ metasprites_flip.o ]
 ../../gbdk/lib/gb/gb.lib                  [ set_bk_t.o ]
 ../../gbdk/lib/gb/gb.lib                  [ set_xy_t.o ]
