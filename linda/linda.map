@@ -29,9 +29,9 @@ Area                       Addr        Size        Decimal Bytes (Attributes)
      0000004C  l__HEADER |    00000084  l__HEADER |    00000089  l__DATA  
      00000200  s__CODE   |    000002BB  l__HOME   |    00000330  l__INITIA
      00000330  l__INITIA |    00002000  _rROMB0   |    00003000  _rROMB1  
-     00004000  _rRAMB    |    0000466E  l__CODE   |    0000486E  s__HOME  
-     00004B29  s__BASE   |    00004B29  s__CODE_0 |    00004B29  s__INITIA
-     00004B29  s__LIT    |    00004E59  s__GSINIT |    00004E65  s__GSFINA
+     00004000  _rRAMB    |    00004651  l__CODE   |    00004851  s__HOME  
+     00004B0C  s__BASE   |    00004B0C  s__CODE_0 |    00004B0C  s__INITIA
+     00004B0C  s__LIT    |    00004E3C  s__GSINIT |    00004E48  s__GSFINA
      00008000  __VRAM    |    00008000  __VRAM800 |    00008800  __VRAM880
      00009000  __VRAM900 |    00009800  __SCRN0   |    00009C00  __SCRN1  
      0000A000  __SRAM    |    0000C000  __RAM     |    0000C000  _shadow_O
@@ -73,7 +73,7 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_CODE                  00000200    0000466E =       18030. bytes (REL,CON)
+_CODE                  00000200    00004651 =       18001. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -81,20 +81,20 @@ _CODE                  00000200    0000466E =       18030. bytes (REL,CON)
      00000213  _hUGE_mut |    00000220  _hUGE_set |    00000224  _hUGE_set
      0000022D  hUGE_init |    00000283  hUGE_mute |    000004BC  hUGE_set_
      0000067D  _hUGE_dos |    0000067D  _hUGE_dos |    0000067D  hUGE_doso
-     000009A9  _draw_lin |    00000B78  _ANIMATIO |    00000B79  _game    
-     00000E22  _main     |    00000E58  ___func_c |    00000E58  _city_pal
-     00000E68  _city_til |    00000EA8  _city_met |    00000EB0  _city_met
-     00000EB8  _city_met |    00000EC0  _city_met |    00000EC8  _city_met
-     00000ED0  ___func_l |    00000ED0  _linda_pa |    00000EE0  _linda_ti
-     000013E0  _linda_me |    000013F4  _linda_me |    00001408  _linda_me
-     0000141C  _linda_me |    00001430  _linda_me |    00001444  _linda_me
-     00001458  _linda_me |    0000147C  _linda_me |    000014A0  _linda_me
-     000014B4  _linda_me |    000014C6  ___func_l |    000014C6  _lindagb_
-     000014CE  _lindagb_ |    00001B6E  _lindagb_ |    00002F85  _a_sad_to
-     00004691  _softworl |    000046A6  _hide_spr |    000046D6  ___move_m
-     00004715  .sgb_chec |    00004715  _sgb_chec |    0000475D  _sgb_tran
-     00004762  .sgb_tran |    000047A3  ___move_m |    000047E6  ___move_m
-     00004829  ___move_m
+     000009A9  _set_song |    000009BB  _ANIMATIO |    000009BC  _draw_lin
+     00000B8B  _game     |    00000E11  _main     |    00000E3B  ___func_c
+     00000E3B  _city_pal |    00000E4B  _city_til |    00000E8B  _city_met
+     00000E93  _city_met |    00000E9B  _city_met |    00000EA3  _city_met
+     00000EAB  _city_met |    00000EB3  ___func_l |    00000EB3  _linda_pa
+     00000EC3  _linda_ti |    000013C3  _linda_me |    000013D7  _linda_me
+     000013EB  _linda_me |    000013FF  _linda_me |    00001413  _linda_me
+     00001427  _linda_me |    0000143B  _linda_me |    0000145F  _linda_me
+     00001483  _linda_me |    00001497  _linda_me |    000014A9  ___func_l
+     000014A9  _lindagb_ |    000014B1  _lindagb_ |    00001B51  _lindagb_
+     00002F68  _a_sad_to |    00004674  _softworl |    00004689  _hide_spr
+     000046B9  ___move_m |    000046F8  .sgb_chec |    000046F8  _sgb_chec
+     00004740  _sgb_tran |    00004745  .sgb_tran |    00004786  ___move_m
+     000047C9  ___move_m |    0000480C  ___move_m
 ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
 Hexadecimal  [32-Bits]
 
@@ -269,27 +269,27 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_HOME                  0000486E    000002BB =         699. bytes (REL,CON)
+_HOME                  00004851    000002BB =         699. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     0000486E  .memset_s |    00004877  .memcpy_s |    00004894  .remove_V
-     00004897  .remove_i |    000048B4  .add_VBL  |    000048B7  .add_int 
-     000048C2  .wait_vbl |    000048C2  _wait_vbl |    000048D2  .display_
-     000048D2  _display_ |    000048EA  _remove_V |    000048F5  _add_VBL 
-     00004900  _set_tile |    00004905  _set_bkg_ |    00004905  _set_win_
-     0000490D  _set_spri |    0000493D  _joypad_i |    0000498B  .joypad_e
-     0000498B  _joypad_e |    000049D6  _set_bkg_ |    00004A19  .set_xy_w
-     00004A22  .set_xy_b |    00004A31  .set_xy_s |    00004A7B  .padup   
-     00004A7B  _waitpadu |    00004A8B  .jpad     |    00004A8B  _joypad  
-     00004AB3  _waitpad  |    00004AB4  .wait_pad |    00004ABB  _set_bkg_
-     00004ACF  .set_xy_w |    00004AD8  .set_xy_b |    00004AE7  .set_xy_t
+     00004851  .memset_s |    0000485A  .memcpy_s |    00004877  .remove_V
+     0000487A  .remove_i |    00004897  .add_VBL  |    0000489A  .add_int 
+     000048A5  .wait_vbl |    000048A5  _wait_vbl |    000048B5  .display_
+     000048B5  _display_ |    000048CD  _remove_V |    000048D8  _add_VBL 
+     000048E3  _set_tile |    000048E8  _set_bkg_ |    000048E8  _set_win_
+     000048F0  _set_spri |    00004920  _joypad_i |    0000496E  .joypad_e
+     0000496E  _joypad_e |    000049B9  _set_bkg_ |    000049FC  .set_xy_w
+     00004A05  .set_xy_b |    00004A14  .set_xy_s |    00004A5E  .padup   
+     00004A5E  _waitpadu |    00004A6E  .jpad     |    00004A6E  _joypad  
+     00004A96  _waitpad  |    00004A97  .wait_pad |    00004A9E  _set_bkg_
+     00004AB2  .set_xy_w |    00004ABB  .set_xy_b |    00004ACA  .set_xy_t
 ASxxxx Linker V03.00 + NoICE + sdld,  page 23.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_INITIALIZER           00004B29    00000330 =         816. bytes (REL,CON)
+_INITIALIZER           00004B0C    00000330 =         816. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -298,17 +298,17 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSINIT                00004E59    0000000C =          12. bytes (REL,CON)
+_GSINIT                00004E3C    0000000C =          12. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     00004E59  gsinit   
+     00004E3C  gsinit   
 ASxxxx Linker V03.00 + NoICE + sdld,  page 25.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSFINAL               00004E65    00000001 =           1. bytes (REL,CON)
+_GSFINAL               00004E48    00000001 =           1. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -357,14 +357,14 @@ Files Linked                              [ module(s) ]
 
 ../../gbdk/lib/gb/crt0.o                  [ Runtime ]
 hUGEDriver.obj.o                          [ hUGEDriver_obj ]
-/tmp/lcc100710.o                          [ main ]
-/tmp/lcc100711.o                          [ city ]
-/tmp/lcc100712.o                          [ city_data ]
-/tmp/lcc100713.o                          [ linda ]
-/tmp/lcc100714.o                          [ lindagb ]
-/tmp/lcc100715.o                          [ map_001 ]
-/tmp/lcc100716.o                          [ a_sad_touch ]
-/tmp/lcc100717.o                          [ softworld ]
+/tmp/lcc111340.o                          [ main ]
+/tmp/lcc111341.o                          [ city ]
+/tmp/lcc111342.o                          [ city_data ]
+/tmp/lcc111343.o                          [ linda ]
+/tmp/lcc111344.o                          [ lindagb ]
+/tmp/lcc111345.o                          [ map_001 ]
+/tmp/lcc111346.o                          [ a_sad_touch ]
+/tmp/lcc111347.o                          [ softworld ]
 
 
 Libraries Linked                          [ object file ]

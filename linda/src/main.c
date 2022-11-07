@@ -48,6 +48,14 @@ uint8_t jump_current = 0;
 
 joypads_t joypads;
 
+void set_song(const hUGESong_t *song)
+{
+    NR52_REG = 0x80;
+    NR51_REG = 0xFF;
+    NR50_REG = 0x77;
+    hUGE_init(song);
+}
+
 void draw_linda(void)
 {
     uint8_t hw_sprites = 0;
@@ -115,7 +123,8 @@ int game(void)
     set_bkg_data(0, lindagb_TILE_COUNT, lindagb_tiles);
     set_bkg_tiles(0, 0, lindagb_WIDTH / 8, lindagb_HEIGHT / 8, lindagb_map);
 
-    hUGE_init(&softworld);
+    set_song(&softworld);
+
     bool done = false;
     while (!done)
     {
@@ -133,11 +142,7 @@ int game(void)
     }
 
     // Level screen
-    hUGE_mute_channel(HT_CH1, 1);
-    hUGE_mute_channel(HT_CH2, 1);
-    hUGE_mute_channel(HT_CH3, 1);
-    hUGE_mute_channel(HT_CH4, 1);
-    hUGE_init(&a_sad_touch);
+    set_song(&a_sad_touch);
 
     set_bkg_data(0, 16, city_data);
     set_bkg_submap(0, 0, map_001Width, map_001Height, map_001, map_001Width);
@@ -255,9 +260,6 @@ int game(void)
 
 void main(void)
 {
-    NR52_REG = 0x80;
-    NR51_REG = 0xFF;
-    NR50_REG = 0x77;
 
     DISPLAY_ON;
     SHOW_BKG;
