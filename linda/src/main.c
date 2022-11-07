@@ -48,26 +48,28 @@ uint8_t jump_current = 0;
 
 void draw_linda(void)
 {
+    uint8_t hw_sprites = 0;
+
     if (is_jumping || jump_current > 0)
     {
         if (is_facing_left)
         {
-            move_metasprite_vflip(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite_vflip(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
         else
         {
-            move_metasprite(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
     else if (is_crouching)
     {
         if (is_facing_left)
         {
-            move_metasprite_vflip(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite_vflip(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
         else
         {
-            move_metasprite(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite(linda_metasprites[ANIMATION_CROUCH], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
     else
@@ -88,13 +90,15 @@ void draw_linda(void)
 
         if (is_facing_left)
         {
-            move_metasprite_vflip(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite_vflip(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
         else
         {
-            move_metasprite(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
+
+    hide_sprites_range(hw_sprites, MAX_HARDWARE_SPRITES);
 }
 
 int game(void)
