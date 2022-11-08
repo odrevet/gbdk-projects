@@ -18,15 +18,16 @@ extern const hUGESong_t a_sad_touch;
 #define SPR_NUM_START 0
 #define JUMP_MAX 32
 #define SPEED 12
+#define PUNCH_DURATION 32
 
 uint16_t pos_x, pos_y;
 int16_t speed_x, speed_y;
-int16_t idx;
+
 uint8_t animation_delay;
 
 enum ANIMATION_INDEX
 {
-    ANIMATION_STILL,
+    ANIMATION_STILL = 0,
     ANIMATION_WALK_0,
     ANIMATION_WALK_1,
     ANIMATION_JUMP,
@@ -34,17 +35,30 @@ enum ANIMATION_INDEX
     ANIMATION_CLIMB,
     ANIMATION_JUMP_KICK,
     ANIMATION_FALL,
-    ANIMATION_ON_GROUND
+    ANIMATION_PUNCH_1,
+    ANIMATION_PUNCH_2,
+    ANIMATION_HIT_1,
+    ANIMATION_HIT_2,
+    ANIMATION_HIT_3,
+    ANIMATION_HIT_4,
+    ANIMATION_ON_GROUND,
+    ANIMATION_GRABBED
 };
 
+uint8_t walk_animation_index;
+uint8_t punch_animation_index;
 uint8_t walk_animation[] = {ANIMATION_STILL, ANIMATION_WALK_0, ANIMATION_STILL, ANIMATION_WALK_1};
+uint8_t punch_animation[] = {ANIMATION_PUNCH_1, ANIMATION_PUNCH_2};
 
 const uint8_t ANIMATION_SPEED = 8;
 uint8_t is_crouching = false;
 uint8_t is_jumping = false;
+uint8_t is_punching = false;
 uint8_t is_facing_left = false;
 bool freeze_movement = false;
 uint8_t jump_current = 0;
+bool j_a_released = false;
+uint8_t punch_current = 0;
 
 joypads_t joypads;
 
@@ -71,6 +85,17 @@ void draw_linda(void)
             hw_sprites = move_metasprite(linda_metasprites[ANIMATION_JUMP_KICK], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
+    else if (is_punching)
+    {
+        if (is_facing_left)
+        {
+            hw_sprites = move_metasprite_vflip(linda_metasprites[punch_animation[punch_animation_index]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+        else
+        {
+            hw_sprites = move_metasprite(linda_metasprites[punch_animation[punch_animation_index]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+        }
+    }
     else if (is_crouching)
     {
         if (is_facing_left)
@@ -87,10 +112,10 @@ void draw_linda(void)
         // cycle through metasprite walk animations
         if ((speed_x || speed_y) && animation_delay == 0)
         {
-            idx++;
-            if (idx > 3)
+            walk_animation_index++;
+            if (walk_animation_index > 3)
             {
-                idx = 0;
+                walk_animation_index = 0;
             }
             animation_delay = ANIMATION_SPEED;
         }
@@ -100,23 +125,24 @@ void draw_linda(void)
 
         if (is_facing_left)
         {
-            hw_sprites = move_metasprite_vflip(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite_vflip(linda_metasprites[walk_animation[walk_animation_index]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
         else
         {
-            hw_sprites = move_metasprite(linda_metasprites[walk_animation[idx]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
+            hw_sprites = move_metasprite(linda_metasprites[walk_animation[walk_animation_index]], HERO_SPRITE_INDEX, SPR_NUM_START, (pos_x >> 4), (pos_y >> 4));
         }
     }
 
     hide_sprites_range(hw_sprites, MAX_HARDWARE_SPRITES);
 }
 
-int game(void)
+int game()
 {
 
     pos_x = pos_y = 96 << 4;
     speed_x = speed_y = 0;
-    idx = 0;
+    walk_animation_index = 0;
+    punch_animation_index = 0;
     animation_delay = 0;
 
     // Intro screen
@@ -194,8 +220,23 @@ int game(void)
                 is_jumping = true;
             }
         }
+        
+        if (joypads.joy0 & J_A)
+        {
+            if (is_punching == false && !freeze_movement && j_a_released == true)
+            {
+                is_punching = true;
+            }
+            j_a_released = false;
+        }
+        else
+        {
+            j_a_released = true;
+        }
 
-        freeze_movement = is_crouching || is_jumping || jump_current > 0;
+
+
+        freeze_movement = is_crouching || is_jumping || jump_current > 0 || is_punching;
 
         draw_linda();
 
@@ -252,6 +293,12 @@ int game(void)
 
         speed_x = 0;
         speed_y = 0;
+
+        if (++punch_current > PUNCH_DURATION)
+        {
+            is_punching = false;
+            punch_current = 0;
+        }
 
         hUGE_dosound();
         wait_vbl_done();

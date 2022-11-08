@@ -11,7 +11,7 @@
 #define linda_TILE_H 16
 #define linda_WIDTH 32
 #define linda_HEIGHT 32
-#define linda_TILE_COUNT 80
+#define linda_TILE_COUNT 162
 #define linda_PALETTE_COUNT 2
 #define linda_COLORS_PER_PALETTE 4
 #define linda_TOTAL_COLORS 8
@@ -23,8 +23,8 @@
 BANKREF_EXTERN(linda)
 
 extern const palette_color_t linda_palettes[8];
-extern const uint8_t linda_tiles[1280];
+extern const uint8_t linda_tiles[2592];
 
-extern const metasprite_t* const linda_metasprites[9];
+extern const metasprite_t* const linda_metasprites[16];
 
 #endif
