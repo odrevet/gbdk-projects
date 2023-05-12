@@ -14,7 +14,7 @@
   <property name="gbkdObjectTypeHeaderInclude" value="Objects.h"/>
   <property name="tiledMapStructHeader" value="TiledMapStruct.h"/>
  </properties>
- <tileset firstgid="1" source="World1Tileset.tsx"/>
+ <tileset firstgid="0" source="World1Tileset.tsx"/>
  <tileset firstgid="21" source="Enemies.tsx"/>
  <layer id="1" name="Tile Layer 1" width="20" height="18">
   <data encoding="csv">
