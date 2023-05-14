@@ -1,3 +1,4 @@
+
 #include <gbdk/platform.h>
 #include "world1area1.h"
 
