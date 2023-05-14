@@ -3,18 +3,7 @@
  <editorsettings>
   <export target="../../source/main/default/levels/World1Area1.c" format="gbdk-export"/>
  </editorsettings>
- <properties>
-  <property name="gbdkMapPath" value="World1Area1_map.h"/>
-  <property name="gbdkObjectType" value="ObjectSpawn"/>
-  <property name="gbdkPaletteCount" value="1"/>
-  <property name="gbdkString.name" value="World One. Area Wun!"/>
-  <property name="gbdkTileset" value="World1Tileset"/>
-  <property name="gbdkTilesetHeaderInclude" value="graphics/World1Tileset.h"/>
-  <property name="gbdk_numberOfSolidTiles" value="11"/>
-  <property name="gbkdObjectTypeHeaderInclude" value="Objects.h"/>
-  <property name="tiledMapStructHeader" value="TiledMapStruct.h"/>
- </properties>
- <tileset firstgid="0" source="World1Tileset.tsx"/>
+ <tileset firstgid="1" source="World1Tileset.tsx"/>
  <tileset firstgid="21" source="Enemies.tsx"/>
  <layer id="1" name="Tile Layer 1" width="20" height="18">
   <data encoding="csv">
@@ -39,27 +28,9 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="11" gid="21" x="43.7421" y="71.8895" width="8" height="10">
+  <object id="1" gid="1" x="0" y="0" width="0" height="0">
    <properties>
-    <property name="gbdk.size" value="large"/>
-    <property name="gbdk.type" value="1"/>
-    <property name="gbdkExport" value="true"/>
-   </properties>
-  </object>
-  <object id="12" name="OnBlockGoomba" gid="21" x="55.6857" y="52.4183" width="8" height="10.3333">
-   <properties>
-    <property name="gbdk.size" value="large"/>
-    <property name="gbdk.type" value="1"/>
-    <property name="gbdkExport" value="true"/>
-    <property name="gbdkString.dialogue" value="Nice view up here, on these blocks!"/>
-   </properties>
-  </object>
-  <object id="13" gid="21" x="78.4437" y="78.6825" width="8" height="10.3333">
-   <properties>
-    <property name="gbdk.size" value="large"/>
-    <property name="gbdk.type" value="1"/>
-    <property name="gbdkExport" value="true"/>
-    <property name="gbdkString.dialogue" value="I'm a goomba! GOOMBA! GOOMBA! GOOMBA!"/>
+    <property name="" value=""/>
    </properties>
   </object>
  </objectgroup>
