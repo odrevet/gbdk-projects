@@ -1,11 +1,14 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "World1Tileset.h"
 #include "world1area1.h"
 
 #include "cursor.h"
+#include "text.h"
 
 #define TILE_SIZE 8
 
@@ -19,6 +22,9 @@ void main(void) {
   SHOW_BKG;
   SHOW_SPRITES;
 
+  // text
+  text_load_font();
+
   // joypad
   int joypad_previous, joypad_current;
 
@@ -30,6 +36,8 @@ void main(void) {
 
   // map
   display_map();
+
+  char buffer[21];
 
   while (1) {
     joypad_previous = joypad_current;
@@ -45,6 +53,12 @@ void main(void) {
       cursor_y++;
 
     move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
+
+    // text
+    sprintf(buffer, "X:%d Y:%d I:%d A:%d", (int16_t)cursor_x, (int16_t)cursor_y,
+            cursor_y * 20 + cursor_x,
+            (int16_t)world1area1_map_attributes[cursor_y * 20 + cursor_x]);
+    text_print_string_bkg(0, 0, buffer);
 
     wait_vbl_done();
   }
