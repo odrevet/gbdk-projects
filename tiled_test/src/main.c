@@ -56,8 +56,9 @@ void main(void) {
 
     // text
     sprintf(buffer, "X:%d Y:%d I:%d A:%d", (int16_t)cursor_x, (int16_t)cursor_y,
-            cursor_y * 20 + cursor_x,
-            (int16_t)world1area1_map_attributes[cursor_y * 20 + cursor_x]);
+            (int16_t)cursor_y * 20 + cursor_x,
+            (int16_t)world1area1_map_attributes[cursor_y * world1area1_WIDTH +
+                                                cursor_x]);
     text_print_string_bkg(0, 0, buffer);
 
     wait_vbl_done();
