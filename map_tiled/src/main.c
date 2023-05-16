@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "World1Tileset.h"
-#include "world1area1.h"
+#include "graphics/cursor.h"
+#include "graphics/World1Tileset.h"
+#include "maps/world1area1.h"
+#include "maps/world1area2.h"
 
-#include "cursor.h"
 #include "text.h"
 
 #define TILE_SIZE 8

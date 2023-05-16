@@ -4,7 +4,7 @@
 
 #include <gb/gb.h>
 #include <stdarg.h>
-#include "font.h"
+#include "graphics/font.h"
 
 #define TEXT_FONT_OFFSET 0xD0
 

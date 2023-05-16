@@ -5,7 +5,7 @@ LCC = $(GBDK_HOME)bin/lcc
 
 PROJECTNAME = demo_map
 BINS	    = $(PROJECTNAME).gb
-CSOURCES   := $(wildcard src/*.c)
+CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c)
 
 all:	$(BINS)
 
