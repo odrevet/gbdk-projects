@@ -11,11 +11,10 @@
 #include "text.h"
 
 #define TILE_SIZE 8
-
-void display_map() {
-  set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
-  set_bkg_tiles(0, 0, world1area1_WIDTH, world1area1_HEIGHT, world1area1_map);
-}
+#define OFFSET_X 1
+#define OFFSET_Y 2
+#define SCREEN_HEIGHT 18
+#define SCREEN_WIDTH 20
 
 void main(void) {
   DISPLAY_ON;
@@ -29,15 +28,14 @@ void main(void) {
   int joypad_previous, joypad_current;
 
   // cursor
-  int cursor_x = 6, cursor_y = 6;
+  int cursor_x = 6 - OFFSET_X, cursor_y = 6 - OFFSET_Y;
   set_sprite_data(0, 1, cursor_tiles);
   set_sprite_tile(0, 0);
-  move_sprite(0, cursor_x * 8, cursor_y * 8);
+  move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
 
   // map
-  display_map();
-
-  char buffer[21];
+  set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
+  set_bkg_tiles(0, 0, world1area1_WIDTH, world1area1_HEIGHT, world1area1_map);
 
   while (1) {
     joypad_previous = joypad_current;
@@ -52,14 +50,19 @@ void main(void) {
     if (joypad_current & J_DOWN && !(joypad_previous & J_DOWN))
       cursor_y++;
 
-    move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
-
-    // text
-    sprintf(buffer, "X:%d Y:%d I:%d A:%d", (int16_t)cursor_x, (int16_t)cursor_y,
-            (int16_t)cursor_y * 20 + cursor_x,
-            (int16_t)world1area1_map_attributes[cursor_y * world1area1_WIDTH +
-                                                cursor_x]);
-    text_print_string_bkg(0, 0, buffer);
+    if (joypad_current != joypad_previous) {
+      move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
+      set_bkg_tiles(0, 0, world1area1_WIDTH, world1area1_HEIGHT,
+                    world1area1_map);
+      // text
+      char buffer[SCREEN_WIDTH * 2];
+      int index = (cursor_y - 2) * world1area1_WIDTH + (cursor_x - 1);
+      sprintf(buffer, "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d",
+              (int16_t)cursor_x - 1, (int16_t)cursor_y - 2, (int16_t)index,
+              world1area1_map[world1area1_WIDTH * cursor_y + cursor_x],
+              (int16_t)world1area1_map_attributes[index]);
+      text_print_string_bkg(0, 0, buffer);
+    }
 
     wait_vbl_done();
   }
