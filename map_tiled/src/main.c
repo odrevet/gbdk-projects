@@ -25,6 +25,9 @@ void main(void) {
   // text
   text_load_font();
   move_win(7, 128);
+  char buffer[SCREEN_WIDTH * 2];
+  unsigned char windata[SCREEN_WIDTH * 2];
+  memset(windata, 15, SCREEN_WIDTH * 2);
 
   // joypad
   int joypad_previous, joypad_current;
@@ -40,6 +43,9 @@ void main(void) {
   set_bkg_tiles(0, 0, world1area1_WIDTH, world1area1_HEIGHT, world1area1_map);
 
   while (1) {
+    set_win_tiles(0, 0, SCREEN_WIDTH, 2, windata);
+    text_print_string_win(0, 0, buffer);
+
     joypad_previous = joypad_current;
     joypad_current = joypad();
 
@@ -58,16 +64,6 @@ void main(void) {
       move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
     }
 
-    // text
-    char buffer[SCREEN_WIDTH * 2];
-
-    // clear window
-    unsigned char windata[SCREEN_WIDTH * 2];
-    memset(windata, 15, SCREEN_WIDTH * 2);
-    set_win_tiles(0, 0, SCREEN_WIDTH, 2, windata);
-
-    // print text
-    text_print_string_win(0, 0, buffer);
     char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
     int index = (cursor_y - 2) * world1area1_WIDTH + (cursor_x - 1);
     sprintf(buffer, fmt, (int16_t)cursor_x - OFFSET_X,
@@ -75,7 +71,6 @@ void main(void) {
             world1area1_map[world1area1_WIDTH * (cursor_y - OFFSET_Y) +
                             (cursor_x - OFFSET_X)],
             (int16_t)world1area1_map_attributes[index]);
-    text_print_string_win(0, 0, buffer);
 
     wait_vbl_done();
   }
