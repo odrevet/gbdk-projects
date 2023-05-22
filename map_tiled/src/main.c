@@ -66,6 +66,7 @@ void main(void) {
     memset(windata, 15, SCREEN_WIDTH * 2);
     set_win_tiles(0, 0, SCREEN_WIDTH, 2, windata);
 
+    // print text
     text_print_string_win(0, 0, buffer);
     char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
     int index = (cursor_y - 2) * world1area1_WIDTH + (cursor_x - 1);
