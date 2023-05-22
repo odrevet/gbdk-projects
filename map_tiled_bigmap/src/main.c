@@ -82,7 +82,6 @@ void main(void) {
 
   // text
   text_load_font();
-  move_win(7, 128);
 
   // joypad
   int joypad_previous, joypad_current = 0;
@@ -98,7 +97,6 @@ void main(void) {
   old_map_pos_x = old_map_pos_y = 255;
   set_bkg_submap(map_pos_x, map_pos_y, 20, 18, world1area2_map,
                  world1area2_WIDTH);
-  DISPLAY_ON;
 
   camera_x = camera_y = 0;
   old_camera_x = camera_x;
@@ -110,6 +108,13 @@ void main(void) {
   SCY_REG = camera_y;
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
+
+  // text
+  char buffer[WINDOW_SIZE];
+  unsigned char windata[WINDOW_SIZE];
+  memset(windata, 15, WINDOW_SIZE);
+  move_win(7, 128);
+
 
   while (1) {
     joypad_previous = joypad_current;
@@ -144,15 +149,8 @@ void main(void) {
     move_sprite(0, cursor_x * TILE_SIZE - camera_x,
                 cursor_y * TILE_SIZE - camera_y);
 
-    // text
-    char buffer[WINDOW_SIZE];
-
-    // clear window
-    unsigned char windata[WINDOW_SIZE];
-    memset(windata, 15, WINDOW_SIZE);
-    set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
-
     // print text
+    set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
     text_print_string_win(0, 0, buffer);
     char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
     int index = (cursor_y - 2) * world1area2_WIDTH + (cursor_x - 1);
