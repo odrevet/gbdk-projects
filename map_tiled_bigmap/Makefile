@@ -3,7 +3,7 @@ GBDK_HOME = ../../gbdk/
 LCC = $(GBDK_HOME)bin/lcc
 # LCC = $(LCC) -debug
 
-PROJECTNAME = demo_map
+PROJECTNAME = map_tiled_bigmap
 BINS	    = $(PROJECTNAME).gb
 CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c)
 

@@ -6,7 +6,7 @@ void text_load_font() {
 }
 
 // Write the given char at the (x, y) position on the Background layer
-void text_print_char_bkg(UINT8 x, UINT8 y, unsigned char chr) {
+void text_print_char_win(UINT8 x, UINT8 y, unsigned char chr) {
   UINT8 tile = _TEXT_CHAR_TOFU;
 
   if (chr >= 'a' && chr <= 'z') {
@@ -50,10 +50,10 @@ void text_print_char_bkg(UINT8 x, UINT8 y, unsigned char chr) {
     }
   }
 
-  set_bkg_tiles(x, y, 1, 1, &tile);
+  set_win_tiles(x, y, 1, 1, &tile);
 }
 
-void text_print_string_bkg(UINT8 x, UINT8 y, unsigned char *string) {
+void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string) {
   UINT8 offset_x = 0;
   UINT8 offset_y = 0;
 
@@ -62,7 +62,7 @@ void text_print_string_bkg(UINT8 x, UINT8 y, unsigned char *string) {
       offset_x = 0;
       offset_y += 1;
     } else {
-      text_print_char_bkg(x + offset_x, y + offset_y, (unsigned char)string[0]);
+      text_print_char_win(x + offset_x, y + offset_y, (unsigned char)string[0]);
       offset_x += 1;
     }
 

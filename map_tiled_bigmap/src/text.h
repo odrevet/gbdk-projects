@@ -24,7 +24,7 @@
 #define _TEXT_CHAR_SPACE          TEXT_FONT_OFFSET + 26 + 10 + 11
 
 void text_load_font();
-void text_print_char_bkg(UINT8 x, UINT8 y, unsigned char chr);
-void text_print_string_bkg(UINT8 x, UINT8 y, unsigned char *string);
+void text_print_char_win(UINT8 x, UINT8 y, unsigned char chr);
+void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string);
 
 #endif
