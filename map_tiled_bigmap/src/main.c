@@ -17,6 +17,9 @@
 #define OFFSET_Y 2
 #define SCREEN_HEIGHT 18
 #define SCREEN_WIDTH 20
+#define WINDOW_HEIGHT 2
+#define WINDOW_WIDTH SCREEN_WIDTH
+#define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
 
 #define camera_max_y ((world1area2_HEIGHT - 18) * 8)
 #define camera_max_x ((world1area2_WIDTH - 20) * 8)
@@ -73,6 +76,8 @@ void set_camera() {
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
+  SHOW_SPRITES;
+  SHOW_WIN;
 
   bool move_camera = TRUE;
 
@@ -113,13 +118,6 @@ void main(void) {
 
     if (joypad_current & J_A && !(joypad_previous & J_A)) {
       move_camera = !move_camera;
-      if (move_camera) {
-        HIDE_SPRITES;
-        HIDE_WIN;
-      } else {
-        SHOW_SPRITES;
-        SHOW_WIN;
-      }
     }
 
     if (move_camera) {
@@ -142,19 +140,18 @@ void main(void) {
         cursor_y--;
       if (joypad_current & J_DOWN && !(joypad_previous & J_DOWN))
         cursor_y++;
-
-      if (joypad_current != joypad_previous) {
-        move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
-      }
     }
 
+    move_sprite(0, cursor_x * TILE_SIZE - camera_x,
+                cursor_y * TILE_SIZE - camera_y);
+
     // text
-    char buffer[SCREEN_WIDTH * 2];
+    char buffer[WINDOW_SIZE];
 
     // clear window
-    unsigned char windata[SCREEN_WIDTH * 2];
-    memset(windata, 15, SCREEN_WIDTH * 2);
-    set_win_tiles(0, 0, SCREEN_WIDTH, 2, windata);
+    unsigned char windata[WINDOW_SIZE];
+    memset(windata, 15, WINDOW_SIZE);
+    set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
 
     // print text
     text_print_string_win(0, 0, buffer);
