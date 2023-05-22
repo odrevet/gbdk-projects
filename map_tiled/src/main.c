@@ -57,20 +57,25 @@ void main(void) {
 
     if (joypad_current != joypad_previous) {
       move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
-
-      // text
-      char buffer[SCREEN_WIDTH * 2];
-      memset(buffer, ' ', SCREEN_WIDTH * 2);
-      text_print_string_win(0, 0, buffer);
-      int index = (cursor_y - 2) * world1area1_WIDTH + (cursor_x - 1);
-      sprintf(buffer, "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d",
-              (int16_t)cursor_x - OFFSET_X, (int16_t)cursor_y - OFFSET_Y,
-              (int16_t)index,
-              world1area1_map[world1area1_WIDTH * (cursor_y - OFFSET_Y) +
-                              (cursor_x - OFFSET_X)],
-              (int16_t)world1area1_map_attributes[index]);
-      text_print_string_win(0, 0, buffer);
     }
+
+    // text
+    char buffer[SCREEN_WIDTH * 2];
+
+    // clear window
+    unsigned char windata[SCREEN_WIDTH * 2];
+    memset(windata, 15, SCREEN_WIDTH * 2);
+    set_win_tiles(0, 0, SCREEN_WIDTH, 2, windata);
+
+    text_print_string_win(0, 0, buffer);
+    char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
+    int index = (cursor_y - 2) * world1area1_WIDTH + (cursor_x - 1);
+    sprintf(buffer, fmt, (int16_t)cursor_x - OFFSET_X,
+            (int16_t)cursor_y - OFFSET_Y, (int16_t)index,
+            world1area1_map[world1area1_WIDTH * (cursor_y - OFFSET_Y) +
+                            (cursor_x - OFFSET_X)],
+            (int16_t)world1area1_map_attributes[index]);
+    text_print_string_win(0, 0, buffer);
 
     wait_vbl_done();
   }
