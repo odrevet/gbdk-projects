@@ -145,8 +145,6 @@ void main(void) {
         cursor_y++;
 
       // print text
-      set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
-      text_print_string_win(0, 0, buffer);
       char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
       int index = (cursor_y - 2) * world1area2_WIDTH + (cursor_x - 1);
       sprintf(buffer, fmt, (int16_t)cursor_x - OFFSET_X,
@@ -154,8 +152,8 @@ void main(void) {
               world1area2_map[world1area2_WIDTH * (cursor_y - OFFSET_Y) +
                               (cursor_x - OFFSET_X)],
               (int16_t)world1area2_map_attributes[index]);
+      set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);  //WIP
       text_print_string_win(0, 0, buffer);
-      wait_vbl_done();
     }
 
     move_sprite(0, cursor_x * TILE_SIZE - camera_x,
