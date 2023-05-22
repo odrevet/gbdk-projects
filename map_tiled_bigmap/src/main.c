@@ -124,16 +124,22 @@ void main(void) {
     }
 
     if (move_camera) {
-      if (joypad_current & J_RIGHT)
+      if (joypad_current & J_RIGHT) {
         camera_x++;
-      if (joypad_current & J_LEFT)
+        redraw = TRUE;
+      }
+      if (joypad_current & J_LEFT) {
         camera_x--;
-      if (joypad_current & J_UP)
+        redraw = TRUE;
+      }
+      if (joypad_current & J_UP) {
         camera_y--;
-      if (joypad_current & J_DOWN)
+        redraw = TRUE;
+      }
+      if (joypad_current & J_DOWN) {
         camera_y++;
-
-      set_camera();
+        redraw = TRUE;
+      }
     } else {
       if (joypad_current & J_RIGHT && !(joypad_previous & J_RIGHT))
         cursor_x++;
@@ -152,7 +158,7 @@ void main(void) {
               world1area2_map[world1area2_WIDTH * (cursor_y - OFFSET_Y) +
                               (cursor_x - OFFSET_X)],
               (int16_t)world1area2_map_attributes[index]);
-      set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);  //WIP
+      //set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata); // WIP
       text_print_string_win(0, 0, buffer);
     }
 
@@ -160,5 +166,9 @@ void main(void) {
                 cursor_y * TILE_SIZE - camera_y);
 
     wait_vbl_done();
+    if (move_camera && redraw) {
+      set_camera();
+      redraw = FALSE;
+    }
   }
 }
