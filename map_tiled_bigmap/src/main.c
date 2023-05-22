@@ -113,6 +113,7 @@ void main(void) {
   char buffer[WINDOW_SIZE];
   unsigned char windata[WINDOW_SIZE];
   memset(windata, 15, WINDOW_SIZE);
+  set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(7, 128);
 
   while (1) {
@@ -121,6 +122,10 @@ void main(void) {
 
     if (joypad_current & J_A && !(joypad_previous & J_A)) {
       move_camera = !move_camera;
+      if (move_camera)
+        HIDE_WIN;
+      else
+        SHOW_WIN;
     }
 
     if (move_camera) {
@@ -158,7 +163,6 @@ void main(void) {
               world1area2_map[world1area2_WIDTH * (cursor_y - OFFSET_Y) +
                               (cursor_x - OFFSET_X)],
               (int16_t)world1area2_map_attributes[index]);
-      //set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata); // WIP
       text_print_string_win(0, 0, buffer);
     }
 
