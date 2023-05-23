@@ -20,6 +20,9 @@
 #define WINDOW_HEIGHT 2
 #define WINDOW_WIDTH SCREEN_WIDTH
 #define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
+#define WINDOW_X 7
+#define WINDOW_Y 128
+
 
 #define camera_max_y ((map_height - 18) * 8)
 #define camera_max_x ((map_width - 20) * 8)
@@ -107,10 +110,30 @@ void load_area2() {
   map_tile_count = world1area2_TILE_COUNT;
 }
 
+
+
+void interupt() {
+  if (LYC_REG == WINDOW_Y) {
+    SHOW_WIN;
+    LYC_REG = WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE;
+  } else if (LYC_REG == WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE) {
+    HIDE_WIN;
+    LYC_REG = WINDOW_Y;
+  }
+}
+
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
+  SHOW_WIN;
   SHOW_SPRITES;
+
+  STAT_REG |= 0x40U;
+  LYC_REG = WINDOW_Y;
+  disable_interrupts();
+  add_LCD(interupt);
+  set_interrupts(LCD_IFLAG | VBL_IFLAG);
+  enable_interrupts();
 
   bool move_camera = TRUE;
 
@@ -137,7 +160,7 @@ void main(void) {
   unsigned char windata[WINDOW_SIZE];
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
-  move_win(7, 128);
+  move_win(WINDOW_X, WINDOW_Y);
 
   while (1) {
     joypad_previous = joypad_current;
