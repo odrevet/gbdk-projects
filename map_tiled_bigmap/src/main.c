@@ -7,6 +7,7 @@
 
 #include "graphics/World1Tileset.h"
 #include "graphics/cursor.h"
+#include "maps/world1area1.h"
 #include "maps/world1area2.h"
 
 #include "text.h"
@@ -20,8 +21,8 @@
 #define WINDOW_WIDTH SCREEN_WIDTH
 #define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
 
-#define camera_max_y ((world1area2_HEIGHT - 18) * 8)
-#define camera_max_x ((world1area2_WIDTH - 20) * 8)
+#define camera_max_y ((map_height - 18) * 8)
+#define camera_max_x ((map_width - 20) * 8)
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
@@ -34,6 +35,13 @@ uint8_t map_pos_x, map_pos_y, old_map_pos_x, old_map_pos_y;
 // redraw flag, indicates that camera position was changed
 uint8_t redraw;
 
+// map
+const unsigned char *map = world1area2_map;
+const unsigned char *map_attributes = world1area2_map_attributes;
+short map_width = world1area2_WIDTH;
+short map_height = world1area2_HEIGHT;
+short map_tile_count = world1area2_TILE_COUNT;
+
 void set_camera() {
   // update hardware scroll position
   SCY_REG = camera_y;
@@ -42,14 +50,12 @@ void set_camera() {
   map_pos_y = (uint8_t)(camera_y >> 3u);
   if (map_pos_y != old_map_pos_y) {
     if (camera_y < old_camera_y) {
-      set_bkg_submap(map_pos_x, map_pos_y,
-                     MIN(21u, world1area2_WIDTH - map_pos_x), 1,
-                     world1area2_map, world1area2_WIDTH);
+      set_bkg_submap(map_pos_x, map_pos_y, MIN(21u, map_width - map_pos_x), 1,
+                     map, map_width);
     } else {
-      if ((world1area2_HEIGHT - 18u) > map_pos_y)
+      if ((map_height - 18u) > map_pos_y)
         set_bkg_submap(map_pos_x, map_pos_y + 18u,
-                       MIN(21u, world1area2_WIDTH - map_pos_x), 1,
-                       world1area2_map, world1area2_WIDTH);
+                       MIN(21u, map_width - map_pos_x), 1, map, map_width);
     }
     old_map_pos_y = map_pos_y;
   }
@@ -57,19 +63,32 @@ void set_camera() {
   map_pos_x = (uint8_t)(camera_x >> 3u);
   if (map_pos_x != old_map_pos_x) {
     if (camera_x < old_camera_x) {
-      set_bkg_submap(map_pos_x, map_pos_y, 1,
-                     MIN(19u, world1area2_HEIGHT - map_pos_y), world1area2_map,
-                     world1area2_WIDTH);
+      set_bkg_submap(map_pos_x, map_pos_y, 1, MIN(19u, map_height - map_pos_y),
+                     map, map_width);
     } else {
-      if ((world1area2_WIDTH - 20u) > map_pos_x)
+      if ((map_width - 20u) > map_pos_x)
         set_bkg_submap(map_pos_x + 20u, map_pos_y, 1,
-                       MIN(19u, world1area2_HEIGHT - map_pos_y),
-                       world1area2_map, world1area2_WIDTH);
+                       MIN(19u, map_height - map_pos_y), map, map_width);
     }
     old_map_pos_x = map_pos_x;
   }
   // set old camera position to current camera position
   old_camera_x = camera_x, old_camera_y = camera_y;
+}
+
+void init_map() {
+  map_pos_x = map_pos_y = 0;
+  old_map_pos_x = old_map_pos_y = 255;
+  set_bkg_submap(map_pos_x, map_pos_y, 20, 18, map, map_width);
+
+  camera_x = camera_y = 0;
+  old_camera_x = camera_x;
+  old_camera_y = camera_y;
+
+  redraw = FALSE;
+
+  SCX_REG = camera_x;
+  SCY_REG = camera_y;
 }
 
 void main(void) {
@@ -91,20 +110,7 @@ void main(void) {
   set_sprite_tile(0, 0);
   move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
 
-  // map
-  map_pos_x = map_pos_y = 0;
-  old_map_pos_x = old_map_pos_y = 255;
-  set_bkg_submap(map_pos_x, map_pos_y, 20, 18, world1area2_map,
-                 world1area2_WIDTH);
-
-  camera_x = camera_y = 0;
-  old_camera_x = camera_x;
-  old_camera_y = camera_y;
-
-  redraw = FALSE;
-
-  SCX_REG = camera_x;
-  SCY_REG = camera_y;
+  init_map();
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
 
@@ -163,12 +169,11 @@ void main(void) {
 
       // print text
       char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
-      int index = (cursor_y - 2) * world1area2_WIDTH + (cursor_x - 1);
+      int index = (cursor_y - 2) * map_width + (cursor_x - 1);
       sprintf(buffer, fmt, (int16_t)cursor_x - OFFSET_X,
               (int16_t)cursor_y - OFFSET_Y, (int16_t)index,
-              world1area2_map[world1area2_WIDTH * (cursor_y - OFFSET_Y) +
-                              (cursor_x - OFFSET_X)],
-              (int16_t)world1area2_map_attributes[index]);
+              map[map_width * (cursor_y - OFFSET_Y) + (cursor_x - OFFSET_X)],
+              (int16_t)map_attributes[index]);
       text_print_string_win(0, 0, buffer);
     }
 
