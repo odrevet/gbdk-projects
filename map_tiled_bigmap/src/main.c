@@ -36,11 +36,11 @@ uint8_t map_pos_x, map_pos_y, old_map_pos_x, old_map_pos_y;
 uint8_t redraw;
 
 // map
-const unsigned char *map = world1area2_map;
-const unsigned char *map_attributes = world1area2_map_attributes;
-short map_width = world1area2_WIDTH;
-short map_height = world1area2_HEIGHT;
-short map_tile_count = world1area2_TILE_COUNT;
+const unsigned char *map = world1area1_map;
+const unsigned char *map_attributes = world1area1_map_attributes;
+short map_width = world1area1_WIDTH;
+short map_height = world1area1_HEIGHT;
+short map_tile_count = world1area1_TILE_COUNT;
 
 void set_camera() {
   // update hardware scroll position
@@ -121,6 +121,8 @@ void main(void) {
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(7, 128);
 
+  short level_index = 0;
+
   while (1) {
     joypad_previous = joypad_current;
     joypad_current = joypad();
@@ -131,6 +133,29 @@ void main(void) {
         HIDE_WIN;
       else
         SHOW_WIN;
+    }
+
+    if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
+      level_index++;
+      if (level_index == 2) {
+        level_index = 0;
+      }
+
+      if (level_index == 0) {
+        map = world1area1_map;
+        map_attributes = world1area1_map_attributes;
+        map_width = world1area1_WIDTH;
+        map_height = world1area1_HEIGHT;
+        map_tile_count = world1area1_TILE_COUNT;
+      } else {
+        map = world1area2_map;
+        map_attributes = world1area2_map_attributes;
+        map_width = world1area2_WIDTH;
+        map_height = world1area2_HEIGHT;
+        map_tile_count = world1area2_TILE_COUNT;
+      }
+
+      init_map();
     }
 
     if (move_camera) {
