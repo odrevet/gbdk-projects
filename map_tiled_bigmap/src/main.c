@@ -76,7 +76,6 @@ void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
   SHOW_SPRITES;
-  SHOW_WIN;
 
   bool move_camera = TRUE;
 
@@ -130,20 +129,27 @@ void main(void) {
 
     if (move_camera) {
       if (joypad_current & J_RIGHT) {
-        camera_x++;
-        redraw = TRUE;
+        if (camera_x < camera_max_x) {
+          camera_x++;
+          redraw = TRUE;
+        }
       }
       if (joypad_current & J_LEFT) {
-        camera_x--;
+        if (camera_x)
+          camera_x--;
         redraw = TRUE;
       }
       if (joypad_current & J_UP) {
-        camera_y--;
-        redraw = TRUE;
+        if (camera_y) {
+          camera_y--;
+          redraw = TRUE;
+        }
       }
       if (joypad_current & J_DOWN) {
-        camera_y++;
-        redraw = TRUE;
+        if (camera_y < camera_max_y) {
+          camera_y++;
+          redraw = TRUE;
+        }
       }
     } else {
       if (joypad_current & J_RIGHT && !(joypad_previous & J_RIGHT))
