@@ -36,11 +36,11 @@ uint8_t map_pos_x, map_pos_y, old_map_pos_x, old_map_pos_y;
 uint8_t redraw;
 
 // map
-const unsigned char *map = world1area1_map;
-const unsigned char *map_attributes = world1area1_map_attributes;
-short map_width = world1area1_WIDTH;
-short map_height = world1area1_HEIGHT;
-short map_tile_count = world1area1_TILE_COUNT;
+const unsigned char *map;
+const unsigned char *map_attributes;
+short map_width;
+short map_height;
+short map_tile_count;
 
 void set_camera() {
   // update hardware scroll position
@@ -91,6 +91,22 @@ void init_map() {
   SCY_REG = camera_y;
 }
 
+void load_area1() {
+  map = world1area1_map;
+  map_attributes = world1area1_map_attributes;
+  map_width = world1area1_WIDTH;
+  map_height = world1area1_HEIGHT;
+  map_tile_count = world1area1_TILE_COUNT;
+}
+
+void load_area2() {
+  map = world1area2_map;
+  map_attributes = world1area2_map_attributes;
+  map_width = world1area2_WIDTH;
+  map_height = world1area2_HEIGHT;
+  map_tile_count = world1area2_TILE_COUNT;
+}
+
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
@@ -110,6 +126,8 @@ void main(void) {
   set_sprite_tile(0, 0);
   move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
 
+  short level_index = 0;
+  load_area1();
   init_map();
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
@@ -120,8 +138,6 @@ void main(void) {
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(7, 128);
-
-  short level_index = 0;
 
   while (1) {
     joypad_previous = joypad_current;
@@ -142,17 +158,9 @@ void main(void) {
       }
 
       if (level_index == 0) {
-        map = world1area1_map;
-        map_attributes = world1area1_map_attributes;
-        map_width = world1area1_WIDTH;
-        map_height = world1area1_HEIGHT;
-        map_tile_count = world1area1_TILE_COUNT;
+        load_area1();
       } else {
-        map = world1area2_map;
-        map_attributes = world1area2_map_attributes;
-        map_width = world1area2_WIDTH;
-        map_height = world1area2_HEIGHT;
-        map_tile_count = world1area2_TILE_COUNT;
+        load_area2();
       }
 
       init_map();
