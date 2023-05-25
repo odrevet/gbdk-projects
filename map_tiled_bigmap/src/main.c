@@ -21,8 +21,7 @@
 #define WINDOW_WIDTH SCREEN_WIDTH
 #define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
 #define WINDOW_X 7
-#define WINDOW_Y 128
-
+#define WINDOW_Y 0
 
 #define camera_max_y ((map_height - 18) * 8)
 #define camera_max_x ((map_width - 20) * 8)
@@ -110,8 +109,6 @@ void load_area2() {
   map_tile_count = world1area2_TILE_COUNT;
 }
 
-
-
 void interupt() {
   if (LYC_REG == WINDOW_Y) {
     SHOW_WIN;
@@ -147,7 +144,6 @@ void main(void) {
   int cursor_x = (SCREEN_WIDTH / 2), cursor_y = (SCREEN_HEIGHT / 2);
   set_sprite_data(0, 1, cursor_tiles);
   set_sprite_tile(0, 0);
-  move_sprite(0, cursor_x * TILE_SIZE, cursor_y * TILE_SIZE);
 
   short level_index = 0;
   load_area1();
@@ -225,10 +221,9 @@ void main(void) {
 
       // print text
       char fmt[] = "X:%d Y:%d INDEX:%d\nTILE:%d ATTR:%d";
-      int index = (cursor_y - 2) * map_width + (cursor_x - 1);
+      int index = (cursor_y - OFFSET_Y) * map_width + (cursor_x - OFFSET_X);
       sprintf(buffer, fmt, (int16_t)cursor_x - OFFSET_X,
-              (int16_t)cursor_y - OFFSET_Y, (int16_t)index,
-              map[map_width * (cursor_y - OFFSET_Y) + (cursor_x - OFFSET_X)],
+              (int16_t)cursor_y - OFFSET_Y, (int16_t)index, map[index],
               (int16_t)map_attributes[index]);
       text_print_string_win(0, 0, buffer);
     }
