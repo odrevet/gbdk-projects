@@ -1,7 +1,11 @@
 GBDK_HOME = ../../gbdk/
 
 LCC = $(GBDK_HOME)bin/lcc
-# LCC = $(LCC) -debug
+
+DEBUG=no
+ifeq ($(DEBUG),yes)
+	CPPFLAGS = -DDEBUG
+endif
 
 PROJECTNAME = marioland
 BINS	    = $(PROJECTNAME).gb
@@ -11,7 +15,7 @@ all:	$(BINS)
 
 # Compile and link all source files in a single call to LCC
 $(BINS):	$(CSOURCES) $(ASMSOURCES)
-	$(LCC)  -o $@ hUGEDriver.o $(CSOURCES) $(ASMSOURCES)
+	$(LCC)  -o $@ hUGEDriver.o $(CSOURCES) $(ASMSOURCES) $(CPPFLAGS)
 
 clean:
 	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm

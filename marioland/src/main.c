@@ -201,8 +201,6 @@ void main(void) {
   frame_counter = 0;
   bool mario_flip = FALSE;
 
-  bool debug = TRUE;
-
   // text
   char buffer[WINDOW_SIZE];
   unsigned char windata[WINDOW_SIZE];
@@ -270,16 +268,17 @@ void main(void) {
     }
 
     // print text
-    if (debug) {
+    #if defined(DEBUG)
       char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
       int index = ((player_y - OFFSET_Y) / 8) * map_width +
                   ((player_x - -OFFSET_X) / 8);
       sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
               (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
-    } else {
+    #else
       char fmt[] = "MARIOX%d  WORLD TIME\n %d  Cx%d 1-1  %d";
       sprintf(buffer, fmt, lives, score, coins, time / 10);
-    }
+    #endif
+
     text_print_string_win(0, 0, buffer);
 
     // gravity
