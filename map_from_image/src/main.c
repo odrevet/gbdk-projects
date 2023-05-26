@@ -1,5 +1,4 @@
 #include <gb/gb.h>
-#include <gb/metasprites.h>
 
 #include "World1Tileset.h"
 

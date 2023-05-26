@@ -1,5 +1,4 @@
 #include <gb/gb.h>
-#include <gb/metasprites.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
