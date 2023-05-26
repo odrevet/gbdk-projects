@@ -173,7 +173,7 @@ void main(void) {
   sound_init();
   __critical {
     hUGE_init(&fish_n_chips);
-    //add_VBL(hUGE_dosound);
+    // add_VBL(hUGE_dosound);
   };
 
   // text
@@ -201,7 +201,7 @@ void main(void) {
   frame_counter = 0;
   bool mario_flip = FALSE;
 
-  bool debug = FALSE;
+  bool debug = TRUE;
 
   // text
   char buffer[WINDOW_SIZE];
@@ -245,6 +245,22 @@ void main(void) {
     if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping) {
       is_jumping = TRUE;
       sound_play_jumping();
+    }
+
+    // pause
+    if (joypad_current & J_START && !(joypad_previous & J_START)) {
+      sound_play_jumping(); // TODO pause sound
+      text_print_string_win(0, 0,
+                            "PAUSE"); // TODO center (print on background ? )
+      while (1) {
+        joypad_current = joypad();
+        // TODO if press start
+        if (joypad_current & J_A && !(joypad_previous & J_A)) {
+          break;
+        }
+
+        wait_vbl_done();
+      }
     }
 
     if (joypad_current & J_B) {
