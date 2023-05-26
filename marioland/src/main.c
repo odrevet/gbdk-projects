@@ -144,7 +144,7 @@ void interupt() {
 
 // TODO use solid map when available
 bool is_solid(int x, int y) {
-  return map[map_width * (y / TILE_SIZE - OFFSET_Y) + (x / TILE_SIZE - OFFSET_X)] != 15;
+  return map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)] != 15;
 }
 
 void play_song() {
