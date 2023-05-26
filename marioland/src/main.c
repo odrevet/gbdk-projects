@@ -25,8 +25,17 @@
 
 #define camera_max_y ((map_height - SCREEN_HEIGHT) * TILE_SIZE)
 #define camera_max_x ((map_width - SCREEN_WIDTH) * TILE_SIZE)
-
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
+
+#define MARIO_SPEED_WALK 1
+#define MARIO_SPEED_RUN 2
+#define JUMP_MAX 10
+#define LOOP_PER_ANIMATION_FRAME 5
+short mario_current_frame = 0;
+short frame_counter = 0;
+bool is_jumping = FALSE;
+short current_jump = 0;
+short mario_speed = 0;
 
 uint8_t joy;
 
@@ -76,6 +85,14 @@ void set_camera() {
   }
   // set old camera position to current camera position
   old_camera_x = camera_x, old_camera_y = camera_y;
+}
+
+void update_frame_counter() {
+  frame_counter++;
+  if (frame_counter == LOOP_PER_ANIMATION_FRAME) {
+    frame_counter = 0;
+    mario_current_frame = (mario_current_frame % 2) + 1;
+  }
 }
 
 void init_map() {
@@ -155,12 +172,12 @@ void main(void) {
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
 
-  short mario_current_frame = 0;
   short score = 0;
-  short time = 999;
+  short time = 10000;
   short lives = 3;
   short coins = 0;
 
+  frame_counter = 0;
   bool mario_flip = FALSE;
 
   bool debug = FALSE;
@@ -193,40 +210,62 @@ void main(void) {
     }
 
     if (joypad_current & J_RIGHT && player_x / 8 < map_width * 8) {
-      player_x++;
-      mario_current_frame = (mario_current_frame + 1) % 3;
+      player_x += mario_speed;
       mario_flip = FALSE;
+      update_frame_counter();
     }
+
     if (joypad_current & J_LEFT && player_x > 12) {
-      player_x--;
-      mario_current_frame = (mario_current_frame + 1) % 3;
+      player_x -= mario_speed;
       mario_flip = TRUE;
+      update_frame_counter();
+    }
+
+    if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping) {
+      is_jumping = TRUE;
+    }
+
+    if (joypad_current & J_B) {
+      mario_speed = MARIO_SPEED_RUN;
+    }
+    else{
+      mario_speed = MARIO_SPEED_WALK;
     }
 
     // print text
     if (debug) {
       char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
-      int index = ((player_y - OFFSET_Y) / 8) * map_width + ((player_x - -OFFSET_X) / 8);
+      int index = ((player_y - OFFSET_Y) / 8) * map_width +
+                  ((player_x - -OFFSET_X) / 8);
       sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
               (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
     } else {
       char fmt[] = "MARIOX%d  WORLD TIME\n %d  Cx%d 1-1  %d";
-      sprintf(buffer, fmt, lives, score, coins, time);
+      sprintf(buffer, fmt, lives, score, coins, time / 10);
     }
     text_print_string_win(0, 0, buffer);
 
     // gravity
-    if (player_y < SCREEN_HEIGHT * TILE_SIZE)
+    if (player_y < SCREEN_HEIGHT * TILE_SIZE && !is_jumping)
       player_y++;
 
+    if (is_jumping) {
+      mario_current_frame = 4;
+      player_y--;
+      current_jump++;
+      if (current_jump > JUMP_MAX) {
+        is_jumping = FALSE;
+        current_jump = 0;
+      }
+    }
+
     if (mario_flip)
-      move_metasprite_vflip(mario_metasprites[mario_current_frame], 0, 0, player_x,
-                      player_y);
+      move_metasprite_vflip(mario_metasprites[mario_current_frame], 0, 0,
+                            player_x, player_y);
     else {
       move_metasprite(mario_metasprites[mario_current_frame], 0, 0, player_x,
                       player_y);
     }
-
 
     time--;
 
