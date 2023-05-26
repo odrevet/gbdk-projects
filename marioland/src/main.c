@@ -144,7 +144,7 @@ void interupt() {
 
 // TODO use solid map when available
 bool is_solid(int x, int y) {
-  return map[map_width * ((y - OFFSET_Y) / 8) + ((x - OFFSET_X) / 8)];
+  return map[map_width * (y / TILE_SIZE - OFFSET_Y) + (x / TILE_SIZE - OFFSET_X)] != 15;
 }
 
 void play_song() {
@@ -282,7 +282,7 @@ void main(void) {
     text_print_string_win(0, 0, buffer);
 
     // gravity
-    if (player_y < SCREEN_HEIGHT * TILE_SIZE && !is_jumping)
+    if (player_y < SCREEN_HEIGHT * TILE_SIZE && !is_jumping && !is_solid(player_x, player_y))
       player_y++;
 
     if (is_jumping) {
