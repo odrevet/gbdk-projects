@@ -37,6 +37,7 @@
 short mario_current_frame = 0;
 short frame_counter = 0;
 bool is_jumping = FALSE;
+bool touch_ground = FALSE;
 short current_jump = 0;
 short mario_speed = 0;
 
@@ -144,7 +145,8 @@ void interupt() {
 
 // TODO use solid map when available
 bool is_solid(int x, int y) {
-  return map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)] != 15;
+  return map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)] !=
+         15;
 }
 
 void play_song() {
@@ -213,6 +215,7 @@ void main(void) {
     joypad_previous = joypad_current;
     joypad_current = joypad();
 
+#if defined(DEBUG)
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       level_index++;
       if (level_index == 2) {
@@ -227,6 +230,7 @@ void main(void) {
 
       init_map();
     }
+#endif
 
     if (joypad_current & J_RIGHT && player_x / 8 < map_width * 8) {
       player_x += mario_speed;
@@ -240,8 +244,10 @@ void main(void) {
       update_frame_counter();
     }
 
-    if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping) {
+    if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping &&
+        touch_ground) {
       is_jumping = TRUE;
+      touch_ground = FALSE;
       sound_play_jumping();
     }
 
@@ -267,25 +273,31 @@ void main(void) {
       mario_speed = MARIO_SPEED_WALK;
     }
 
-    // print text
-    #if defined(DEBUG)
-      char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
-      int index = ((player_y - OFFSET_Y) / 8) * map_width +
-                  ((player_x - -OFFSET_X) / 8);
-      sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
-              (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
-    #else
-      char fmt[] = "MARIOX%d  WORLD TIME\n %d  Cx%d 1-1  %d";
-      sprintf(buffer, fmt, lives, score, coins, time / 10);
-    #endif
+// print text
+#if defined(DEBUG)
+    char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
+    int index =
+        ((player_y - OFFSET_Y) / 8) * map_width + ((player_x - -OFFSET_X) / 8);
+    sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
+            (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
+#else
+    char fmt[] = "MARIOX%d  WORLD TIME\n %d  Cx%d 1-1  %d";
+    sprintf(buffer, fmt, lives, score, coins, time / 10);
+#endif
 
     text_print_string_win(0, 0, buffer);
 
     // gravity
-    if (player_y < SCREEN_HEIGHT * TILE_SIZE && !is_jumping && !is_solid(player_x, player_y))
+    if (!is_jumping && !is_solid(player_x, player_y)) {
       player_y++;
+    }
+
+    if (!is_jumping && is_solid(player_x, player_y)) {
+      touch_ground = TRUE;
+    }
 
     if (is_jumping) {
+      touch_ground = FALSE;
       mario_current_frame = 4;
       player_y--;
       current_jump++;
