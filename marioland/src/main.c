@@ -10,6 +10,7 @@
 #include "maps/world1area1.h"
 #include "maps/world1area2.h"
 
+#include "sound.h"
 #include "text.h"
 
 #define TILE_SIZE 8
@@ -27,6 +28,7 @@
 #define camera_max_x ((map_width - SCREEN_WIDTH) * TILE_SIZE)
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
+#define TIME_INITIAL_VALUE 10000
 #define MARIO_SPEED_WALK 1
 #define MARIO_SPEED_RUN 2
 #define JUMP_MAX 10
@@ -155,6 +157,9 @@ void main(void) {
   set_interrupts(LCD_IFLAG | VBL_IFLAG);
   enable_interrupts();
 
+  // sound
+  sound_init();
+
   // text
   text_load_font();
 
@@ -173,7 +178,7 @@ void main(void) {
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
 
   short score = 0;
-  short time = 10000;
+  short time = TIME_INITIAL_VALUE;
   short lives = 3;
   short coins = 0;
 
@@ -223,12 +228,12 @@ void main(void) {
 
     if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping) {
       is_jumping = TRUE;
+      sound_play_jumping();
     }
 
     if (joypad_current & J_B) {
       mario_speed = MARIO_SPEED_RUN;
-    }
-    else{
+    } else {
       mario_speed = MARIO_SPEED_WALK;
     }
 
@@ -268,6 +273,10 @@ void main(void) {
     }
 
     time--;
+    if (time == 0) {
+      time = TIME_INITIAL_VALUE;
+      lives--;
+    }
 
     wait_vbl_done();
     if (redraw) {
