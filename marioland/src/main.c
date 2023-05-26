@@ -10,6 +10,7 @@
 #include "maps/world1area1.h"
 #include "maps/world1area2.h"
 
+#include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
 
@@ -55,6 +56,9 @@ short map_width;
 short map_height;
 short map_tile_count;
 
+// music
+extern const hUGESong_t fish_n_chips;
+
 void set_camera() {
   // update hardware scroll position
   SCY_REG = camera_y;
@@ -93,7 +97,7 @@ void update_frame_counter() {
   frame_counter++;
   if (frame_counter == LOOP_PER_ANIMATION_FRAME) {
     frame_counter = 0;
-    mario_current_frame = (mario_current_frame % 2) + 1;
+    mario_current_frame = (mario_current_frame % 3) + 1;
   }
 }
 
@@ -140,7 +144,16 @@ void interupt() {
 
 // TODO use solid map when available
 bool is_solid(int x, int y) {
-  map[map_width * ((y - OFFSET_Y) / 8) + ((x - OFFSET_X) / 8)];
+  return map[map_width * ((y - OFFSET_Y) / 8) + ((x - OFFSET_X) / 8)];
+}
+
+void play_song() {
+  hUGE_mute_channel(HT_CH1, 1);
+  hUGE_mute_channel(HT_CH2, 1);
+  hUGE_mute_channel(HT_CH3, 1);
+  hUGE_mute_channel(HT_CH4, 1);
+
+  hUGE_init(&fish_n_chips);
 }
 
 void main(void) {
@@ -157,8 +170,11 @@ void main(void) {
   set_interrupts(LCD_IFLAG | VBL_IFLAG);
   enable_interrupts();
 
-  // sound
   sound_init();
+  __critical {
+    hUGE_init(&fish_n_chips);
+    //add_VBL(hUGE_dosound);
+  };
 
   // text
   text_load_font();
