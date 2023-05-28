@@ -12,8 +12,5 @@ extern uint16_t camera_x, camera_y, old_camera_x, old_camera_y;
 extern uint8_t map_pos_x, map_pos_y, old_map_pos_y;
 extern uint8_t old_map_pos_x;
 
-// redraw flag, indicates that camera position was changed
-extern bool redraw;
-
 inline void set_camera(int map_height, int map_width, const unsigned char *map);
 

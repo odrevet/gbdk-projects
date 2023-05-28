@@ -38,6 +38,8 @@ bool touch_ground = FALSE;
 short current_jump = 0;
 short mario_speed = 0;
 
+bool redraw;
+
 uint8_t joy;
 
 // map
