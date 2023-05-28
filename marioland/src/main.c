@@ -10,10 +10,10 @@
 #include "maps/world1area1.h"
 #include "maps/world1area2.h"
 
+#include "camera.h"
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
-#include "camera.h"
 
 #define TILE_SIZE 8
 #define OFFSET_X 1
@@ -168,7 +168,10 @@ void main(void) {
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(WINDOW_X, WINDOW_Y);
 
-  while (1) {         
+  char hud_line_one[SCREEN_WIDTH] = "MARIOX1  WORLD TIME";
+  char hud_line_two[SCREEN_WIDTH] = "%d  Cx%d 1-1  %d";
+
+  while (1) {
     // inputs
     joypad_previous = joypad_current;
     joypad_current = joypad();
@@ -211,9 +214,8 @@ void main(void) {
 
     // pause
     if (joypad_current & J_START && !(joypad_previous & J_START)) {
-      sound_play_jumping(); // TODO pause sound
-      text_print_string_win(0, 0,
-                            "PAUSE"); // TODO center (print on background ? )
+      sound_play_jumping();                 // TODO pause sound
+      text_print_string_win(0, 0, "PAUSE"); // TODO center
       while (1) {
         joypad_current = joypad();
         // TODO if press start
@@ -238,12 +240,12 @@ void main(void) {
         ((player_y - OFFSET_Y) / 8) * map_width + ((player_x - -OFFSET_X) / 8);
     sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
             (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
-#else
-    char fmt[] = "MARIOX%d  WORLD TIME\n %d  Cx%d 1-1  %d";
-    sprintf(buffer, fmt, lives, score, coins, time / 10);
-#endif
-
     text_print_string_win(0, 0, buffer);
+#else
+    text_print_string_win(0, 0, hud_line_one);
+    text_print_string_win(0, 1, hud_line_two);
+    // sprintf(buffer, fmt, lives, score, coins, time / 10);
+#endif
 
     // gravity
     if (!is_jumping && !is_solid(player_x, player_y)) {
