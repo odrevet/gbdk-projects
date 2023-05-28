@@ -13,6 +13,7 @@
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
+#include "camera.h"
 
 #define TILE_SIZE 8
 #define OFFSET_X 1
@@ -24,10 +25,6 @@
 #define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
 #define WINDOW_X 7
 #define WINDOW_Y 0
-
-#define camera_max_y ((map_height - SCREEN_HEIGHT) * TILE_SIZE)
-#define camera_max_x ((map_width - SCREEN_WIDTH) * TILE_SIZE)
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 #define TIME_INITIAL_VALUE 10000
 #define MARIO_SPEED_WALK 1
@@ -43,13 +40,6 @@ short mario_speed = 0;
 
 uint8_t joy;
 
-// current and old positions of the camera in pixels
-uint16_t camera_x, camera_y, old_camera_x, old_camera_y;
-// current and old position of the map in tiles
-uint8_t map_pos_x, map_pos_y, old_map_pos_x, old_map_pos_y;
-// redraw flag, indicates that camera position was changed
-uint8_t redraw;
-
 // map
 const unsigned char *map;
 const unsigned char *map_attributes;
@@ -59,40 +49,6 @@ short map_tile_count;
 
 // music
 extern const hUGESong_t fish_n_chips;
-
-void set_camera() {
-  // update hardware scroll position
-  SCY_REG = camera_y;
-  SCX_REG = camera_x;
-  // up or down
-  map_pos_y = (uint8_t)(camera_y >> 3u);
-  if (map_pos_y != old_map_pos_y) {
-    if (camera_y < old_camera_y) {
-      set_bkg_submap(map_pos_x, map_pos_y, MIN(21u, map_width - map_pos_x), 1,
-                     map, map_width);
-    } else {
-      if ((map_height - 18u) > map_pos_y)
-        set_bkg_submap(map_pos_x, map_pos_y + 18u,
-                       MIN(21u, map_width - map_pos_x), 1, map, map_width);
-    }
-    old_map_pos_y = map_pos_y;
-  }
-  // left or right
-  map_pos_x = (uint8_t)(camera_x >> 3u);
-  if (map_pos_x != old_map_pos_x) {
-    if (camera_x < old_camera_x) {
-      set_bkg_submap(map_pos_x, map_pos_y, 1, MIN(19u, map_height - map_pos_y),
-                     map, map_width);
-    } else {
-      if ((map_width - 20u) > map_pos_x)
-        set_bkg_submap(map_pos_x + 20u, map_pos_y, 1,
-                       MIN(19u, map_height - map_pos_y), map, map_width);
-    }
-    old_map_pos_x = map_pos_x;
-  }
-  // set old camera position to current camera position
-  old_camera_x = camera_x, old_camera_y = camera_y;
-}
 
 void update_frame_counter() {
   frame_counter++;
@@ -210,7 +166,7 @@ void main(void) {
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(WINDOW_X, WINDOW_Y);
 
-  while (1) {
+  while (1) {         
     // inputs
     joypad_previous = joypad_current;
     joypad_current = joypad();
@@ -323,7 +279,7 @@ void main(void) {
 
     wait_vbl_done();
     if (redraw) {
-      set_camera();
+      set_camera(map_width, map_height, map);
       redraw = FALSE;
     }
   }
