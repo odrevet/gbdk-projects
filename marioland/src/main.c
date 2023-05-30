@@ -107,15 +107,6 @@ bool is_solid(int x, int y) {
          15;
 }
 
-void play_song() {
-  hUGE_mute_channel(HT_CH1, 1);
-  hUGE_mute_channel(HT_CH2, 1);
-  hUGE_mute_channel(HT_CH3, 1);
-  hUGE_mute_channel(HT_CH4, 1);
-
-  hUGE_init(&fish_n_chips);
-}
-
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
@@ -145,6 +136,9 @@ void main(void) {
   // player
   int player_x = (SCREEN_WIDTH / 2) * TILE_SIZE,
       player_y = (SCREEN_HEIGHT / 2) * TILE_SIZE;
+  int player_x_next;
+  int player_y_next;
+
   set_sprite_data(0, mario_TILE_COUNT, mario_tiles);
 
   short level_index = 0;
@@ -158,18 +152,26 @@ void main(void) {
   short lives = 3;
   short coins = 0;
 
+  short vel_x = 0;
+  short vel_y = 0;
+
   frame_counter = 0;
   bool mario_flip = FALSE;
 
   // text
-  char buffer[WINDOW_SIZE];
+  // char buffer[WINDOW_SIZE + 1];
   unsigned char windata[WINDOW_SIZE];
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(WINDOW_X, WINDOW_Y);
 
-  char hud_line_one[SCREEN_WIDTH] = "MARIOX1  WORLD TIME";
-  char hud_line_two[SCREEN_WIDTH] = "%d  Cx%d 1-1  %d";
+  char hud_line_one[SCREEN_WIDTH + 1] = "MARIOX01  WORLD TIME";
+  char hud_line_two[SCREEN_WIDTH + 1] = "%d  Cx%d 1-1  %d";
+
+  hUGE_mute_channel(0, HT_CH_MUTE);
+  hUGE_mute_channel(1, HT_CH_MUTE);
+  hUGE_mute_channel(2, HT_CH_PLAY);
+  hUGE_mute_channel(3, HT_CH_MUTE);
 
   while (1) {
     // inputs
@@ -194,21 +196,30 @@ void main(void) {
 #endif
 
     if (joypad_current & J_RIGHT && player_x / 8 < map_width * 8) {
-      player_x += mario_speed;
+      vel_x = mario_speed;
       mario_flip = FALSE;
       update_frame_counter();
     }
 
     if (joypad_current & J_LEFT && player_x > 12) {
-      player_x -= mario_speed;
+      vel_x = -mario_speed;
       mario_flip = TRUE;
       update_frame_counter();
+    }
+
+    // on release left pad
+    if (!(joypad_current & J_LEFT) && (joypad_previous & J_LEFT)) {
+      vel_x = 0;
+    }
+
+    // on release right pad
+    if (!(joypad_current & J_RIGHT) && (joypad_previous & J_RIGHT)) {
+      vel_x = 0;
     }
 
     if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping &&
         touch_ground) {
       is_jumping = TRUE;
-      touch_ground = FALSE;
       sound_play_jumping();
     }
 
@@ -244,27 +255,45 @@ void main(void) {
 #else
     text_print_string_win(0, 0, hud_line_one);
     text_print_string_win(0, 1, hud_line_two);
-    // sprintf(buffer, fmt, lives, score, coins, time / 10);
+    // sprintf(buffer, hud_line_two, lives, score, coins, time);
+    // text_print_string_win(0, 1, buffer);
+
 #endif
 
-    // gravity
-    if (!is_jumping && !is_solid(player_x, player_y)) {
-      player_y++;
-    }
-
-    if (!is_jumping && is_solid(player_x, player_y)) {
+    if (is_solid(player_x, player_y + 1)) {
       touch_ground = TRUE;
     }
 
     if (is_jumping) {
-      touch_ground = FALSE;
       mario_current_frame = 4;
-      player_y--;
+      vel_y = -1;
       current_jump++;
       if (current_jump > JUMP_MAX) {
         is_jumping = FALSE;
         current_jump = 0;
       }
+    } else {
+      // gravity
+      vel_y = 1;
+    }
+
+    // apply velocity to player coords
+    player_x_next = player_x + vel_x;
+    player_y_next = player_y + vel_y;
+
+    // if (!is_solid(player_x_next, player_y_next)) {
+    //   player_x = player_x_next;
+    //   player_y = player_y_next;
+    // }
+
+    player_x = player_x_next;
+
+    if (is_solid(player_x, player_y_next)) {
+      int index_y = (player_y + vel_y + 0) / TILE_SIZE;
+      player_y = index_y * TILE_SIZE;
+      vel_y = 0;
+    } else {
+      player_y = player_y_next;
     }
 
     if (mario_flip)
@@ -281,10 +310,12 @@ void main(void) {
       lives--;
     }
 
-    wait_vbl_done();
     if (redraw) {
-      set_camera(map_width, map_height, map);
+      set_camera(map_height, map_width, map);
       redraw = FALSE;
     }
+
+    hUGE_dosound();
+    wait_vbl_done();
   }
 }
