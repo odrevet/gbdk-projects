@@ -174,6 +174,12 @@ void main(void) {
   hUGE_mute_channel(2, HT_CH_PLAY);
   hUGE_mute_channel(3, HT_CH_MUTE);
 
+  text_print_string_win(0, 0, hud_line_one);
+  text_print_string_win(5, 1, score_str);
+  text_print_string_win(7, 1, "CX00");
+  text_print_string_win(12, 1, "1-1");
+  text_print_string_win(17, 1, "400");
+
   while (1) {
     // inputs
     joypad_previous = joypad_current;
@@ -255,11 +261,7 @@ void main(void) {
             (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
     text_print_string_win(0, 0, buffer);
 #else
-    text_print_string_win(0, 0, hud_line_one);
-    text_print_string_win(5, 1, score_str);
-    text_print_string_win(7, 1, "CX00");
-    text_print_string_win(12, 1, "1-1");
-    text_print_string_win(17, 1, "400");
+
 #endif
 
     if (is_solid(player_x, player_y + 1)) {
