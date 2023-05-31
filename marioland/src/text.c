@@ -52,12 +52,12 @@ void text_print_char_win(UINT8 x, UINT8 y, unsigned char chr) {
   set_win_tiles(x, y, 1, 1, &tile);
 }
 
-void pad(UINT8 x, UINT8 y, UINT8 offset_x, UINT8 offset_y) {
+/*void pad(UINT8 x, UINT8 y, UINT8 offset_x, UINT8 offset_y) {
   while (offset_x < 20) {
     text_print_char_win(x + offset_x, y + offset_y, (unsigned char)' ');
     offset_x++;
   }
-}
+}*/
 
 void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string) {
   UINT8 offset_x = 0;
@@ -65,7 +65,7 @@ void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string) {
 
   while (string[0]) {
     if (string[0] == '\n') {
-      pad(x, y, offset_x, offset_y);
+      //pad(x, y, offset_x, offset_y);
       offset_x = 0;
       offset_y++;
     } else {
@@ -75,5 +75,5 @@ void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string) {
 
     string += 1;
   }
-  pad(x, y, offset_x, offset_y);
+  //pad(x, y, offset_x, offset_y);
 }

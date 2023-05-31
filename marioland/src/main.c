@@ -50,7 +50,7 @@ short map_height;
 short map_tile_count;
 
 // music
-//extern const hUGESong_t fish_n_chips;
+// extern const hUGESong_t fish_n_chips;
 extern const hUGESong_t cognition;
 
 void update_frame_counter() {
@@ -162,14 +162,12 @@ void main(void) {
   bool mario_flip = FALSE;
 
   // text
-  // char buffer[WINDOW_SIZE + 1];
   unsigned char windata[WINDOW_SIZE];
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
   move_win(WINDOW_X, WINDOW_Y);
 
   char hud_line_one[SCREEN_WIDTH + 1] = "MARIOX01  WORLD TIME";
-  char hud_line_two[SCREEN_WIDTH + 1] = "%d  Cx%d 1-1  %d";
 
   hUGE_mute_channel(0, HT_CH_MUTE);
   hUGE_mute_channel(1, HT_CH_MUTE);
@@ -249,6 +247,7 @@ void main(void) {
 
 // print text
 #if defined(DEBUG)
+    char buffer[WINDOW_SIZE + 1];
     char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
     int index =
         ((player_y - OFFSET_Y) / 8) * map_width + ((player_x - -OFFSET_X) / 8);
@@ -257,11 +256,10 @@ void main(void) {
     text_print_string_win(0, 0, buffer);
 #else
     text_print_string_win(0, 0, hud_line_one);
-    text_print_string_win(4, 1, score_str);
-    //text_print_string_win(5, 1, hud_line_two);
-    // sprintf(buffer, hud_line_two, lives, score, coins, time);
-    // text_print_string_win(0, 1, buffer);
-
+    text_print_string_win(5, 1, score_str);
+    text_print_string_win(7, 1, "CX00");
+    text_print_string_win(12, 1, "1-1");
+    text_print_string_win(17, 1, "400");
 #endif
 
     if (is_solid(player_x, player_y + 1)) {
@@ -307,8 +305,7 @@ void main(void) {
       }
     }
 
-
-        // move right
+    // move right
     if (vel_x > 0) {
       if (is_solid(player_x_next, player_y - 8)) {
         int index_x = player_x_next / TILE_SIZE;
