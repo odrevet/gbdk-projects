@@ -176,7 +176,7 @@ void main(void) {
 
   text_print_string_win(0, 0, hud_line_one);
   text_print_string_win(5, 1, score_str);
-  text_print_string_win(7, 1, "CX00");
+  text_print_string_win(8, 1, "X00");
   text_print_string_win(12, 1, "1-1");
   text_print_string_win(17, 1, "400");
 
