@@ -7,5 +7,6 @@
 
 void sound_init();
 void sound_play_jumping();
+void sound_play_bump();
 
 #endif

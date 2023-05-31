@@ -29,7 +29,7 @@
 #define TIME_INITIAL_VALUE 10000
 #define MARIO_SPEED_WALK 1
 #define MARIO_SPEED_RUN 2
-#define JUMP_MAX 10
+#define JUMP_MAX 20
 #define LOOP_PER_ANIMATION_FRAME 5
 short mario_current_frame = 0;
 short frame_counter = 0;
@@ -50,7 +50,8 @@ short map_height;
 short map_tile_count;
 
 // music
-extern const hUGESong_t fish_n_chips;
+//extern const hUGESong_t fish_n_chips;
+extern const hUGESong_t cognition;
 
 void update_frame_counter() {
   frame_counter++;
@@ -123,7 +124,7 @@ void main(void) {
 
   sound_init();
   __critical {
-    hUGE_init(&fish_n_chips);
+    hUGE_init(&cognition);
     // add_VBL(hUGE_dosound);
   };
 
@@ -151,6 +152,8 @@ void main(void) {
   short time = TIME_INITIAL_VALUE;
   short lives = 3;
   short coins = 0;
+
+  char score_str[4] = "0";
 
   short vel_x = 0;
   short vel_y = 0;
@@ -254,7 +257,8 @@ void main(void) {
     text_print_string_win(0, 0, buffer);
 #else
     text_print_string_win(0, 0, hud_line_one);
-    text_print_string_win(0, 1, hud_line_two);
+    text_print_string_win(4, 1, score_str);
+    //text_print_string_win(5, 1, hud_line_two);
     // sprintf(buffer, hud_line_two, lives, score, coins, time);
     // text_print_string_win(0, 1, buffer);
 
@@ -281,19 +285,48 @@ void main(void) {
     player_x_next = player_x + vel_x;
     player_y_next = player_y + vel_y;
 
-    // if (!is_solid(player_x_next, player_y_next)) {
-    //   player_x = player_x_next;
-    //   player_y = player_y_next;
-    // }
+    // move down
+    if (vel_y > 0) {
+      if (is_solid(player_x, player_y_next)) {
+        int index_y = player_y_next / TILE_SIZE;
+        player_y = index_y * TILE_SIZE;
+        vel_y = 0;
+      } else {
+        player_y = player_y_next;
+      }
+    }
+    // move up
+    else if (vel_y < 0) {
+      if (is_solid(player_x, player_y_next - 8)) {
+        int index_y = player_y_next / TILE_SIZE;
+        player_y = index_y * TILE_SIZE + TILE_SIZE;
+        vel_y = 0;
+        sound_play_bump();
+      } else {
+        player_y = player_y_next;
+      }
+    }
 
-    player_x = player_x_next;
 
-    if (is_solid(player_x, player_y_next)) {
-      int index_y = (player_y + vel_y + 0) / TILE_SIZE;
-      player_y = index_y * TILE_SIZE;
-      vel_y = 0;
-    } else {
-      player_y = player_y_next;
+        // move right
+    if (vel_x > 0) {
+      if (is_solid(player_x_next, player_y - 8)) {
+        int index_x = player_x_next / TILE_SIZE;
+        player_x = index_x * TILE_SIZE;
+        vel_x = 0;
+      } else {
+        player_x = player_x_next;
+      }
+    }
+    // move left
+    else if (vel_x < 0) {
+      if (is_solid(player_x_next, player_y - 8)) {
+        int index_x = player_x_next / TILE_SIZE;
+        player_x = index_x * TILE_SIZE + TILE_SIZE;
+        vel_x = 0;
+      } else {
+        player_x = player_x_next;
+      }
     }
 
     if (mario_flip)
