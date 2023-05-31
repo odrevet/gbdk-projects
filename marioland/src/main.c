@@ -143,7 +143,7 @@ void main(void) {
   set_sprite_data(0, mario_TILE_COUNT, mario_tiles);
 
   short level_index = 0;
-  load_area1();
+  load_area2();
   init_map();
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
@@ -333,16 +333,23 @@ void main(void) {
 
     if (mario_flip)
       move_metasprite_vflip(mario_metasprites[mario_current_frame], 0, 0,
-                            player_x, player_y);
+                            player_x - camera_x, player_y - camera_y);
     else {
-      move_metasprite(mario_metasprites[mario_current_frame], 0, 0, player_x,
-                      player_y);
+      move_metasprite(mario_metasprites[mario_current_frame], 0, 0, player_x - camera_x,
+                      player_y - camera_y);
     }
 
     time--;
     if (time == 0) {
       time = TIME_INITIAL_VALUE;
       lives--;
+    }
+
+
+    // scroll
+    if(player_x - camera_x > (SCREEN_WIDTH * TILE_SIZE) / 2){
+      camera_x += mario_speed;
+      redraw = TRUE;
     }
 
     if (redraw) {
