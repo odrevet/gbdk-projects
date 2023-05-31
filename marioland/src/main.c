@@ -180,6 +180,9 @@ void main(void) {
   text_print_string_win(12, 1, "1-1");
   text_print_string_win(17, 1, "400");
 
+  unsigned char coin_data[2] = {11};
+  set_win_tiles(7, 1, 1, 1, coin_data);
+
   while (1) {
     // inputs
     joypad_previous = joypad_current;
