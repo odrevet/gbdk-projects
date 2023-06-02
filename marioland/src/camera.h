@@ -2,8 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define camera_max_y ((map_height - SCREEN_HEIGHT) * TILE_SIZE)
-#define camera_max_x ((map_width - SCREEN_WIDTH) * TILE_SIZE)
+#define camera_max_y ((map_height - SCREEN_HEIGHT_TILE) * TILE_SIZE)
+#define camera_max_x ((map_width - SCREEN_WIDTH_TILE) * TILE_SIZE)
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 // current and old positions of the camera in pixels

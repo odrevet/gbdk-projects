@@ -18,18 +18,20 @@
 #define TILE_SIZE 8
 #define OFFSET_X 1
 #define OFFSET_Y 2
-#define SCREEN_HEIGHT 18
-#define SCREEN_WIDTH 20
-#define WINDOW_HEIGHT 2
-#define WINDOW_WIDTH SCREEN_WIDTH
-#define WINDOW_SIZE WINDOW_WIDTH *WINDOW_HEIGHT
-#define WINDOW_X 7
-#define WINDOW_Y 0
+#define SCREEN_HEIGHT_TILE 18
+#define SCREEN_WIDTH_TILE 20
+#define WINDOW_HEIGHT_TILE 2
+#define WINDOW_WIDTH_TILE SCREEN_WIDTH_TILE
+#define WINDOW_SIZE WINDOW_WIDTH_TILE *WINDOW_HEIGHT_TILE
+#define WINDOW_X MINWNDPOSX
+#define WINDOW_Y MINWNDPOSY
 
-#define TIME_INITIAL_VALUE 10000
+#define GRAVITY_SPEED 4
+#define JUMP_SPEED 2
+#define TIME_INITIAL_VALUE 400
 #define MARIO_SPEED_WALK 1
 #define MARIO_SPEED_RUN 2
-#define JUMP_MAX 20
+#define JUMP_MAX 5 * TILE_SIZE / JUMP_SPEED
 #define LOOP_PER_ANIMATION_FRAME 5
 short mario_current_frame = 0;
 short frame_counter = 0;
@@ -37,6 +39,9 @@ bool is_jumping = FALSE;
 bool touch_ground = FALSE;
 short current_jump = 0;
 short mario_speed = 0;
+
+short coins;
+short score;
 
 bool redraw;
 
@@ -95,8 +100,8 @@ void load_area2() {
 void interupt() {
   if (LYC_REG == WINDOW_Y) {
     SHOW_WIN;
-    LYC_REG = WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE;
-  } else if (LYC_REG == WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE) {
+    LYC_REG = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
+  } else if (LYC_REG == WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE) {
     HIDE_WIN;
     LYC_REG = WINDOW_Y;
   }
@@ -104,8 +109,29 @@ void interupt() {
 
 // TODO use solid map when available
 bool is_solid(int x, int y) {
-  return map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)] !=
-         15;
+  const unsigned char tile =
+      map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)];
+  return (tile != 0xf                   // empty
+          && tile != 0x1 && tile != 0xc // sky
+          && tile != 11                 // coin
+  );
+}
+
+bool is_coin(int x, int y) {
+  return get_bkg_tile_xy(x / TILE_SIZE - OFFSET_X, y / TILE_SIZE - OFFSET_Y) ==
+         11;
+}
+
+void hud_update_coins() {
+  char coins_str[3];
+  itoa(coins, coins_str, 10);
+  text_print_string_win(9, 1, coins_str);
+}
+
+void hud_update_score() {
+  char score_str[4];
+  itoa(score, score_str, 10);
+  text_print_string_win(0, 1, score_str);
 }
 
 void main(void) {
@@ -135,8 +161,8 @@ void main(void) {
   int joypad_previous, joypad_current = 0;
 
   // player
-  int player_x = (SCREEN_WIDTH / 2) * TILE_SIZE,
-      player_y = (SCREEN_HEIGHT / 2) * TILE_SIZE;
+  int player_x = (SCREEN_WIDTH_TILE / 2) * TILE_SIZE,
+      player_y = (SCREEN_HEIGHT_TILE / 2) * TILE_SIZE;
   int player_x_next;
   int player_y_next;
 
@@ -148,12 +174,10 @@ void main(void) {
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
 
-  short score = 0;
+  score = 0;
   short time = TIME_INITIAL_VALUE;
   short lives = 3;
-  short coins = 0;
-
-  char score_str[4] = "0";
+  coins = 0;
 
   short vel_x = 0;
   short vel_y = 0;
@@ -164,24 +188,24 @@ void main(void) {
   // text
   unsigned char windata[WINDOW_SIZE];
   memset(windata, 15, WINDOW_SIZE);
-  set_win_tiles(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windata);
+  set_win_tiles(0, 0, WINDOW_WIDTH_TILE, WINDOW_HEIGHT_TILE, windata);
   move_win(WINDOW_X, WINDOW_Y);
 
-  char hud_line_one[SCREEN_WIDTH + 1] = "MARIOX01  WORLD TIME";
+  char hud_line_one[SCREEN_WIDTH_TILE + 1] = "MARIOX01  WORLD TIME";
 
-  hUGE_mute_channel(0, HT_CH_MUTE);
-  hUGE_mute_channel(1, HT_CH_MUTE);
+  hUGE_mute_channel(0, HT_CH_PLAY);
+  hUGE_mute_channel(1, HT_CH_PLAY);
   hUGE_mute_channel(2, HT_CH_PLAY);
   hUGE_mute_channel(3, HT_CH_MUTE);
 
   text_print_string_win(0, 0, hud_line_one);
-  text_print_string_win(5, 1, score_str);
+  text_print_string_win(1, 1, "0");
   text_print_string_win(8, 1, "X00");
   text_print_string_win(12, 1, "1-1");
   text_print_string_win(17, 1, "400");
 
-  unsigned char coin_data[1] = {11};
-  set_win_tiles(7, 1, 1, 1, coin_data);
+  // display a coin in the HUD
+  set_win_tile_xy(7, 1, 11);
 
   while (1) {
     // inputs
@@ -205,7 +229,7 @@ void main(void) {
     }
 #endif
 
-    if (joypad_current & J_RIGHT && player_x / 8 < map_width * 8) {
+    if (joypad_current & J_RIGHT && player_x / TILE_SIZE < map_width * TILE_SIZE) {
       vel_x = mario_speed;
       mario_flip = FALSE;
       update_frame_counter();
@@ -236,7 +260,8 @@ void main(void) {
     // pause
     if (joypad_current & J_START && !(joypad_previous & J_START)) {
       sound_play_jumping();                 // TODO pause sound
-      text_print_string_win(0, 0, "PAUSE"); // TODO center
+      text_print_string_win(0, 0, "PAUSE"); // TODO bottom
+
       while (1) {
         joypad_current = joypad();
         // TODO if press start
@@ -254,34 +279,20 @@ void main(void) {
       mario_speed = MARIO_SPEED_WALK;
     }
 
-// print text
-#if defined(DEBUG)
-    char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
-    int index =
-        ((player_y - OFFSET_Y) / 8) * map_width + ((player_x - -OFFSET_X) / 8);
-    sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
-            (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
-    text_print_string_win(0, 0, buffer);
-#else
-
-#endif
-
     if (is_solid(player_x, player_y + 1)) {
       touch_ground = TRUE;
     }
 
     if (is_jumping) {
       mario_current_frame = 4;
-      vel_y = -1;
+      vel_y = -JUMP_SPEED;
       current_jump++;
       if (current_jump > JUMP_MAX) {
         is_jumping = FALSE;
         current_jump = 0;
       }
     } else {
-      // gravity
-      vel_y = 1;
+      vel_y = GRAVITY_SPEED;
     }
 
     // apply velocity to player coords
@@ -294,7 +305,10 @@ void main(void) {
         int index_y = player_y_next / TILE_SIZE;
         player_y = index_y * TILE_SIZE;
         vel_y = 0;
+        touch_ground = TRUE;
+        is_jumping = FALSE;
       } else {
+        touch_ground = FALSE;
         player_y = player_y_next;
       }
     }
@@ -304,6 +318,7 @@ void main(void) {
         int index_y = player_y_next / TILE_SIZE;
         player_y = index_y * TILE_SIZE + TILE_SIZE;
         vel_y = 0;
+        is_jumping = FALSE;
         sound_play_bump();
       } else {
         player_y = player_y_next;
@@ -326,7 +341,7 @@ void main(void) {
         int index_x = player_x_next / TILE_SIZE;
         player_x = index_x * TILE_SIZE + TILE_SIZE;
         vel_x = 0;
-      } else {
+      } else if (player_x_next - camera_x - 12 > 1) {
         player_x = player_x_next;
       }
     }
@@ -335,8 +350,8 @@ void main(void) {
       move_metasprite_vflip(mario_metasprites[mario_current_frame], 0, 0,
                             player_x - camera_x, player_y - camera_y);
     else {
-      move_metasprite(mario_metasprites[mario_current_frame], 0, 0, player_x - camera_x,
-                      player_y - camera_y);
+      move_metasprite(mario_metasprites[mario_current_frame], 0, 0,
+                      player_x - camera_x, player_y - camera_y);
     }
 
     time--;
@@ -345,9 +360,54 @@ void main(void) {
       lives--;
     }
 
+    // check coin
+    if (is_coin(player_x, player_y)) {
+      // remove coin (set to blank tile)
+      set_bkg_tile_xy(player_x / TILE_SIZE - OFFSET_X,
+                      player_y / TILE_SIZE - OFFSET_Y, 15);
+      
+      sound_play_bump(); // TODO play sound coin
+
+      coins++;
+      score += 100;
+
+      if (coins == 100) {
+        lives++;
+        coins = 0;
+      }
+
+      hud_update_coins();
+      hud_update_score();
+    }
+
+
+      // print DEBUG text
+#if defined(DEBUG)
+      char buffer[WINDOW_SIZE + 1];
+      char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
+      int index = ((player_y - OFFSET_Y) / 8) * map_width +
+                  ((player_x - -OFFSET_X) / 8);
+      sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
+              (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
+      text_print_string_win(0, 0, buffer);
+#endif
+
+
+    // fall under the screen
+    /*if(player_y > SCREEN_HEIGHT * TILE_SIZE){
+      lives--;
+
+      // reset position
+      player_x = 42;
+      player_y = 42;
+
+      // reset camera
+      camera_x = player_x;
+      redraw = TRUE;
+    }*/
 
     // scroll
-    if(player_x - camera_x > (SCREEN_WIDTH * TILE_SIZE) / 2){
+    if (player_x - camera_x > SCREENWIDTH / 2 && camera_x < camera_max_x) {
       camera_x += mario_speed;
       redraw = TRUE;
     }
