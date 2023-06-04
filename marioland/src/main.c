@@ -299,6 +299,9 @@ void main(void) {
     player_x_next = player_x + vel_x;
     player_y_next = player_y + vel_y;
 
+
+    #define MARIO_HALF_WIDTH TILE_SIZE / 2 
+
     // move down
     if (vel_y > 0) {
       if (is_solid(player_x, player_y_next)) {
@@ -327,9 +330,9 @@ void main(void) {
 
     // move right
     if (vel_x > 0) {
-      if (is_solid(player_x_next, player_y - 8)) {
+      if (is_solid(player_x_next + MARIO_HALF_WIDTH, player_y - 8)) {
         int index_x = player_x_next / TILE_SIZE;
-        player_x = index_x * TILE_SIZE;
+        player_x = index_x * TILE_SIZE + MARIO_HALF_WIDTH;
         vel_x = 0;
       } else {
         player_x = player_x_next;
@@ -337,9 +340,9 @@ void main(void) {
     }
     // move left
     else if (vel_x < 0) {
-      if (is_solid(player_x_next, player_y - 8)) {
+      if (is_solid(player_x_next - MARIO_HALF_WIDTH, player_y - 8)) {
         int index_x = player_x_next / TILE_SIZE;
-        player_x = index_x * TILE_SIZE + TILE_SIZE;
+        player_x = index_x * TILE_SIZE + TILE_SIZE  - MARIO_HALF_WIDTH;
         vel_x = 0;
       } else if (player_x_next - camera_x - 12 > 1) {
         player_x = player_x_next;
