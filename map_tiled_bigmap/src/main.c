@@ -36,6 +36,8 @@ uint8_t map_pos_x, map_pos_y, old_map_pos_x, old_map_pos_y;
 // redraw flag, indicates that camera position was changed
 uint8_t redraw;
 
+bool move_camera;
+
 // map
 const unsigned char *map;
 const unsigned char *map_attributes;
@@ -109,20 +111,21 @@ void load_area2() {
 }
 
 void interupt() {
-  if (LYC_REG == WINDOW_Y) {
-    SHOW_WIN;
-    LYC_REG = WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE;
-  } else if (LYC_REG == WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE) {
-    HIDE_WIN;
-    LYC_REG = WINDOW_Y;
+  if (!move_camera) {
+    int h = WINDOW_Y + WINDOW_HEIGHT * TILE_SIZE - 1;
+    if (LYC_REG == WINDOW_Y) {
+      SHOW_WIN;
+      LYC_REG = h;
+    } else if (h) {
+      HIDE_WIN;
+      LYC_REG = WINDOW_Y;
+    }
   }
 }
 
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
-  SHOW_WIN;
-  SHOW_SPRITES;
 
   STAT_REG |= 0x40U;
   LYC_REG = WINDOW_Y;
@@ -131,7 +134,7 @@ void main(void) {
   set_interrupts(LCD_IFLAG | VBL_IFLAG);
   enable_interrupts();
 
-  bool move_camera = TRUE;
+  move_camera = TRUE;
 
   // text
   text_load_font();
@@ -163,10 +166,13 @@ void main(void) {
 
     if (joypad_current & J_A && !(joypad_previous & J_A)) {
       move_camera = !move_camera;
-      if (move_camera)
+      if (move_camera) {
         HIDE_WIN;
-      else
+        HIDE_SPRITES;
+      } else {
         SHOW_WIN;
+        SHOW_SPRITES;
+      }
     }
 
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
