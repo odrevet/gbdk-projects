@@ -26,13 +26,16 @@
 #define WINDOW_X MINWNDPOSX
 #define WINDOW_Y MINWNDPOSY
 
-#define GRAVITY_SPEED 4
+#define GRAVITY_SPEED 3
 #define JUMP_SPEED 2
 #define TIME_INITIAL_VALUE 400
 #define MARIO_SPEED_WALK 1
 #define MARIO_SPEED_RUN 2
 #define JUMP_MAX 5 * TILE_SIZE / JUMP_SPEED
 #define LOOP_PER_ANIMATION_FRAME 5
+
+#define MARIO_HALF_WIDTH TILE_SIZE / 2
+
 short mario_current_frame = 0;
 short frame_counter = 0;
 bool is_jumping = FALSE;
@@ -67,18 +70,16 @@ void update_frame_counter() {
 }
 
 void init_map() {
-  map_pos_x = map_pos_y = 0;
-  old_map_pos_x = old_map_pos_y = 255;
-  set_bkg_submap(map_pos_x, map_pos_y, 20, 18, map, map_width);
+  map_pos_x = 0;
+  old_map_pos_x = 255;
+  set_bkg_submap(map_pos_x, 0, 20, 18, map, map_width);
 
-  camera_x = camera_y = 0;
+  camera_x = 0;
   old_camera_x = camera_x;
-  old_camera_y = camera_y;
 
   redraw = FALSE;
 
   SCX_REG = camera_x;
-  SCY_REG = camera_y;
 }
 
 void load_area1() {
@@ -98,10 +99,11 @@ void load_area2() {
 }
 
 void interupt() {
+  int h = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
   if (LYC_REG == WINDOW_Y) {
     SHOW_WIN;
-    LYC_REG = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
-  } else if (LYC_REG == WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE) {
+    LYC_REG = h;
+  } else if (h) {
     HIDE_WIN;
     LYC_REG = WINDOW_Y;
   }
@@ -110,7 +112,7 @@ void interupt() {
 // TODO use solid map when available
 bool is_solid(int x, int y) {
   const unsigned char tile =
-      map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE - OFFSET_X)];
+      map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE)];
   return (tile != 0xf                   // empty
           && tile != 0x1 && tile != 0xc // sky
           && tile != 11                 // coin
@@ -118,8 +120,7 @@ bool is_solid(int x, int y) {
 }
 
 bool is_coin(int x, int y) {
-  return get_bkg_tile_xy(x / TILE_SIZE - OFFSET_X, y / TILE_SIZE - OFFSET_Y) ==
-         11;
+  return get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE) == 11;
 }
 
 void hud_update_coins() {
@@ -229,16 +230,15 @@ void main(void) {
     }
 #endif
 
-    if (joypad_current & J_RIGHT && player_x / TILE_SIZE < map_width * TILE_SIZE) {
+    if (joypad_current & J_RIGHT &&
+        player_x / TILE_SIZE < map_width * TILE_SIZE) {
       vel_x = mario_speed;
       mario_flip = FALSE;
-      update_frame_counter();
     }
 
     if (joypad_current & J_LEFT && player_x > 12) {
       vel_x = -mario_speed;
       mario_flip = TRUE;
-      update_frame_counter();
     }
 
     // on release left pad
@@ -284,7 +284,6 @@ void main(void) {
     }
 
     if (is_jumping) {
-      mario_current_frame = 4;
       vel_y = -JUMP_SPEED;
       current_jump++;
       if (current_jump > JUMP_MAX) {
@@ -299,8 +298,10 @@ void main(void) {
     player_x_next = player_x + vel_x;
     player_y_next = player_y + vel_y;
 
-
-    #define MARIO_HALF_WIDTH TILE_SIZE / 2 
+    int x_left = player_x_next - MARIO_HALF_WIDTH;
+    int x_right = player_x_next + MARIO_HALF_WIDTH;
+    int y_top = player_y_next - 5;
+    int y_bottom = player_y_next - GRAVITY_SPEED - 1;
 
     // move down
     if (vel_y > 0) {
@@ -315,9 +316,10 @@ void main(void) {
         player_y = player_y_next;
       }
     }
+
     // move up
     else if (vel_y < 0) {
-      if (is_solid(player_x, player_y_next - 8)) {
+      if (is_solid(player_x, y_top)) {
         int index_y = player_y_next / TILE_SIZE;
         player_y = index_y * TILE_SIZE + TILE_SIZE;
         vel_y = 0;
@@ -330,7 +332,7 @@ void main(void) {
 
     // move right
     if (vel_x > 0) {
-      if (is_solid(player_x_next + MARIO_HALF_WIDTH, player_y - 8)) {
+      if (is_solid(x_right, y_top) || is_solid(x_right, y_bottom)) {
         int index_x = player_x_next / TILE_SIZE;
         player_x = index_x * TILE_SIZE + MARIO_HALF_WIDTH;
         vel_x = 0;
@@ -340,21 +342,31 @@ void main(void) {
     }
     // move left
     else if (vel_x < 0) {
-      if (is_solid(player_x_next - MARIO_HALF_WIDTH, player_y - 8)) {
+      if (is_solid(x_left, y_top) || is_solid(x_left, y_bottom)) {
         int index_x = player_x_next / TILE_SIZE;
-        player_x = index_x * TILE_SIZE + TILE_SIZE  - MARIO_HALF_WIDTH;
+        player_x = index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH;
         vel_x = 0;
-      } else if (player_x_next - camera_x - 12 > 1) {
+      } else if (player_x_next - camera_x > 1) {
         player_x = player_x_next;
       }
     }
 
-    if (mario_flip)
-      move_metasprite_vflip(mario_metasprites[mario_current_frame], 0, 0,
-                            player_x - camera_x, player_y - camera_y);
-    else {
-      move_metasprite(mario_metasprites[mario_current_frame], 0, 0,
-                      player_x - camera_x, player_y - camera_y);
+    // set player frame
+    if (is_jumping) {
+      mario_current_frame = 4;
+    } else if (vel_x != 0) {
+      update_frame_counter();
+    } else {
+      mario_current_frame = 0;
+    }
+
+    // draw player
+    int draw_x = player_x - camera_x + TILE_SIZE;
+    metasprite_t *mario_metasprite = mario_metasprites[mario_current_frame];
+    if (mario_flip) {
+      move_metasprite_vflip(mario_metasprite, 0, 0, draw_x, player_y);
+    } else {
+      move_metasprite(mario_metasprite, 0, 0, draw_x, player_y);
     }
 
     time--;
@@ -366,9 +378,8 @@ void main(void) {
     // check coin
     if (is_coin(player_x, player_y)) {
       // remove coin (set to blank tile)
-      set_bkg_tile_xy(player_x / TILE_SIZE - OFFSET_X,
-                      player_y / TILE_SIZE - OFFSET_Y, 15);
-      
+      set_bkg_tile_xy(player_x / TILE_SIZE, player_y / TILE_SIZE, 15);
+
       sound_play_bump(); // TODO play sound coin
 
       coins++;
@@ -383,18 +394,13 @@ void main(void) {
       hud_update_score();
     }
 
-
-      // print DEBUG text
+    // print DEBUG text
 #if defined(DEBUG)
-      char buffer[WINDOW_SIZE + 1];
-      char fmt[] = "X:%d Y:%d\nINDEX:%d TILE:%d";
-      int index = ((player_y - OFFSET_Y) / 8) * map_width +
-                  ((player_x - -OFFSET_X) / 8);
-      sprintf(buffer, fmt, (int16_t)player_x - OFFSET_X,
-              (int16_t)player_y - OFFSET_Y, (int16_t)index, map[index]);
-      text_print_string_win(0, 0, buffer);
+    char buffer[WINDOW_SIZE + 1];
+    char fmt[] = "%d NEXT %d SLD %d";
+    sprintf(buffer, fmt, (int16_t)player_y, player_y_next, is_solid(player_x, player_y_next));
+    text_print_string_win(0, 0, buffer);
 #endif
-
 
     // fall under the screen
     /*if(player_y > SCREEN_HEIGHT * TILE_SIZE){
