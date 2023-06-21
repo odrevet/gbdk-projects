@@ -308,6 +308,7 @@ void main(void) {
           int index_y = player_y_next / TILE_SIZE;
           player_y = index_y * TILE_SIZE;
           touch_ground = TRUE;
+          current_jump = 0;
           is_jumping = FALSE;
         } else {
           touch_ground = FALSE;
