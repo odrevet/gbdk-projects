@@ -295,59 +295,65 @@ void main(void) {
     }
 
     // apply velocity to player coords
-    player_x_next = player_x + vel_x;
-    player_y_next = player_y + vel_y;
+    if (vel_y != 0) {
+      player_y_next = player_y + vel_y;
 
-    int x_left = player_x_next - MARIO_HALF_WIDTH;
-    int x_right = player_x_next + MARIO_HALF_WIDTH;
-    int y_top = player_y_next - 5;
-    int y_bottom = player_y_next - GRAVITY_SPEED - 1;
+      int x_left = player_x - MARIO_HALF_WIDTH;
+      int x_right = player_x + MARIO_HALF_WIDTH - 1;
 
-    // move down
-    if (vel_y > 0) {
-      if (is_solid(player_x, player_y_next)) {
-        int index_y = player_y_next / TILE_SIZE;
-        player_y = index_y * TILE_SIZE;
-        vel_y = 0;
-        touch_ground = TRUE;
-        is_jumping = FALSE;
-      } else {
-        touch_ground = FALSE;
-        player_y = player_y_next;
+      // move down
+      if (vel_y > 0) {
+        if (is_solid(x_left, player_y_next) ||
+            is_solid(x_right, player_y_next)) {
+          int index_y = player_y_next / TILE_SIZE;
+          player_y = index_y * TILE_SIZE;
+          touch_ground = TRUE;
+          is_jumping = FALSE;
+        } else {
+          touch_ground = FALSE;
+          player_y = player_y_next;
+        }
+      }
+
+      // move up
+      else if (vel_y < 0) {
+        int y_top = player_y_next - 6;
+        if (is_solid(x_left, y_top) || is_solid(x_right, y_top)) {
+          int index_y = player_y_next / TILE_SIZE;
+          player_y = index_y * TILE_SIZE + TILE_SIZE;
+          is_jumping = FALSE;
+          sound_play_bump();
+        } else {
+          player_y = player_y_next;
+        }
       }
     }
 
-    // move up
-    else if (vel_y < 0) {
-      if (is_solid(player_x, y_top)) {
-        int index_y = player_y_next / TILE_SIZE;
-        player_y = index_y * TILE_SIZE + TILE_SIZE;
-        vel_y = 0;
-        is_jumping = FALSE;
-        sound_play_bump();
-      } else {
-        player_y = player_y_next;
-      }
-    }
+    if (vel_x != 0) {
+      player_x_next = player_x + vel_x;
 
-    // move right
-    if (vel_x > 0) {
-      if (is_solid(x_right, y_top) || is_solid(x_right, y_bottom)) {
-        int index_x = player_x_next / TILE_SIZE;
-        player_x = index_x * TILE_SIZE + MARIO_HALF_WIDTH;
-        vel_x = 0;
-      } else {
-        player_x = player_x_next;
+      int y_bottom = player_y - 1;
+      int y_top = player_y - MARIO_HALF_WIDTH;
+
+      // move right
+      if (vel_x > 0) {
+        int x_right = player_x_next + MARIO_HALF_WIDTH;
+        if (is_solid(x_right, y_top) || is_solid(x_right, y_bottom)) {
+          int index_x = player_x_next / TILE_SIZE;
+          player_x = index_x * TILE_SIZE + MARIO_HALF_WIDTH;
+        } else {
+          player_x = player_x_next;
+        }
       }
-    }
-    // move left
-    else if (vel_x < 0) {
-      if (is_solid(x_left, y_top) || is_solid(x_left, y_bottom)) {
-        int index_x = player_x_next / TILE_SIZE;
-        player_x = index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH;
-        vel_x = 0;
-      } else if (player_x_next - camera_x > 1) {
-        player_x = player_x_next;
+      // move left
+      else if (vel_x < 0) {
+        int x_left = player_x_next - MARIO_HALF_WIDTH;
+        if (is_solid(x_left, y_top) || is_solid(x_left, y_bottom)) {
+          int index_x = player_x_next / TILE_SIZE;
+          player_x = index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH;
+        } else if (player_x_next - camera_x > 1) {
+          player_x = player_x_next;
+        }
       }
     }
 
@@ -398,7 +404,8 @@ void main(void) {
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
     char fmt[] = "%d NEXT %d SLD %d";
-    sprintf(buffer, fmt, (int16_t)player_y, player_y_next, is_solid(player_x, player_y_next));
+    sprintf(buffer, fmt, (int16_t)player_y, player_y_next,
+            is_solid(player_x, player_y_next));
     text_print_string_win(0, 0, buffer);
 #endif
 
