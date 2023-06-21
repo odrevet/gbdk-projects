@@ -125,7 +125,14 @@ bool is_coin(int x, int y) {
 
 void hud_update_coins() {
   char coins_str[3];
-  itoa(coins, coins_str, 10);
+
+  if (coins < 10) {
+    coins_str[0] = '0'; // Add leading zero
+    itoa(coins, coins_str + 1, 10);
+  } else {
+    itoa(coins, coins_str, 10);
+  }
+
   text_print_string_win(9, 1, coins_str);
 }
 
