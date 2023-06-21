@@ -321,6 +321,7 @@ void main(void) {
         if (is_solid(x_left, y_top) || is_solid(x_right, y_top)) {
           int index_y = player_y_next / TILE_SIZE;
           player_y = index_y * TILE_SIZE + TILE_SIZE;
+          current_jump = 0;
           is_jumping = FALSE;
           sound_play_bump();
         } else {
