@@ -1,6 +1,7 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,22 +34,15 @@
 #define MARIO_SPEED_RUN 2
 #define JUMP_MAX 5 * TILE_SIZE / JUMP_SPEED
 #define LOOP_PER_ANIMATION_FRAME 5
-
 #define MARIO_HALF_WIDTH TILE_SIZE / 2
 
-short mario_current_frame = 0;
-short frame_counter = 0;
-bool is_jumping = FALSE;
-bool touch_ground = FALSE;
-short current_jump = 0;
-short mario_speed = 0;
-
-short coins;
-short score;
-
+uint8_t coins;
+uint16_t score;
 bool redraw;
-
 uint8_t joy;
+uint16_t time;
+uint8_t lives;
+uint8_t level_index;
 
 // map
 const unsigned char *map;
@@ -56,6 +50,21 @@ const unsigned char *map_attributes;
 short map_width;
 short map_height;
 short map_tile_count;
+
+// player coords and movements
+uint16_t player_x;
+uint16_t player_y;
+uint16_t player_x_next;
+uint16_t player_y_next;
+int8_t vel_x;
+int8_t vel_y;
+bool is_jumping = FALSE;
+bool display_jump_frame;
+bool touch_ground = FALSE;
+uint8_t current_jump = 0;
+uint8_t mario_speed = 0;
+uint8_t mario_current_frame = 0;
+uint8_t frame_counter = 0;
 
 // music
 // extern const hUGESong_t fish_n_chips;
@@ -98,8 +107,8 @@ void load_area2() {
   map_tile_count = world1area2_TILE_COUNT;
 }
 
+uint8_t h = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 void interupt() {
-  int h = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
   if (LYC_REG == WINDOW_Y) {
     SHOW_WIN;
     LYC_REG = h;
@@ -169,26 +178,26 @@ void main(void) {
   int joypad_previous, joypad_current = 0;
 
   // player
-  int player_x = (SCREEN_WIDTH_TILE / 2) * TILE_SIZE,
-      player_y = (SCREEN_HEIGHT_TILE / 2) * TILE_SIZE;
-  int player_x_next;
-  int player_y_next;
+  player_x = (SCREEN_WIDTH_TILE / 2) * TILE_SIZE;
+  player_y = (SCREEN_HEIGHT_TILE / 2) * TILE_SIZE;
 
   set_sprite_data(0, mario_TILE_COUNT, mario_tiles);
 
-  short level_index = 0;
+  level_index = 0;
   load_area2();
   init_map();
 
   set_bkg_data(0, World1Tileset_TILE_COUNT, World1Tileset_tiles);
 
   score = 0;
-  short time = TIME_INITIAL_VALUE;
-  short lives = 3;
+  time = TIME_INITIAL_VALUE;
+  lives = 3;
   coins = 0;
 
-  short vel_x = 0;
-  short vel_y = 0;
+  vel_x = 0;
+  vel_y = 0;
+
+  display_jump_frame = FALSE;
 
   frame_counter = 0;
   bool mario_flip = FALSE;
@@ -258,10 +267,12 @@ void main(void) {
       vel_x = 0;
     }
 
-    if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping &&
-        touch_ground) {
-      is_jumping = TRUE;
-      sound_play_jumping();
+    if (joypad_current & J_A && !(joypad_previous & J_A)) {
+      if (!is_jumping && touch_ground) {
+        is_jumping = TRUE;
+        display_jump_frame = TRUE;
+        sound_play_jumping();
+      }
     }
 
     // pause
@@ -295,7 +306,6 @@ void main(void) {
       current_jump++;
       if (current_jump > JUMP_MAX) {
         is_jumping = FALSE;
-        current_jump = 0;
       }
     } else {
       vel_y = GRAVITY_SPEED;
@@ -305,18 +315,19 @@ void main(void) {
     if (vel_y != 0) {
       player_y_next = player_y + vel_y;
 
-      int x_left = player_x - MARIO_HALF_WIDTH;
-      int x_right = player_x + MARIO_HALF_WIDTH - 1;
+      int16_t x_left = player_x - MARIO_HALF_WIDTH;
+      int16_t x_right = player_x + MARIO_HALF_WIDTH - 1;
 
       // move down
       if (vel_y > 0) {
         if (is_solid(x_left, player_y_next) ||
             is_solid(x_right, player_y_next)) {
-          int index_y = player_y_next / TILE_SIZE;
+          uint8_t index_y = player_y_next / TILE_SIZE;
           player_y = index_y * TILE_SIZE;
           touch_ground = TRUE;
           current_jump = 0;
           is_jumping = FALSE;
+          display_jump_frame = FALSE;
         } else {
           touch_ground = FALSE;
           player_y = player_y_next;
@@ -327,7 +338,7 @@ void main(void) {
       else if (vel_y < 0) {
         int y_top = player_y_next - 6;
         if (is_solid(x_left, y_top) || is_solid(x_right, y_top)) {
-          int index_y = player_y_next / TILE_SIZE;
+          uint8_t index_y = player_y_next / TILE_SIZE;
           player_y = index_y * TILE_SIZE + TILE_SIZE;
           current_jump = 0;
           is_jumping = FALSE;
@@ -341,14 +352,14 @@ void main(void) {
     if (vel_x != 0) {
       player_x_next = player_x + vel_x;
 
-      int y_bottom = player_y - 1;
-      int y_top = player_y - MARIO_HALF_WIDTH;
+      int16_t y_bottom = player_y - 1;
+      int16_t y_top = player_y - MARIO_HALF_WIDTH;
 
       // move right
       if (vel_x > 0) {
         int x_right = player_x_next + MARIO_HALF_WIDTH;
         if (is_solid(x_right, y_top) || is_solid(x_right, y_bottom)) {
-          int index_x = player_x_next / TILE_SIZE;
+          uint8_t index_x = player_x_next / TILE_SIZE;
           player_x = index_x * TILE_SIZE + MARIO_HALF_WIDTH;
         } else {
           player_x = player_x_next;
@@ -358,7 +369,7 @@ void main(void) {
       else if (vel_x < 0) {
         int x_left = player_x_next - MARIO_HALF_WIDTH;
         if (is_solid(x_left, y_top) || is_solid(x_left, y_bottom)) {
-          int index_x = player_x_next / TILE_SIZE;
+          uint8_t index_x = player_x_next / TILE_SIZE;
           player_x = index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH;
         } else if (player_x_next - camera_x > 1) {
           player_x = player_x_next;
@@ -367,7 +378,7 @@ void main(void) {
     }
 
     // set player frame
-    if (is_jumping) {
+    if (display_jump_frame) {
       mario_current_frame = 4;
     } else if (vel_x != 0) {
       update_frame_counter();
