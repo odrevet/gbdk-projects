@@ -8,6 +8,7 @@
 
 // current and old positions of the camera in pixels
 extern uint16_t camera_x, old_camera_x;
+extern uint16_t camera_x_mask;
 // current and old position of the map in tiles
 extern uint8_t map_pos_x, old_map_pos_x;
 

@@ -1,6 +1,7 @@
 #include "camera.h"
 
 uint16_t camera_x, old_camera_x;
+uint16_t camera_x_mask;
 uint8_t map_pos_x, old_map_pos_x;
 
 inline void set_camera(int map_height, int map_width,

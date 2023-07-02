@@ -444,7 +444,8 @@ void main(void) {
     // scroll
     if (vel_x > 0 && player_draw_x - camera_x > SCREENWIDTH / 2 &&
         camera_x < camera_max_x) {
-      camera_x += vel_x >> 4;
+      camera_x_mask += vel_x;
+      camera_x  = camera_x_mask >> 4;
       redraw = TRUE;
     }
 
