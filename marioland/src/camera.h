@@ -7,10 +7,8 @@
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 // current and old positions of the camera in pixels
-extern uint16_t camera_x, camera_y, old_camera_x, old_camera_y;
+extern uint16_t camera_x, old_camera_x;
 // current and old position of the map in tiles
-extern uint8_t map_pos_x, map_pos_y, old_map_pos_y;
-extern uint8_t old_map_pos_x;
+extern uint8_t map_pos_x, old_map_pos_x;
 
 inline void set_camera(int map_height, int map_width, const unsigned char *map);
-
