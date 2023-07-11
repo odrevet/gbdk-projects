@@ -156,6 +156,23 @@ void hud_update_score() {
   text_print_string_win(0, 1, score_str);
 }
 
+inline void on_get_coin(int x_right, int y_bottom) {
+  set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, 15);
+
+  sound_play_bump(); // TODO play sound coin
+
+  coins++;
+  score += 100;
+
+  if (coins == 100) {
+    lives++;
+    coins = 0;
+  }
+
+  hud_update_coins();
+  hud_update_score();
+}
+
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
@@ -327,9 +344,9 @@ void main(void) {
 
       // move down
       if (vel_y > 0) {
-        if (is_solid(x_left, player_draw_y_next) ||
-            is_solid(x_right, player_draw_y_next)) {
-          uint8_t index_y = player_draw_y_next / TILE_SIZE;
+        int y_bottom = player_draw_y;
+        if (is_solid(x_left, y_bottom) || is_solid(x_right, y_bottom)) {
+          uint8_t index_y = y_bottom / TILE_SIZE;
           player_y = (index_y * TILE_SIZE) << 4;
           touch_ground = TRUE;
           current_jump = 0;
@@ -414,22 +431,25 @@ void main(void) {
     }
 
     // check coin
-    if (is_coin(player_draw_x, player_draw_y)) {
-      // remove coin (set to blank tile)
-      set_bkg_tile_xy(player_draw_x / TILE_SIZE, player_draw_y / TILE_SIZE, 15);
+    int x_right = player_draw_x + MARIO_HALF_WIDTH;
+    int x_left = player_draw_x - MARIO_HALF_WIDTH;
+    int y_top = player_draw_y - 6;
+    int y_bottom = player_draw_y - 9;
 
-      sound_play_bump(); // TODO play sound coin
+    if (is_coin(x_right, y_bottom)) {
+      on_get_coin(x_right, y_bottom);
+    }
 
-      coins++;
-      score += 100;
+    if (is_coin(x_right, y_top)) {
+      on_get_coin(x_right, y_top);
+    }
 
-      if (coins == 100) {
-        lives++;
-        coins = 0;
-      }
+    if (is_coin(x_left, y_bottom)) {
+      on_get_coin(x_left, y_bottom);
+    }
 
-      hud_update_coins();
-      hud_update_score();
+    if (is_coin(x_left, y_top)) {
+      on_get_coin(x_left, y_top);
     }
 
     // print DEBUG text
@@ -445,7 +465,7 @@ void main(void) {
     if (vel_x > 0 && player_draw_x - camera_x > SCREENWIDTH / 2 &&
         camera_x < camera_max_x) {
       camera_x_mask += vel_x;
-      camera_x  = camera_x_mask >> 4;
+      camera_x = camera_x_mask >> 4;
       redraw = TRUE;
     }
 
