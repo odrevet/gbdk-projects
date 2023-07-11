@@ -344,9 +344,9 @@ void main(void) {
 
       // move down
       if (vel_y > 0) {
-        int y_bottom = player_draw_y;
-        if (is_solid(x_left, y_bottom) || is_solid(x_right, y_bottom)) {
-          uint8_t index_y = y_bottom / TILE_SIZE;
+        int16_t y_bottom_next = player_draw_y_next;
+        if (is_solid(x_left, y_bottom_next) || is_solid(x_right, y_bottom_next)) {
+          uint8_t index_y = y_bottom_next / TILE_SIZE;
           player_y = (index_y * TILE_SIZE) << 4;
           touch_ground = TRUE;
           current_jump = 0;
@@ -360,8 +360,8 @@ void main(void) {
 
       // move up
       else if (vel_y < 0) {
-        int y_top = player_draw_y_next - 6;
-        if (is_solid(x_left, y_top) || is_solid(x_right, y_top)) {
+        int16_t y_top_next = player_draw_y_next - 6;
+        if (is_solid(x_left, y_top_next) || is_solid(x_right, y_top_next)) {
           uint8_t index_y = player_draw_y_next / TILE_SIZE;
           player_y = (index_y * TILE_SIZE + TILE_SIZE) << 4;
           current_jump = 0;
@@ -383,8 +383,8 @@ void main(void) {
 
       // move right
       if (vel_x > 0 && player_draw_x / TILE_SIZE < map_width * TILE_SIZE) {
-        int x_right = player_draw_x_next + MARIO_HALF_WIDTH;
-        if (is_solid(x_right, y_top) || is_solid(x_right, y_bottom)) {
+        int16_t x_right_next = player_draw_x_next + MARIO_HALF_WIDTH;
+        if (is_solid(x_right_next, y_top) || is_solid(x_right_next, y_bottom)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + MARIO_HALF_WIDTH) << 4;
         } else {
@@ -393,8 +393,8 @@ void main(void) {
       }
       // move left
       else if (vel_x < 0) {
-        int x_left = player_draw_x_next - MARIO_HALF_WIDTH;
-        if (is_solid(x_left, y_top) || is_solid(x_left, y_bottom)) {
+        int16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
+        if (is_solid(x_left_next, y_top) || is_solid(x_left_next, y_bottom)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH) << 4;
         } else if (player_draw_x_next - camera_x > 1) {
