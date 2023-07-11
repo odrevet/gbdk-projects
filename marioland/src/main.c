@@ -334,13 +334,15 @@ void main(void) {
       vel_y = GRAVITY_SPEED;
     }
 
+
+    int16_t y_top = player_draw_y - MARIO_HALF_WIDTH;
+    int x_right = player_draw_x + MARIO_HALF_WIDTH - 1;
+    int x_left = player_draw_x - MARIO_HALF_WIDTH;
+
     // apply velocity to player coords
     if (vel_y != 0) {
       player_y_next = player_y + vel_y;
       player_draw_y_next = player_y_next >> 4;
-
-      int16_t x_left = player_draw_x - MARIO_HALF_WIDTH;
-      int16_t x_right = player_draw_x + MARIO_HALF_WIDTH - 1;
 
       // move down
       if (vel_y > 0) {
@@ -379,7 +381,6 @@ void main(void) {
       player_draw_x_next = player_x_next >> 4;
 
       int16_t y_bottom = player_draw_y - 1;
-      int16_t y_top = player_draw_y - MARIO_HALF_WIDTH;
 
       // move right
       if (vel_x > 0 && player_draw_x / TILE_SIZE < map_width * TILE_SIZE) {
@@ -431,9 +432,6 @@ void main(void) {
     }
 
     // check coin
-    int x_right = player_draw_x + MARIO_HALF_WIDTH;
-    int x_left = player_draw_x - MARIO_HALF_WIDTH;
-    int y_top = player_draw_y - 6;
     int y_bottom = player_draw_y - 9;
 
     if (is_coin(x_right, y_bottom)) {
