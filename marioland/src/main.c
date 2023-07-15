@@ -30,8 +30,8 @@
 #define TIME_INITIAL_VALUE 400
 #define GRAVITY_SPEED 36
 #define JUMP_SPEED 25
-#define MARIO_SPEED_WALK 20
-#define MARIO_SPEED_RUN 28
+#define PLAYER_MAX_SPEED_WALK 20
+#define PLAYER_MAX_SPEED_RUN 28
 #define JUMP_MAX (5 * TILE_SIZE / JUMP_SPEED) << 4
 #define LOOP_PER_ANIMATION_FRAME 5
 #define MARIO_HALF_WIDTH TILE_SIZE / 2
@@ -68,8 +68,8 @@ bool is_jumping = FALSE;
 bool display_jump_frame;
 bool touch_ground = FALSE;
 uint8_t current_jump = 0;
-uint8_t mario_speed = 0;
-uint8_t mario_current_frame = 0;
+int8_t player_max_speed = PLAYER_MAX_SPEED_WALK;
+uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 
 // music
@@ -80,7 +80,7 @@ void update_frame_counter() {
   frame_counter++;
   if (frame_counter == LOOP_PER_ANIMATION_FRAME) {
     frame_counter = 0;
-    mario_current_frame = (mario_current_frame % 3) + 1;
+    player_current_frame = (player_current_frame % 3) + 1;
   }
 }
 
@@ -270,32 +270,25 @@ void main(void) {
     }
 #endif
 
-    if (joypad_current & J_RIGHT) {
-      vel_x = mario_speed;
+    if ((joypad_current & J_RIGHT) && vel_x < player_max_speed) {
+      vel_x += 1;
       mario_flip = FALSE;
+    } else if (vel_x > 0) {
+      vel_x -= 1;
     }
-
-    if (joypad_current & J_LEFT && player_x > 12) {
-      vel_x = -mario_speed;
+    
+    if ((joypad_current & J_LEFT) && player_x > 12 && abs(vel_x) < player_max_speed) {
+      vel_x -= 1;
       mario_flip = TRUE;
+    } else if (vel_x < 0) {
+      vel_x += 1;
     }
 
-    // on release left pad
-    if (!(joypad_current & J_LEFT) && (joypad_previous & J_LEFT)) {
-      vel_x = 0;
-    }
-
-    // on release right pad
-    if (!(joypad_current & J_RIGHT) && (joypad_previous & J_RIGHT)) {
-      vel_x = 0;
-    }
-
-    if (joypad_current & J_A && !(joypad_previous & J_A)) {
-      if (!is_jumping && touch_ground) {
-        is_jumping = TRUE;
-        display_jump_frame = TRUE;
-        sound_play_jumping();
-      }
+    if (joypad_current & J_A && !(joypad_previous & J_A) && !is_jumping &&
+        touch_ground) {
+      is_jumping = TRUE;
+      display_jump_frame = TRUE;
+      sound_play_jumping();
     }
 
     // pause
@@ -315,9 +308,9 @@ void main(void) {
     }
 
     if (joypad_current & J_B) {
-      mario_speed = MARIO_SPEED_RUN;
+      player_max_speed = PLAYER_MAX_SPEED_RUN;
     } else {
-      mario_speed = MARIO_SPEED_WALK;
+      player_max_speed = PLAYER_MAX_SPEED_WALK;
     }
 
     if (is_solid(player_draw_x, player_draw_y + 1)) {
@@ -334,10 +327,9 @@ void main(void) {
       vel_y = GRAVITY_SPEED;
     }
 
-
-    int16_t y_top = player_draw_y - MARIO_HALF_WIDTH;
-    int x_right = player_draw_x + MARIO_HALF_WIDTH - 1;
-    int x_left = player_draw_x - MARIO_HALF_WIDTH;
+    int16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
+    int16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
+    int16_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
 
     // apply velocity to player coords
     if (vel_y != 0) {
@@ -347,7 +339,8 @@ void main(void) {
       // move down
       if (vel_y > 0) {
         int16_t y_bottom_next = player_draw_y_next;
-        if (is_solid(x_left, y_bottom_next) || is_solid(x_right, y_bottom_next)) {
+        if (is_solid(x_left_draw, y_bottom_next) ||
+            is_solid(x_right_draw, y_bottom_next)) {
           uint8_t index_y = y_bottom_next / TILE_SIZE;
           player_y = (index_y * TILE_SIZE) << 4;
           touch_ground = TRUE;
@@ -363,7 +356,8 @@ void main(void) {
       // move up
       else if (vel_y < 0) {
         int16_t y_top_next = player_draw_y_next - 6;
-        if (is_solid(x_left, y_top_next) || is_solid(x_right, y_top_next)) {
+        if (is_solid(x_left_draw, y_top_next) ||
+            is_solid(x_right_draw, y_top_next)) {
           uint8_t index_y = player_draw_y_next / TILE_SIZE;
           player_y = (index_y * TILE_SIZE + TILE_SIZE) << 4;
           current_jump = 0;
@@ -385,7 +379,8 @@ void main(void) {
       // move right
       if (vel_x > 0 && player_draw_x / TILE_SIZE < map_width * TILE_SIZE) {
         int16_t x_right_next = player_draw_x_next + MARIO_HALF_WIDTH;
-        if (is_solid(x_right_next, y_top) || is_solid(x_right_next, y_bottom)) {
+        if (is_solid(x_right_next, y_top_draw) ||
+            is_solid(x_right_next, y_bottom)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + MARIO_HALF_WIDTH) << 4;
         } else {
@@ -395,7 +390,8 @@ void main(void) {
       // move left
       else if (vel_x < 0) {
         int16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
-        if (is_solid(x_left_next, y_top) || is_solid(x_left_next, y_bottom)) {
+        if (is_solid(x_left_next, y_top_draw) ||
+            is_solid(x_left_next, y_bottom)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH) << 4;
         } else if (player_draw_x_next - camera_x > 1) {
@@ -407,16 +403,16 @@ void main(void) {
 
     // set player frame
     if (display_jump_frame) {
-      mario_current_frame = 4;
+      player_current_frame = 4;
     } else if (vel_x != 0) {
       update_frame_counter();
     } else {
-      mario_current_frame = 0;
+      player_current_frame = 0;
     }
 
     // draw player
     int player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
-    metasprite_t *mario_metasprite = mario_metasprites[mario_current_frame];
+    metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
     if (mario_flip) {
       move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
                             player_draw_y);
@@ -434,20 +430,20 @@ void main(void) {
     // check coin
     int y_bottom = player_draw_y - 9;
 
-    if (is_coin(x_right, y_bottom)) {
-      on_get_coin(x_right, y_bottom);
+    if (is_coin(x_right_draw, y_bottom)) {
+      on_get_coin(x_right_draw, y_bottom);
     }
 
-    if (is_coin(x_right, y_top)) {
-      on_get_coin(x_right, y_top);
+    if (is_coin(x_right_draw, y_top_draw)) {
+      on_get_coin(x_right_draw, y_top_draw);
     }
 
-    if (is_coin(x_left, y_bottom)) {
-      on_get_coin(x_left, y_bottom);
+    if (is_coin(x_left_draw, y_bottom)) {
+      on_get_coin(x_left_draw, y_bottom);
     }
 
-    if (is_coin(x_left, y_top)) {
-      on_get_coin(x_left, y_top);
+    if (is_coin(x_left_draw, y_top_draw)) {
+      on_get_coin(x_left_draw, y_top_draw);
     }
 
     // print DEBUG text
