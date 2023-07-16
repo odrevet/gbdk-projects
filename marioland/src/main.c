@@ -340,7 +340,6 @@ void main(void) {
       vel_y = GRAVITY_SPEED;
     }
 
-    int16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
     int16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
     int16_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
 
@@ -383,17 +382,18 @@ void main(void) {
       player_draw_y = player_y >> 4;
     }
 
+    int16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
+    int16_t y_bottom_draw = player_draw_y - 1;
+
     if (vel_x != 0) {
       player_x_next = player_x + vel_x;
       player_draw_x_next = player_x_next >> 4;
-
-      int16_t y_bottom = player_draw_y - 1;
 
       // move right
       if (vel_x > 0 && player_draw_x / TILE_SIZE < map_width * TILE_SIZE) {
         int16_t x_right_next = player_draw_x_next + MARIO_HALF_WIDTH;
         if (is_solid(x_right_next, y_top_draw) ||
-            is_solid(x_right_next, y_bottom)) {
+            is_solid(x_right_next, y_bottom_draw)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + MARIO_HALF_WIDTH) << 4;
         } else {
@@ -404,7 +404,7 @@ void main(void) {
       else if (vel_x < 0) {
         int16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
         if (is_solid(x_left_next, y_top_draw) ||
-            is_solid(x_left_next, y_bottom)) {
+            is_solid(x_left_next, y_bottom_draw)) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH) << 4;
         } else if (player_draw_x_next - camera_x > 1) {
@@ -444,19 +444,17 @@ void main(void) {
       lives--;
     }
 
-    // check coin
-    int y_bottom = player_draw_y - 9;
-
-    if (is_coin(x_right_draw, y_bottom)) {
-      on_get_coin(x_right_draw, y_bottom);
+    // check coins
+    if (is_coin(x_right_draw, y_bottom_draw - TILE_SIZE)) {
+      on_get_coin(x_right_draw, y_bottom_draw - TILE_SIZE);
     }
 
     if (is_coin(x_right_draw, y_top_draw)) {
       on_get_coin(x_right_draw, y_top_draw);
     }
 
-    if (is_coin(x_left_draw, y_bottom)) {
-      on_get_coin(x_left_draw, y_bottom);
+    if (is_coin(x_left_draw, y_bottom_draw - TILE_SIZE)) {
+      on_get_coin(x_left_draw, y_bottom_draw - TILE_SIZE);
     }
 
     if (is_coin(x_left_draw, y_top_draw)) {
