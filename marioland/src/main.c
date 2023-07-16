@@ -66,6 +66,7 @@ int8_t vel_x;
 int8_t vel_y;
 bool is_jumping = FALSE;
 bool display_jump_frame;
+bool display_slide_frame;
 bool touch_ground = FALSE;
 uint8_t current_jump = 0;
 int8_t player_max_speed = PLAYER_MAX_SPEED_WALK;
@@ -222,6 +223,7 @@ void main(void) {
   vel_y = 0;
 
   display_jump_frame = FALSE;
+  display_slide_frame = FALSE;
 
   frame_counter = 0;
   bool mario_flip = FALSE;
@@ -273,13 +275,24 @@ void main(void) {
     if ((joypad_current & J_RIGHT) && vel_x < player_max_speed) {
       vel_x += 1;
       mario_flip = FALSE;
+      if (vel_x < 0) {
+        display_slide_frame = TRUE;
+      } else {
+        display_slide_frame = FALSE;
+      }
     } else if (vel_x > 0) {
       vel_x -= 1;
     }
-    
-    if ((joypad_current & J_LEFT) && player_x > 12 && abs(vel_x) < player_max_speed) {
+
+    if ((joypad_current & J_LEFT) && player_x > 12 &&
+        abs(vel_x) < player_max_speed) {
       vel_x -= 1;
       mario_flip = TRUE;
+      if (vel_x > 0) {
+        display_slide_frame = TRUE;
+      } else {
+        display_slide_frame = FALSE;
+      }
     } else if (vel_x < 0) {
       vel_x += 1;
     }
@@ -405,7 +418,11 @@ void main(void) {
     if (display_jump_frame) {
       player_current_frame = 4;
     } else if (vel_x != 0) {
-      update_frame_counter();
+      if (display_slide_frame) {
+        player_current_frame = 5;
+      } else {
+        update_frame_counter();
+      }
     } else {
       player_current_frame = 0;
     }
