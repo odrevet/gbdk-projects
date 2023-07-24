@@ -119,16 +119,6 @@ void load_area2() {
   map_tile_count = world1area2_TILE_COUNT;
 }
 
-void interupt() {
-  if (LYC_REG == WINDOW_Y) {
-    SHOW_WIN;
-    LYC_REG = window_location;
-  } else if (window_location) {
-    HIDE_WIN;
-    LYC_REG = WINDOW_Y;
-  }
-}
-
 // TODO use solid map when available
 bool is_solid(int x, int y) {
   const unsigned char tile =
@@ -191,6 +181,14 @@ void player_draw() {
   }
 }
 
+void interruptLCD() {
+  while (STAT_REG & 3)
+    ;
+  HIDE_WIN;
+}
+
+void interruptVBL() { SHOW_WIN; }
+
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
@@ -198,17 +196,19 @@ void main(void) {
   SHOW_SPRITES;
   SPRITES_8x16;
 
-  STAT_REG |= 0x40U;
-  LYC_REG = WINDOW_Y;
+  STAT_REG = 0x40;
+  LYC_REG = 0x0F;
+
   disable_interrupts();
-  add_LCD(interupt);
-  set_interrupts(LCD_IFLAG | VBL_IFLAG);
+  add_LCD(interruptLCD);
+  add_VBL(interruptVBL);
+  set_interrupts(VBL_IFLAG | LCD_IFLAG);
   enable_interrupts();
 
   sound_init();
   __critical {
     hUGE_init(&cognition);
-    // add_VBL(hUGE_dosound);
+    add_VBL(hUGE_dosound);
   };
 
   // text
@@ -497,7 +497,7 @@ void main(void) {
       redraw = FALSE;
     }
 
-    hUGE_dosound();
+    // hUGE_dosound();
     wait_vbl_done();
   }
 }
