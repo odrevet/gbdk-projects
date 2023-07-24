@@ -7,7 +7,9 @@
 #include <string.h>
 
 #include "graphics/World1Tileset.h"
+#include "graphics/enemies.h"
 #include "graphics/mario.h"
+
 #include "maps/world1area1.h"
 #include "maps/world1area2.h"
 
@@ -35,6 +37,9 @@
 #define JUMP_MAX (5 * TILE_SIZE / JUMP_SPEED) << 4
 #define LOOP_PER_ANIMATION_FRAME 5
 #define MARIO_HALF_WIDTH TILE_SIZE / 2
+
+#define SPRITE_START_MARIO 0
+#define SPRITE_START_ENEMIES SPRITE_START_MARIO + mario_TILE_COUNT
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -72,6 +77,7 @@ uint8_t current_jump = 0;
 int8_t player_max_speed = PLAYER_MAX_SPEED_WALK;
 uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
+bool mario_flip;
 
 // music
 // extern const hUGESong_t fish_n_chips;
@@ -157,6 +163,42 @@ void hud_update_score() {
   text_print_string_win(0, 1, score_str);
 }
 
+#define ENEMY_MAX 4
+uint8_t enemy_count = 0;
+
+typedef struct enemy_t {
+  uint16_t x;
+  uint16_t y;
+  uint16_t vel_x;
+  uint16_t vel_y;
+} enemy_t;
+
+enemy_t enemies[ENEMY_MAX];
+
+void enemy_new(uint16_t x, uint16_t y) {
+  if (enemy_count < ENEMY_MAX) {
+    enemy_t enemy = {.x = x, .y = y, vel_x = 0, vel_y = 0};
+    enemies[enemy_count] = enemy;
+    enemy_count++;
+  }
+}
+
+void enemy_update() {
+  for (uint8_t index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
+    enemies[index_enemy].x--;
+  }
+}
+
+void enemy_draw() {
+  for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
+    int enemy_draw_x_camera_offset = enemies[index_enemy].x - camera_x;
+    metasprite_t *enemy_metasprite = enemies_metasprites[0];
+    move_metasprite(enemy_metasprite, SPRITE_START_ENEMIES,
+                    SPRITE_START_ENEMIES, enemy_draw_x_camera_offset,
+                    enemies[index_enemy].y);
+  }
+}
+
 inline void on_get_coin(int x_right, int y_bottom) {
   set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, 15);
 
@@ -172,6 +214,18 @@ inline void on_get_coin(int x_right, int y_bottom) {
 
   hud_update_coins();
   hud_update_score();
+}
+
+void player_draw() {
+  int player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
+  metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
+  if (mario_flip) {
+    move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
+                          player_draw_y);
+  } else {
+    move_metasprite(mario_metasprite, 0, 0, player_draw_x_camera_offset,
+                    player_draw_y);
+  }
 }
 
 void main(void) {
@@ -206,7 +260,8 @@ void main(void) {
   player_draw_x = player_x >> 4;
   player_draw_y = player_y >> 4;
 
-  set_sprite_data(0, mario_TILE_COUNT, mario_tiles);
+  set_sprite_data(SPRITE_START_MARIO, mario_TILE_COUNT, mario_tiles);
+  set_sprite_data(SPRITE_START_ENEMIES, enemies_TILE_COUNT, enemies_tiles);
 
   level_index = 0;
   load_area2();
@@ -226,7 +281,7 @@ void main(void) {
   display_slide_frame = FALSE;
 
   frame_counter = 0;
-  bool mario_flip = FALSE;
+  mario_flip = FALSE;
 
   // text
   unsigned char windata[WINDOW_SIZE];
@@ -249,6 +304,9 @@ void main(void) {
 
   // display a coin in the HUD
   set_win_tile_xy(7, 1, 11);
+
+  // spawn enemies (WIP: spawn from TMX)
+  enemy_new(70, 136);
 
   while (1) {
     // inputs
@@ -427,16 +485,9 @@ void main(void) {
       player_current_frame = 0;
     }
 
-    // draw player
-    int player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
-    metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
-    if (mario_flip) {
-      move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
-                            player_draw_y);
-    } else {
-      move_metasprite(mario_metasprite, 0, 0, player_draw_x_camera_offset,
-                      player_draw_y);
-    }
+    player_draw();
+    enemy_update();
+    enemy_draw();
 
     time--;
     if (time == 0) {
@@ -464,9 +515,9 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "X:%d;XD:%d;\nCX:%d;VX:%d;";
+    char fmt[] = "X:%d;XD:%d;\nCX:%d;VX:%d;EC:%d;";
     sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
-            (int16_t)camera_x, vel_x);
+            (int16_t)camera_x, vel_x, enemy_count);
     text_print_string_win(0, 0, buffer);
 #endif
 
