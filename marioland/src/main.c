@@ -14,6 +14,8 @@
 #include "maps/world1area2.h"
 
 #include "camera.h"
+#include "enemy.h"
+#include "global.h"
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
@@ -36,10 +38,7 @@
 #define PLAYER_MAX_SPEED_RUN 28
 #define JUMP_MAX (5 * TILE_SIZE / JUMP_SPEED) << 4
 #define LOOP_PER_ANIMATION_FRAME 5
-#define MARIO_HALF_WIDTH TILE_SIZE / 2
-
-#define SPRITE_START_MARIO 0
-#define SPRITE_START_ENEMIES SPRITE_START_MARIO + mario_TILE_COUNT
+#define MARIO_HALF_WIDTH 4 // TILE_SIZE / 2
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -140,7 +139,7 @@ bool is_solid(int x, int y) {
   );
 }
 
-bool is_coin(int x, int y) {
+inline bool is_coin(int x, int y) {
   return get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE) == 11;
 }
 
@@ -161,42 +160,6 @@ void hud_update_score() {
   char score_str[4];
   itoa(score, score_str, 10);
   text_print_string_win(0, 1, score_str);
-}
-
-#define ENEMY_MAX 4
-uint8_t enemy_count = 0;
-
-typedef struct enemy_t {
-  uint16_t x;
-  uint16_t y;
-  uint16_t vel_x;
-  uint16_t vel_y;
-} enemy_t;
-
-enemy_t enemies[ENEMY_MAX];
-
-void enemy_new(uint16_t x, uint16_t y) {
-  if (enemy_count < ENEMY_MAX) {
-    enemy_t enemy = {.x = x, .y = y, vel_x = 0, vel_y = 0};
-    enemies[enemy_count] = enemy;
-    enemy_count++;
-  }
-}
-
-void enemy_update() {
-  for (uint8_t index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
-    enemies[index_enemy].x--;
-  }
-}
-
-void enemy_draw() {
-  for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
-    int enemy_draw_x_camera_offset = enemies[index_enemy].x - camera_x;
-    metasprite_t *enemy_metasprite = enemies_metasprites[0];
-    move_metasprite(enemy_metasprite, SPRITE_START_ENEMIES,
-                    SPRITE_START_ENEMIES, enemy_draw_x_camera_offset,
-                    enemies[index_enemy].y);
-  }
 }
 
 inline void on_get_coin(int x_right, int y_bottom) {
