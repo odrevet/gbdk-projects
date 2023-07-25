@@ -3,9 +3,9 @@
 uint8_t enemy_count = 0;
 enemy_t enemies[ENEMY_MAX];
 
-void enemy_new(uint16_t x, uint16_t y) {
+void enemy_new(uint16_t x, uint16_t y, uint8_t type) {
   if (enemy_count < ENEMY_MAX) {
-    enemy_t enemy = {.x = x, .y = y, .vel_x = 0, .vel_y = 0};
+    enemy_t enemy = {.x = x, .y = y, .vel_x = 0, .vel_y = 0, .type = type};
     enemies[enemy_count] = enemy;
     enemy_count++;
   }
@@ -13,7 +13,14 @@ void enemy_new(uint16_t x, uint16_t y) {
 
 void enemy_update() {
   for (uint8_t index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
-    enemies[index_enemy].x--;
+    switch (enemies[index_enemy].type) {
+    case ENEMY_TYPE_GOOMBA:
+      enemies[index_enemy].x--;
+      break;
+    case ENEMY_TYPE_KOOPA:
+      enemies[index_enemy].y--;
+      break;
+    }
   }
 }
 

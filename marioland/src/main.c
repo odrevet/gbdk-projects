@@ -269,7 +269,8 @@ void main(void) {
   set_win_tile_xy(7, 1, 11);
 
   // spawn enemies (WIP: spawn from TMX)
-  enemy_new(70, 136);
+  enemy_new(50, 136, ENEMY_TYPE_GOOMBA);
+  enemy_new(70, 136, ENEMY_TYPE_KOOPA);
 
   while (1) {
     // inputs

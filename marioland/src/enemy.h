@@ -14,17 +14,23 @@
 
 #define ENEMY_MAX 4
 
+enum enemy_type{
+  ENEMY_TYPE_GOOMBA, 
+  ENEMY_TYPE_KOOPA
+};
+
 typedef struct enemy_t {
   uint16_t x;
   uint16_t y;
   uint16_t vel_x;
   uint16_t vel_y;
+  uint8_t type;
 } enemy_t;
 
 extern uint8_t enemy_count;
 extern enemy_t enemies[ENEMY_MAX];
 
-void enemy_new(uint16_t x, uint16_t y);
+void enemy_new(uint16_t x, uint16_t y, uint8_t type);
 void enemy_update();
 void enemy_draw();
 
