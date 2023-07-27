@@ -225,6 +225,7 @@ void main(void) {
 
   set_sprite_data(SPRITE_START_MARIO, mario_TILE_COUNT, mario_tiles);
   set_sprite_data(SPRITE_START_ENEMIES, enemies_TILE_COUNT, enemies_tiles);
+  set_sprite_data(SPRITE_START_ENEMIES + enemies_TILE_COUNT, enemies_TILE_COUNT, enemies_tiles);
 
   level_index = 0;
   load_area2();
@@ -451,7 +452,7 @@ void main(void) {
 
     player_draw();
     enemy_update();
-    enemy_draw();
+    enemy_draw(SPRITE_START_ENEMIES);
 
     time--;
     if (time == 0) {

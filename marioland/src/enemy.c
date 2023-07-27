@@ -24,12 +24,12 @@ void enemy_update() {
   }
 }
 
-void enemy_draw() {
+void enemy_draw(int start) {
   for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
     int enemy_draw_x_camera_offset = enemies[index_enemy].x - camera_x;
     metasprite_t *enemy_metasprite = enemies_metasprites[0];
-    move_metasprite(enemy_metasprite, SPRITE_START_ENEMIES,
-                    SPRITE_START_ENEMIES, enemy_draw_x_camera_offset,
+    move_metasprite(enemy_metasprite, start,
+                    start + index_enemy * 4, enemy_draw_x_camera_offset,
                     enemies[index_enemy].y);
   }
 }
