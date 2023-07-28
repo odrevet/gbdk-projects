@@ -18,7 +18,7 @@ void enemy_update() {
       enemies[index_enemy].x--;
       break;
     case ENEMY_TYPE_KOOPA:
-      enemies[index_enemy].y--;
+      enemies[index_enemy].x--;
       break;
     }
   }
@@ -27,9 +27,19 @@ void enemy_update() {
 void enemy_draw(int start) {
   for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
     int enemy_draw_x_camera_offset = enemies[index_enemy].x - camera_x;
-    metasprite_t *enemy_metasprite = enemies_metasprites[0];
-    move_metasprite(enemy_metasprite, start,
-                    start + index_enemy * 4, enemy_draw_x_camera_offset,
-                    enemies[index_enemy].y);
+    int draw_index = 0;
+
+    switch (enemies[index_enemy].type) {
+    case ENEMY_TYPE_GOOMBA:
+      draw_index = 0;
+      break;
+    case ENEMY_TYPE_KOOPA:
+      draw_index = 2;
+      break;
+    }
+
+    metasprite_t *enemy_metasprite = enemies_metasprites[draw_index];
+    move_metasprite(enemy_metasprite, start, start + index_enemy * 4,
+                    enemy_draw_x_camera_offset, enemies[index_enemy].y);
   }
 }
