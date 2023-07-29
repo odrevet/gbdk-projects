@@ -9,20 +9,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "global.h"
 #include "camera.h"
+#include "global.h"
 
 #define ENEMY_MAX 4
 #define ENEMY_LOOP_PER_ANIMATION_FRAME 15
 
-enum enemy_type{
-  ENEMY_TYPE_GOOMBA, 
-  ENEMY_TYPE_KOOPA
-};
+enum enemy_type { ENEMY_TYPE_GOOMBA, ENEMY_TYPE_KOOPA };
 
 typedef struct enemy_t {
   uint16_t x;
   uint16_t y;
+  uint16_t draw_x;
+  uint16_t draw_y;
   uint16_t vel_x;
   uint16_t vel_y;
   uint8_t type;
