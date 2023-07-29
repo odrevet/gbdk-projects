@@ -13,6 +13,7 @@
 #include "camera.h"
 
 #define ENEMY_MAX 4
+#define ENEMY_LOOP_PER_ANIMATION_FRAME 15
 
 enum enemy_type{
   ENEMY_TYPE_GOOMBA, 
@@ -25,6 +26,9 @@ typedef struct enemy_t {
   uint16_t vel_x;
   uint16_t vel_y;
   uint8_t type;
+  uint8_t frame_counter;
+  uint8_t current_frame;
+  bool flip;
 } enemy_t;
 
 extern uint8_t enemy_count;
