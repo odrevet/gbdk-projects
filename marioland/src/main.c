@@ -19,26 +19,7 @@
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
-
-#define TILE_SIZE 8
-#define OFFSET_X 1
-#define OFFSET_Y 2
-#define SCREEN_HEIGHT_TILE 18
-#define SCREEN_WIDTH_TILE 20
-#define WINDOW_HEIGHT_TILE 2
-#define WINDOW_WIDTH_TILE SCREEN_WIDTH_TILE
-#define WINDOW_SIZE WINDOW_WIDTH_TILE *WINDOW_HEIGHT_TILE
-#define WINDOW_X MINWNDPOSX
-#define WINDOW_Y MINWNDPOSY
-
-#define TIME_INITIAL_VALUE 400
-#define GRAVITY_SPEED 36
-#define JUMP_SPEED 25
-#define PLAYER_MAX_SPEED_WALK 20
-#define PLAYER_MAX_SPEED_RUN 28
-#define JUMP_MAX (5 * TILE_SIZE / JUMP_SPEED) << 4
-#define LOOP_PER_ANIMATION_FRAME 5
-#define MARIO_HALF_WIDTH 4 // TILE_SIZE / 2
+#include "level.h"
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -49,13 +30,6 @@ uint8_t joy;
 uint16_t time;
 uint8_t lives;
 uint8_t level_index;
-
-// map
-const unsigned char *map;
-const unsigned char *map_attributes;
-short map_width;
-short map_height;
-short map_tile_count;
 
 // player coords and movements
 uint16_t player_x;
@@ -117,20 +91,6 @@ void load_area2() {
   map_width = world1area2_WIDTH;
   map_height = world1area2_HEIGHT;
   map_tile_count = world1area2_TILE_COUNT;
-}
-
-// TODO use solid map when available
-bool is_solid(int x, int y) {
-  const unsigned char tile =
-      map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE)];
-  return (tile != 0xf                   // empty
-          && tile != 0x1 && tile != 0xc // sky
-          && tile != 11                 // coin
-  );
-}
-
-inline bool is_coin(int x, int y) {
-  return get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE) == 11;
 }
 
 void hud_update_coins() {
