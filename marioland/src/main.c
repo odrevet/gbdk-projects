@@ -17,9 +17,9 @@
 #include "enemy.h"
 #include "global.h"
 #include "hUGEDriver.h"
+#include "level.h"
 #include "sound.h"
 #include "text.h"
-#include "level.h"
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -254,26 +254,33 @@ void main(void) {
     }
 #endif
 
-    if ((joypad_current & J_RIGHT) && vel_x < player_max_speed) {
-      vel_x += 1;
-      mario_flip = FALSE;
-      if (vel_x < 0) {
-        display_slide_frame = TRUE;
-      } else {
-        display_slide_frame = FALSE;
+    if (joypad_current & J_RIGHT) {
+      if (vel_x < player_max_speed) {
+        vel_x += 1;
+        mario_flip = FALSE;
+        if (vel_x < 0) {
+          display_slide_frame = TRUE;
+        } else {
+          display_slide_frame = FALSE;
+        }
+      } else if (vel_x > player_max_speed) {
+        vel_x -= 1;
       }
     } else if (vel_x > 0) {
       vel_x -= 1;
     }
 
-    if ((joypad_current & J_LEFT) && player_x > 12 &&
-        abs(vel_x) < player_max_speed) {
-      vel_x -= 1;
-      mario_flip = TRUE;
-      if (vel_x > 0) {
-        display_slide_frame = TRUE;
-      } else {
-        display_slide_frame = FALSE;
+    if ((joypad_current & J_LEFT)) {
+      if (player_x > 12 && abs(vel_x) < player_max_speed) {
+        vel_x -= 1;
+        mario_flip = TRUE;
+        if (vel_x > 0) {
+          display_slide_frame = TRUE;
+        } else {
+          display_slide_frame = FALSE;
+        }
+      } else if (abs(vel_x) > player_max_speed) {
+        vel_x += 1;
       }
     } else if (vel_x < 0) {
       vel_x += 1;
