@@ -11,7 +11,7 @@
 #define World1Tileset_TILE_H 8
 #define World1Tileset_WIDTH 160
 #define World1Tileset_HEIGHT 144
-#define World1Tileset_TILE_COUNT 17
+#define World1Tileset_TILE_COUNT 22
 #define World1Tileset_PALETTE_COUNT 1
 #define World1Tileset_COLORS_PER_PALETTE 4
 #define World1Tileset_TOTAL_COLORS 4
@@ -20,7 +20,7 @@
 BANKREF_EXTERN(World1Tileset)
 
 extern const palette_color_t World1Tileset_palettes[4];
-extern const uint8_t World1Tileset_tiles[272];
+extern const uint8_t World1Tileset_tiles[352];
 
 extern const unsigned char World1Tileset_map[360];
 
