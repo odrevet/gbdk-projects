@@ -57,7 +57,7 @@ void enemy_update() {
 }
 
 void enemy_draw(int start) {
-  for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
+  /*for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
     uint16_t draw_x = enemies[index_enemy].x >> 4;
     int enemy_draw_x_camera_offset = draw_x - camera_x;
     uint8_t draw_index = enemies[index_enemy].current_frame;
@@ -70,5 +70,5 @@ void enemy_draw(int start) {
       move_metasprite(enemy_metasprite, start, start + index_enemy * 4,
                       enemy_draw_x_camera_offset, enemies[index_enemy].y);
     }
-  }
+  }*/
 }

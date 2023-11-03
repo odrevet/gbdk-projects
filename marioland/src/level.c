@@ -7,10 +7,6 @@ short map_height;
 short map_tile_count;
 
 bool is_solid(int x, int y) {
-  const unsigned char tile =
-      map[map_width * (y / TILE_SIZE - 1) + (x / TILE_SIZE)];
-  return (tile != 0xf                   // empty
-          && tile != 0x1 && tile != 0xc // sky
-          && tile != 11                 // coin
-  );
+  const unsigned char tile = get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE - 2);
+  return tile == 0x22;
 }

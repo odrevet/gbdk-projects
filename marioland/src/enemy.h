@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "camera.h"
 #include "global.h"
 
 #define ENEMY_MAX 4
