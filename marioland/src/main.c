@@ -16,7 +16,6 @@
 #include "enemy.h"
 #include "global.h"
 #include "hUGEDriver.h"
-#include "level.h"
 #include "sound.h"
 #include "text.h"
 
@@ -29,9 +28,12 @@ INCBIN_EXTERN(level_tiles_bin)
 
 #define DEVICE_SCREEN_PX_WIDTH_HALF DEVICE_SCREEN_PX_WIDTH / 2
 #define LEVEL_HEIGHT 16
+#define MARGIN_TOP 2
+#define MARGIN_TOP_PX 2 * TILE_SIZE
+#define DEVICE_SPRITE_OFFSET_Y 2
 
-uint8_t coldata[LEVEL_HEIGHT]; // buffer for one columns
-uint8_t mapdata[LEVEL_HEIGHT * DEVICE_SCREEN_WIDTH + 1]; // buffer for map chunk
+uint8_t coldata[LEVEL_HEIGHT];                      // buffer of one columns
+uint8_t mapdata[DEVICE_SCREEN_WIDTH][LEVEL_HEIGHT]; // displayed map
 uint8_t datapos = 0;
 int16_t half_screen_player_overflow = 0;
 int16_t prevhalf_screen_player_overflow = 0;
@@ -67,14 +69,21 @@ uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 
+enum tileset_index {
+  TILE_COIN = 0x13,
+  BREAKABLE_BLOCK = 0x14, 
+  TILE_FLOOR = 0x22,
+  TILE_INTEROGATION_BLOCK = 0x0A
+};
+
 // music
 // extern const hUGESong_t fish_n_chips;
 extern const hUGESong_t cognition;
 
-inline bool is_solid_mapdata(int x, int y) {
-  const unsigned char tile =
-      mapdata[DEVICE_SCREEN_WIDTH * (y / TILE_SIZE) + (x / TILE_SIZE)];
-  return tile == 0x22;
+inline bool is_solid(int x, int y) {
+  const uint8_t tile =
+      mapdata[x / TILE_SIZE][y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y];
+  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK;
 }
 
 void update_frame_counter() {
@@ -89,6 +98,10 @@ void init_map() {
   SCX_REG = 0;
   // map_width = level_1_1_WIDTH;
   // map_height = level_1_1_HEIGHT;
+}
+
+inline bool is_coin(int x, int y) {
+  return FALSE; // get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE) == 11;
 }
 
 void hud_update_coins() {
@@ -158,7 +171,7 @@ void main(void) {
   STAT_REG = 0x40;
   LYC_REG = 0x0F;
 
-  move_bkg(0, -16);
+  move_bkg(0, -MARGIN_TOP_PX);
 
   disable_interrupts();
   add_LCD(interruptLCD);
@@ -222,7 +235,7 @@ void main(void) {
   text_print_string_win(0, 1, "   0   X00  1-1  400  ");
 
   // display a coin in the HUD
-  // set_win_tile_xy(7, 1, 11);
+  set_win_tile_xy(6, 1, 0x13);
 
   // spawn enemies
   // enemy_new(50, 136, ENEMY_TYPE_GOOMBA);
@@ -234,21 +247,19 @@ void main(void) {
   rle_init(level_map_bin_rle);
   set_bkg_data(0, INCBIN_SIZE(level_tiles_bin) >> 4, level_tiles_bin);
 
-  for (uint8_t index_col = 0; (index_col != DEVICE_SCREEN_WIDTH + 1);
-       index_col++) {
+  for (uint8_t col = 0; col < DEVICE_SCREEN_WIDTH + 1; col++) {
     // decompress a column of tile data
     rle_decompress(coldata, LEVEL_HEIGHT);
 
-    // uint8_t coldatax[DEVICE_SCREEN_HEIGHT] = {0, 0, 0, 0, 0, 0, 0x22};
-    // memcpy(coldata, coldatax, DEVICE_SCREEN_HEIGHT);
-
     // copy to VRAM
-    set_bkg_tiles(index_col & (DEVICE_SCREEN_BUFFER_WIDTH - 1), 0, 1,
+    set_bkg_tiles(col & (DEVICE_SCREEN_BUFFER_WIDTH - 1), 0, 1,
                   DEVICE_SCREEN_HEIGHT, coldata);
 
     // copy coldata to mapdata column by column
-    for (uint8_t i = 0; i < LEVEL_HEIGHT; i++) {
-      mapdata[i * DEVICE_SCREEN_WIDTH + index_col] = coldata[i];
+    if (col < DEVICE_SCREEN_WIDTH) {
+      for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
+        mapdata[col][row] = coldata[row];
+      }
     }
   }
 
@@ -478,6 +489,10 @@ void main(void) {
         }
 
         set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+
+        //for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
+        //  mapdata[DEVICE_SCREEN_WIDTH - 1][row] = coldata[row];
+        //}
       }
     }
   }
