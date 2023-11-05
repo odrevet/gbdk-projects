@@ -6,5 +6,13 @@ png2asset "./assets/level_1_1.png" -c "res/level_1_1.c" -transposed -noflip -map
 gbcompress --alg=rle res/level_1_1_map.bin res/level_1_1_map.bin.rle
 rm res/level_1_1_map.bin
 
+png2asset "./assets/level_1_2.png" -c "res/level_1_2.c" -transposed -noflip -map -bin 
+gbcompress --alg=rle res/level_1_2_map.bin res/level_1_2_map.bin.rle
+rm res/level_1_2_map.bin
+
+png2asset "./assets/level_1_3.png" -c "res/level_1_3.c" -transposed -noflip -map -bin 
+gbcompress --alg=rle res/level_1_3_map.bin res/level_1_3_map.bin.rle
+rm res/level_1_3_map.bin
+
 # force compilation
 touch src/main.c
