@@ -32,11 +32,12 @@ INCBIN_EXTERN(level_tiles_bin)
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
 
-uint8_t coldata[LEVEL_HEIGHT];                      // buffer of one columns
-uint8_t mapdata[DEVICE_SCREEN_WIDTH][LEVEL_HEIGHT]; // displayed map
+uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
+// uint8_t mapdata[DEVICE_SCREEN_WIDTH][LEVEL_HEIGHT]; // for collision
 uint8_t datapos = 0;
-int16_t half_screen_player_overflow = 0;
-int16_t prevhalf_screen_player_overflow = 0;
+
+uint16_t camera_x = 0;
+uint16_t camera_x_mask = 0;
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -71,7 +72,11 @@ bool mario_flip;
 
 enum tileset_index {
   TILE_COIN = 0x13,
-  BREAKABLE_BLOCK = 0x14, 
+  BREAKABLE_BLOCK = 0x14,
+  PIPE_TOP_LEFT = 0x17,
+  PIPE_TOP_RIGHT = 0x18,
+  PIPE_CENTER_LEFT = 0x19,
+  PIPE_CENTER_RIGHT = 0x20, // todo correct this value
   TILE_FLOOR = 0x22,
   TILE_INTEROGATION_BLOCK = 0x0A
 };
@@ -80,10 +85,19 @@ enum tileset_index {
 // extern const hUGESong_t fish_n_chips;
 extern const hUGESong_t cognition;
 
-inline bool is_solid(int x, int y) {
+/*inline bool is_solid(int x, int y) {
   const uint8_t tile =
       mapdata[x / TILE_SIZE][y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y];
-  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK;
+  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
+         tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT;
+}*/
+
+inline bool is_solid(int x, int y) {
+  const uint8_t tile =
+      get_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y);
+  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
+         tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
+         tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT;
 }
 
 void update_frame_counter() {
@@ -96,6 +110,8 @@ void update_frame_counter() {
 
 void init_map() {
   SCX_REG = 0;
+  camera_x = 0;
+  camera_x_mask = 0;
   // map_width = level_1_1_WIDTH;
   // map_height = level_1_1_HEIGHT;
 }
@@ -140,7 +156,7 @@ inline void on_get_coin(int x_right, int y_bottom) {
   hud_update_score();
 }
 
-void player_draw() {
+/*void player_draw() {
   metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
   if (mario_flip) {
     move_metasprite_vflip(
@@ -149,6 +165,20 @@ void player_draw() {
   } else {
     move_metasprite(mario_metasprite, 0, 0,
                     player_draw_x + DEVICE_SPRITE_PX_OFFSET_X,
+                    player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
+  }
+}
+*/
+
+void player_draw() {
+  int player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
+  metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
+  if (mario_flip) {
+    move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
+                          player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y -
+                              TILE_SIZE);
+  } else {
+    move_metasprite(mario_metasprite, 0, 0, player_draw_x_camera_offset,
                     player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   }
 }
@@ -256,11 +286,11 @@ void main(void) {
                   DEVICE_SCREEN_HEIGHT, coldata);
 
     // copy coldata to mapdata column by column
-    if (col < DEVICE_SCREEN_WIDTH) {
+    /*if (col < DEVICE_SCREEN_WIDTH) {
       for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
         mapdata[col][row] = coldata[row];
       }
-    }
+    }*/
   }
 
   while (1) {
@@ -416,7 +446,6 @@ void main(void) {
       }
 
       player_draw_x = player_x >> 4;
-      half_screen_player_overflow = player_draw_x - DEVICE_SCREEN_PX_WIDTH_HALF;
     }
 
     // set player frame
@@ -439,9 +468,8 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "X:%d;X DRAW:%d;\nXV:%d;XOF:%d;HL:%d;";
-    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x, vel_x,
-            half_screen_player_overflow, DEVICE_SCREEN_HEIGHT);
+    char fmt[] = "X:%d;X DRAW:%d;\nXV:%d;CX:%d;";
+    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x, vel_x, camera_x);
     text_print_string_win(0, 0, buffer);
 #endif
 
@@ -472,28 +500,22 @@ void main(void) {
     wait_vbl_done();
 
     // scroll
-    if (half_screen_player_overflow > 0) {
-      player_x = DEVICE_SCREEN_PX_WIDTH_HALF << 4;
-      SCX_REG += half_screen_player_overflow;
-      prevhalf_screen_player_overflow += half_screen_player_overflow;
-      half_screen_player_overflow = 0;
 
-      if (prevhalf_screen_player_overflow >= TILE_SIZE) {
-        prevhalf_screen_player_overflow -= TILE_SIZE;
-        datapos = (SCX_REG >> 3);
-        uint8_t map_x_column =
-            (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+    if (vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {
+      camera_x_mask += vel_x;
+      camera_x = camera_x_mask >> 4;
+      SCX_REG = camera_x;
+      // redraw = TRUE;
 
-        if (!rle_decompress(coldata, LEVEL_HEIGHT)) {
-          // no more data
-        }
+      /*datapos = (SCX_REG >> 3);
+      uint8_t map_x_column =
+          (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
 
-        set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-
-        //for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-        //  mapdata[DEVICE_SCREEN_WIDTH - 1][row] = coldata[row];
-        //}
+      if (!rle_decompress(coldata, LEVEL_HEIGHT)) {
+        // no more data
       }
+
+      set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);*/
     }
   }
 }
