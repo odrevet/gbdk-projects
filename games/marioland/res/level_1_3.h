@@ -6,7 +6,7 @@
 #include <gbdk/platform.h>
 #include <gbdk/metasprites.h>
 
-#define level_1_3_TILE_ORIGIN 0
+#define level_1_3_TILE_ORIGIN 60
 #define level_1_3_TILE_W 8
 #define level_1_3_TILE_H 8
 #define level_1_3_WIDTH 2560

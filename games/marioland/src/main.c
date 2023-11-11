@@ -15,6 +15,7 @@
 
 #include "enemy.h"
 #include "global.h"
+#include "graphics/text.h"
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
@@ -31,6 +32,10 @@ INCBIN_EXTERN(level_tiles_bin)
 #define MARGIN_TOP 2
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
+
+// Tilesets offsets
+#define TEXT_TILESET_START 0
+#define LEVEL_TILESET_START text_TILE_COUNT - 3
 
 uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
 uint8_t datapos = 0;
@@ -74,16 +79,17 @@ uint16_t scroll_modulo = 0;
 uint16_t previous_scroll_modulo = TILE_SIZE;
 
 enum tileset_index {
-  TILE_UNBREAKABLE = 0x0B,
-  TILE_COIN = 0x13,
-  BREAKABLE_BLOCK = 0x14,
-  PIPE_TOP_LEFT = 0x17,
-  PIPE_TOP_RIGHT = 0x18,
-  PIPE_CENTER_LEFT = 0x19,
-  PIPE_CENTER_RIGHT = 0x1A,
-  TILE_FLOOR = 0x22,
-  TILE_INTEROGATION_BLOCK = 0x0A,
-  TILE_EMPTIED = 0X1E
+  TILE_EMPTY = LEVEL_TILESET_START + 0x01,
+  TILE_UNBREAKABLE = LEVEL_TILESET_START + 0x0B,
+  TILE_COIN = LEVEL_TILESET_START + 0x13,
+  BREAKABLE_BLOCK = LEVEL_TILESET_START + 0x14,
+  PIPE_TOP_LEFT = LEVEL_TILESET_START + 0x17,
+  PIPE_TOP_RIGHT = LEVEL_TILESET_START + 0x18,
+  PIPE_CENTER_LEFT = LEVEL_TILESET_START + 0x19,
+  PIPE_CENTER_RIGHT = LEVEL_TILESET_START + 0x1A,
+  TILE_FLOOR = LEVEL_TILESET_START + 0x22,
+  TILE_INTEROGATION_BLOCK = LEVEL_TILESET_START + 0x0A,
+  TILE_EMPTIED = LEVEL_TILESET_START + 0X1E
 };
 
 // music
@@ -132,7 +138,7 @@ void hud_update_score() {
 }
 
 inline void on_get_coin(int x_right, int y_bottom) {
-  set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, TILE_COIN);
+  set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, TILE_EMPTY);
 
   sound_play_bump(); // TODO play sound coin
 
@@ -149,7 +155,7 @@ inline void on_get_coin(int x_right, int y_bottom) {
 }
 
 void player_draw() {
-  int player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
+  uint16_t player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
   metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
   if (mario_flip) {
     move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
@@ -193,15 +199,12 @@ void main(void) {
     add_VBL(hUGE_dosound);
   };
 
-  // text
-  text_load_font();
-
   // joypad
   int joypad_previous, joypad_current = 0;
 
   // player
-  player_x = ((DEVICE_SCREEN_WIDTH / 2) * TILE_SIZE) << 4;
-  player_y = ((DEVICE_SCREEN_HEIGHT / 2) * TILE_SIZE) << 4;
+  player_x = 43 << 4;
+  player_y = (16 * TILE_SIZE) << 4;
   player_draw_x = player_x >> 4;
   player_draw_y = player_y >> 4;
 
@@ -234,8 +237,8 @@ void main(void) {
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH_TILE, WINDOW_HEIGHT_TILE, windata);
   move_win(WINDOW_X, WINDOW_Y);
-  text_print_string_win(0, 0, "MARIOX01  WORLD TIME");
-  text_print_string_win(0, 1, "     0  X00 1-1  400  ");
+  text_print_string_win(0, 0, "MARIOx02  WORLD TIME");
+  text_print_string_win(0, 1, "     0  x00 1-1  400");
 
   // display a coin in the HUD
   set_win_tile_xy(7, 1, TILE_COIN);
@@ -250,11 +253,14 @@ void main(void) {
   // enemy_new(50, 136, ENEMY_TYPE_GOOMBA);
   // enemy_new(70, 136, ENEMY_TYPE_KOOPA);
 
+  // HUD
+  set_bkg_data(TEXT_TILESET_START, text_TILE_COUNT, text_tiles);
+
   // map
-  uint16_t mapdata_index = 0;
+  set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
+               level_tiles_bin);
 
   rle_init(level_map_bin_rle);
-  set_bkg_data(0, INCBIN_SIZE(level_tiles_bin) >> 4, level_tiles_bin);
 
   for (uint8_t col = 0; col < DEVICE_SCREEN_WIDTH + 1; col++) {
     // decompress a column of tile data
@@ -263,13 +269,6 @@ void main(void) {
     // copy to VRAM
     set_bkg_tiles(col & (DEVICE_SCREEN_BUFFER_WIDTH - 1), 0, 1,
                   DEVICE_SCREEN_HEIGHT, coldata);
-
-    // copy coldata to mapdata column by column
-    /*if (col < DEVICE_SCREEN_WIDTH) {
-      for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-        mapdata[col][row] = coldata[row];
-      }
-    }*/
   }
 
   while (1) {
@@ -294,7 +293,7 @@ void main(void) {
     }
 
     if ((joypad_current & J_LEFT)) {
-      if (player_x > 12 && abs(vel_x) < player_max_speed) {
+      if (abs(vel_x) < player_max_speed) {
         vel_x -= 1;
         mario_flip = TRUE;
         if (vel_x > 0) {
@@ -447,9 +446,9 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "X:%d;X DRAW:%d;\nXV:%d;CX:%d;T:%d;";
-    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x, vel_x,
-            camera_x,
+    char fmt[] = "X:%d;XD:%d;MC:%d;\nXV:%d;CX:%d;T:%d;";
+    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
+            player_draw_x - camera_x, vel_x, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
                             player_draw_y / TILE_SIZE - 1));
@@ -496,9 +495,9 @@ void main(void) {
         uint8_t map_x_column =
             (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
 
-        if (!rle_decompress(coldata, LEVEL_HEIGHT)) {
-          // no more data
-        }
+        bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
+        //if (!more_data) {
+        //}
 
         set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
       }

@@ -6,7 +6,7 @@
 #include <gbdk/platform.h>
 #include <gbdk/metasprites.h>
 
-#define level_1_1_TILE_ORIGIN 0
+#define level_1_1_TILE_ORIGIN 35
 #define level_1_1_TILE_W 8
 #define level_1_1_TILE_H 8
 #define level_1_1_WIDTH 2400

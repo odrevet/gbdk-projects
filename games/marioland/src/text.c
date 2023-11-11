@@ -1,60 +1,112 @@
 #include "text.h"
+#include "graphics/text.h"
 
-void text_load_font() {
-  set_bkg_data(TEXT_FONT_OFFSET, font_TILE_COUNT, font_tiles);
-}
+void text_print_char_win(uint8_t x, uint8_t y, unsigned char chr) {
+  uint8_t tile;
 
-// Write the given char at the (x, y) position on the Background layer
-void text_print_char_win(UINT8 x, UINT8 y, unsigned char chr) {
-  UINT8 tile = _TEXT_CHAR_TOFU;
-
-  if (chr >= 'a' && chr <= 'z') {
-    tile = _TEXT_CHAR_A + chr - 'a';
-  } else if (chr >= 'A' && chr <= 'Z') {
-    tile = _TEXT_CHAR_A + chr - 'A';
-  } else if (chr >= '0' && chr <= '9') {
-    tile = _TEXT_CHAR_0 + chr - '0';
+  if (chr >= '0' && chr <= '9') {
+    tile = 0 + chr - '0';
   } else {
     switch (chr) {
-    case '\'':
-      tile = _TEXT_CHAR_APOSTROPHE;
+    case 'A':
+      tile = LETTERS_STARTS_AT + 0;
       break;
-    case '-':
-      tile = _TEXT_CHAR_DASH;
+    case 'B':
+      tile = LETTERS_STARTS_AT + 1;
+      break;
+    case 'C':
+      tile = LETTERS_STARTS_AT + 2;
+      break;
+    case 'D':
+      tile = LETTERS_STARTS_AT + 3;
+      break;
+    case 'E':
+      tile = LETTERS_STARTS_AT + 4;
+      break;
+    case 'F':
+      tile = LETTERS_STARTS_AT + 5;
+      break;
+    case 'G':
+      tile = LETTERS_STARTS_AT + 6;
+      break;
+    case 'H':
+      tile = LETTERS_STARTS_AT + 7;
+      break;
+    case 'I':
+      tile = LETTERS_STARTS_AT + 8;
+      break;
+    case 'K':
+      tile = LETTERS_STARTS_AT + 9;
+      break;
+    case 'L':
+      tile = LETTERS_STARTS_AT + 10;
+      break;
+    case 'M':
+      tile = LETTERS_STARTS_AT + 11;
+      break;
+    case 'N':
+      tile = LETTERS_STARTS_AT + 12;
+      break;
+    case 'O':
+      tile = 0; // 0 and O are the same character
+      break;
+    case 'P':
+      tile = LETTERS_STARTS_AT + 13;
+      break;
+    case 'Q':
+      tile = LETTERS_STARTS_AT + 14;
+      break;
+    case 'R':
+      tile = LETTERS_STARTS_AT + 15;
+      break;
+    case 'S':
+      tile = LETTERS_STARTS_AT + 16;
+      break;
+    case 'T':
+      tile = LETTERS_STARTS_AT + 17;
+      break;
+    case 'U':
+      tile = LETTERS_STARTS_AT + 18;
+      break;
+    case 'V':
+      tile = LETTERS_STARTS_AT + 19;
+      break;
+    case 'W':
+      tile = LETTERS_STARTS_AT + 20;
+      break;
+    case 'Y':
+      tile = LETTERS_STARTS_AT + 21;
+      break;
+    case 'Z':
+      tile = LETTERS_STARTS_AT + 22;
       break;
     case '.':
-      tile = _TEXT_CHAR_DOT;
+      tile = LETTERS_STARTS_AT + 23;
       break;
     case ',':
-      tile = _TEXT_CHAR_COMMA;
-      break;
-    case ':':
-      tile = _TEXT_CHAR_COLON;
+      tile = LETTERS_STARTS_AT + 24;
       break;
     case '!':
-      tile = _TEXT_CHAR_EXCLAMATION;
+      tile = LETTERS_STARTS_AT + 25;
       break;
     case '?':
-      tile = _TEXT_CHAR_INTERROGATION;
+      tile = LETTERS_STARTS_AT + 26;
       break;
-    case '(':
-      tile = _TEXT_CHAR_LPARENTHESES;
-      break;
-    case ')':
-      tile = _TEXT_CHAR_RPARENTHESES;
+    case 'x':
+      tile = LETTERS_STARTS_AT + 27;
       break;
     case ' ':
-      tile = _TEXT_CHAR_SPACE;
-      break;
+    default:
+      tile = LETTERS_STARTS_AT + 26;
     }
   }
 
-  set_win_tiles(x, y, 1, 1, &tile);
+  set_win_tile_xy(x, y, tile + text_TILE_ORIGIN);
 }
 
-void text_print_string_win(UINT8 x, UINT8 y, unsigned char *string) {
-  UINT8 offset_x = 0;
-  UINT8 offset_y = 0;
+void text_print_string_win(uint8_t x, uint8_t y, unsigned char *string) {
+  uint8_t offset_x = 0;
+  uint8_t offset_y = 0;
 
   while (string[0]) {
     if (string[0] == '\n') {
