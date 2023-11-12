@@ -11,7 +11,7 @@
 #define text_TILE_H 8
 #define text_WIDTH 80
 #define text_HEIGHT 32
-#define text_TILE_COUNT 38
+#define text_TILE_COUNT 36
 #define text_PALETTE_COUNT 1
 #define text_COLORS_PER_PALETTE 4
 #define text_TOTAL_COLORS 4
@@ -19,7 +19,7 @@
 BANKREF_EXTERN(text)
 
 extern const palette_color_t text_palettes[4];
-extern const uint8_t text_tiles[608];
+extern const uint8_t text_tiles[576];
 
 
 #endif

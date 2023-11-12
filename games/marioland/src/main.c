@@ -35,7 +35,7 @@ INCBIN_EXTERN(level_tiles_bin)
 
 // Tilesets offsets
 #define TEXT_TILESET_START 0
-#define LEVEL_TILESET_START text_TILE_COUNT - 3
+#define LEVEL_TILESET_START text_TILE_COUNT
 
 uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
 uint8_t datapos = 0;
