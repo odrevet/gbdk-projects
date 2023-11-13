@@ -75,8 +75,7 @@ uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 
-uint16_t scroll_modulo = 0;
-uint16_t previous_scroll_modulo = TILE_SIZE;
+uint16_t previous_scroll = 0;
 
 enum tileset_index {
   TILE_EMPTY = LEVEL_TILESET_START + 0x01,
@@ -175,14 +174,22 @@ void interruptLCD() {
 
 void interruptVBL() { SHOW_WIN; }
 
-inline bool bkg_load_column() {
+inline bool bkg_load_column(uint8_t nb) {
   datapos = (SCX_REG >> 3);
-  uint8_t map_x_column =
-      (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
 
-  bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
-  set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-  return more_data;
+  for (int i = 0; i < nb; i++) {
+    uint8_t map_x_column =
+        (i + datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+
+    bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
+    if (more_data) {
+      set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+    } else {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void main(void) {
@@ -473,9 +480,9 @@ void main(void) {
     }
 
     // check coins
-
-    if (is_coin(x_right_draw, y_bottom_draw - TILE_SIZE)) {
-      on_get_coin(x_right_draw, y_bottom_draw - TILE_SIZE);
+    /*
+    if (is_coin(x_right_draw, y_bottom_draw)) {
+      on_get_coin(x_right_draw, y_bottom_draw);
     }
 
     if (is_coin(x_right_draw, y_top_draw)) {
@@ -488,21 +495,19 @@ void main(void) {
 
     if (is_coin(x_left_draw, y_top_draw)) {
       on_get_coin(x_left_draw, y_top_draw);
-    }
+    }*/
 
     wait_vbl_done();
 
     // scroll
-
     if (vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {
       camera_x_mask += vel_x;
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
-      scroll_modulo = camera_x + (camera_x % TILE_SIZE);
-
-      if (scroll_modulo >= previous_scroll_modulo) {
-        previous_scroll_modulo = scroll_modulo + TILE_SIZE;
-        bkg_load_column();
+      uint16_t diff = camera_x - previous_scroll;
+      if (diff >= TILE_SIZE) {
+        previous_scroll = camera_x;
+        bkg_load_column(diff / TILE_SIZE);
       }
     }
   }
