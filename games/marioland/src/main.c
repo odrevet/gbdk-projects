@@ -175,6 +175,16 @@ void interruptLCD() {
 
 void interruptVBL() { SHOW_WIN; }
 
+inline bool bkg_load_column() {
+  datapos = (SCX_REG >> 3);
+  uint8_t map_x_column =
+      (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+
+  bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
+  set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+  return more_data;
+}
+
 void main(void) {
   DISPLAY_ON;
   SHOW_BKG;
@@ -446,12 +456,13 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "X:%d;XD:%d;MC:%d;\nXV:%d;CX:%d;T:%d;";
+    char fmt[] = "x%d-xD%d-MC%d;\nxV%d-Cx%d-T%d-L%d-";
     sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
             player_draw_x - camera_x, vel_x, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
-                            player_draw_y / TILE_SIZE - 1));
+                            player_draw_y / TILE_SIZE - 1),
+            (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1));
     text_print_string_win(0, 0, buffer);
 #endif
 
@@ -491,15 +502,7 @@ void main(void) {
 
       if (scroll_modulo >= previous_scroll_modulo) {
         previous_scroll_modulo = scroll_modulo + TILE_SIZE;
-        datapos = (SCX_REG >> 3);
-        uint8_t map_x_column =
-            (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
-
-        bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
-        //if (!more_data) {
-        //}
-
-        set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+        bkg_load_column();
       }
     }
   }
