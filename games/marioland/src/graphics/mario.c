@@ -132,31 +132,45 @@ const uint8_t mario_tiles[416] = {
 };
 
 const metasprite_t mario_metasprite0[] = {
-	METASPR_ITEM(-8, -8, 0, 0), METASPR_ITEM(0, 8, 2, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 0, S_PAL(0)),
+	METASPR_ITEM(0, 8, 2, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite1[] = {
-	METASPR_ITEM(-8, -8, 4, 0), METASPR_ITEM(0, 8, 6, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 4, S_PAL(0)),
+	METASPR_ITEM(0, 8, 6, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite2[] = {
-	METASPR_ITEM(-8, -8, 8, 0), METASPR_ITEM(0, 8, 10, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 8, S_PAL(0)),
+	METASPR_ITEM(0, 8, 10, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite3[] = {
-	METASPR_ITEM(-8, -8, 12, 0), METASPR_ITEM(0, 8, 14, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 12, S_PAL(0)),
+	METASPR_ITEM(0, 8, 14, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite4[] = {
-	METASPR_ITEM(-8, -8, 16, 0), METASPR_ITEM(0, 8, 18, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 16, S_PAL(0)),
+	METASPR_ITEM(0, 8, 18, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite5[] = {
-	METASPR_ITEM(-8, -8, 20, 0), METASPR_ITEM(0, 8, 22, 0), METASPR_TERM
+	METASPR_ITEM(-8, -8, 20, S_PAL(0)),
+	METASPR_ITEM(0, 8, 22, S_PAL(0)),
+	METASPR_TERM
 };
 
 const metasprite_t mario_metasprite6[] = {
-	METASPR_ITEM(-8, -8, 24, 0), METASPR_ITEM(0, 8, 24, 32), METASPR_TERM
+	METASPR_ITEM(-8, -8, 24, S_PAL(0)),
+	METASPR_ITEM(0, 8, 24, S_PAL(0) | S_FLIPX),
+	METASPR_TERM
 };
 
 const metasprite_t* const mario_metasprites[7] = {
