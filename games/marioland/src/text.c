@@ -5,7 +5,7 @@ void text_print_char_win(uint8_t x, uint8_t y, unsigned char chr) {
   uint8_t tile;
 
   if (chr >= '0' && chr <= '9') {
-    tile = 0 + chr - '0';
+    tile = chr - '0';
   } else {
     switch (chr) {
     case 'A':

@@ -32,17 +32,16 @@ INCBIN_EXTERN(level_tiles_bin)
 #define MARGIN_TOP 2
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
+#define PAGE_SIZE 1
 
 // Tilesets offsets
 #define TEXT_TILESET_START 0
 #define LEVEL_TILESET_START text_TILE_COUNT
 
 uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
-uint8_t datapos = 0;
 
 uint16_t camera_x = 0;
 uint16_t camera_x_mask = 0;
-uint16_t camera_x_previous = 0;
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -53,6 +52,7 @@ uint8_t joy;
 uint16_t time;
 uint8_t lives;
 uint8_t level_index;
+uint8_t joypad_previous, joypad_current;
 
 // player coords and movements
 uint16_t player_x;
@@ -133,7 +133,13 @@ void hud_update_coins() {
 void hud_update_score() {
   char score_str[4];
   itoa(score, score_str, 10);
-  text_print_string_win(0, 1, score_str);
+  text_print_string_win(3, 1, score_str);
+}
+
+void hud_update_time() {
+  char time_str[3];
+  itoa(time, time_str, 10);
+  text_print_string_win(DEVICE_SCREEN_WIDTH - 3, 1, time_str);
 }
 
 inline void on_get_coin(int x_right, int y_bottom) {
@@ -174,15 +180,37 @@ void interruptLCD() {
 
 void interruptVBL() { SHOW_WIN; }
 
-inline bool bkg_load_column(uint8_t nb) {
-  datapos = (SCX_REG >> 3);
+void pause() {
+  hUGE_mute_channel(0, HT_CH_MUTE);
+  hUGE_mute_channel(1, HT_CH_MUTE);
+  hUGE_mute_channel(2, HT_CH_MUTE);
+  hUGE_mute_channel(3, HT_CH_MUTE);
 
-  for (int i = 0; i < nb; i++) {
-    uint8_t map_x_column =
-        (i + datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+  sound_play_jumping();
+  text_print_string_win(15, 1, "PAUSE");
+  wait_vbl_done();
 
+  while (1) {
+    joypad_previous = joypad_current;
+    joypad_current = joypad();
+    if (joypad_current & J_START && !(joypad_previous & J_START)) {
+      break;
+    }
+  }
+
+  hUGE_mute_channel(0, HT_CH_PLAY);
+  hUGE_mute_channel(1, HT_CH_PLAY);
+  hUGE_mute_channel(2, HT_CH_PLAY);
+  hUGE_mute_channel(3, HT_CH_PLAY);
+  text_print_string_win(0, 1, "     0  x00 1-1  400");
+  set_win_tile_xy(7, 1, TILE_COIN);
+}
+
+inline bool bkg_load_column(uint8_t at, uint8_t nb) {
+  for (int col = 0; col < nb; col++) {
     bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
     if (more_data) {
+      uint8_t map_x_column = (col + at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
       set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
     } else {
       return false;
@@ -193,12 +221,6 @@ inline bool bkg_load_column(uint8_t nb) {
 }
 
 void main(void) {
-  DISPLAY_ON;
-  SHOW_BKG;
-  SHOW_WIN;
-  SHOW_SPRITES;
-  SPRITES_8x16;
-
   STAT_REG = 0x40;
   LYC_REG = 0x0F;
 
@@ -217,7 +239,7 @@ void main(void) {
   };
 
   // joypad
-  int joypad_previous, joypad_current = 0;
+  joypad_previous, joypad_current = 0;
 
   // player
   player_x = 43 << 4;
@@ -276,17 +298,14 @@ void main(void) {
   // map
   set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
                level_tiles_bin);
-
   rle_init(level_map_bin_rle);
+  bkg_load_column(0, DEVICE_SCREEN_WIDTH + PAGE_SIZE);
 
-  for (uint8_t col = 0; col < DEVICE_SCREEN_WIDTH + 1; col++) {
-    // decompress a column of tile data
-    rle_decompress(coldata, LEVEL_HEIGHT);
-
-    // copy to VRAM
-    set_bkg_tiles(col & (DEVICE_SCREEN_BUFFER_WIDTH - 1), 0, 1,
-                  DEVICE_SCREEN_HEIGHT, coldata);
-  }
+  DISPLAY_ON;
+  SHOW_BKG;
+  SHOW_WIN;
+  SHOW_SPRITES;
+  SPRITES_8x16;
 
   while (1) {
     // inputs
@@ -333,20 +352,9 @@ void main(void) {
     }
 
     // pause
-    /*if (joypad_current & J_START && !(joypad_previous & J_START)) {
-      sound_play_jumping();                 // TODO pause sound
-      text_print_string_win(0, 0, "PAUSE"); // TODO bottom
-
-      while (1) {
-        joypad_current = joypad();
-        // TODO if press start
-        if (joypad_current & J_A && !(joypad_previous & J_A)) {
-          break;
-        }
-
-        wait_vbl_done();
-      }
-    }*/
+    if (joypad_current & J_START && !(joypad_previous & J_START)) {
+      pause();
+    }
 
     if (joypad_current & J_B) {
       player_max_speed = PLAYER_MAX_SPEED_RUN;
@@ -474,9 +482,11 @@ void main(void) {
 #endif
 
     time--;
+    // hud_update_time();
     if (time == 0) {
       time = TIME_INITIAL_VALUE;
       lives--;
+      // hud_update_lives();
     }
 
     // check coins
@@ -507,7 +517,7 @@ void main(void) {
       uint16_t diff = camera_x - previous_scroll;
       if (diff >= TILE_SIZE) {
         previous_scroll = camera_x;
-        bkg_load_column(diff / TILE_SIZE);
+        bkg_load_column((SCX_REG >> 3) + DEVICE_SCREEN_WIDTH, diff / TILE_SIZE);
       }
     }
   }
