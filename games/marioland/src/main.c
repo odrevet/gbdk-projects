@@ -32,7 +32,7 @@ INCBIN_EXTERN(level_tiles_bin)
 #define MARGIN_TOP 2
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
-#define PAGE_SIZE 1
+#define PAGE_SIZE 3
 
 // Tilesets offsets
 #define TEXT_TILESET_START 0
@@ -42,6 +42,7 @@ uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
 
 uint16_t camera_x = 0;
 uint16_t camera_x_mask = 0;
+uint16_t next_page_load;
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -74,8 +75,6 @@ int8_t player_max_speed = PLAYER_MAX_SPEED_WALK;
 uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
-
-uint16_t previous_scroll = 0;
 
 enum tileset_index {
   TILE_EMPTY = LEVEL_TILESET_START + 0x01,
@@ -206,11 +205,12 @@ void pause() {
   set_win_tile_xy(7, 1, TILE_COIN);
 }
 
-inline bool bkg_load_column(uint8_t at, uint8_t nb) {
+inline bool bkg_load_column(uint8_t start_at, uint8_t nb) {
   for (int col = 0; col < nb; col++) {
     bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
     if (more_data) {
-      uint8_t map_x_column = (col + at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+      uint8_t map_x_column =
+          (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
       set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
     } else {
       return false;
@@ -300,6 +300,7 @@ void main(void) {
                level_tiles_bin);
   rle_init(level_map_bin_rle);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + PAGE_SIZE);
+  next_page_load = PAGE_SIZE;
 
   DISPLAY_ON;
   SHOW_BKG;
@@ -514,10 +515,10 @@ void main(void) {
       camera_x_mask += vel_x;
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
-      uint16_t diff = camera_x - previous_scroll;
-      if (diff >= TILE_SIZE) {
-        previous_scroll = camera_x;
-        bkg_load_column((SCX_REG >> 3) + DEVICE_SCREEN_WIDTH, diff / TILE_SIZE);
+
+      if (camera_x / TILE_SIZE >= next_page_load) {
+        bkg_load_column(camera_x / TILE_SIZE, PAGE_SIZE);
+        next_page_load += PAGE_SIZE;
       }
     }
   }
