@@ -517,7 +517,7 @@ void main(void) {
       SCX_REG = camera_x;
 
       if (camera_x / TILE_SIZE >= next_page_load) {
-        bkg_load_column(DEVICE_SCREEN_WIDTH + camera_x / TILE_SIZE, PAGE_SIZE);
+        bkg_load_column(next_page_load + DEVICE_SCREEN_WIDTH, PAGE_SIZE);
         next_page_load += PAGE_SIZE;
       }
     }
