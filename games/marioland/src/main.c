@@ -27,17 +27,6 @@ INCBIN_EXTERN(level_map_bin_rle)
 INCBIN(level_tiles_bin, "res/level_1_1_tiles.bin")
 INCBIN_EXTERN(level_tiles_bin)
 
-#define DEVICE_SCREEN_PX_WIDTH_HALF DEVICE_SCREEN_PX_WIDTH / 2
-#define LEVEL_HEIGHT 16
-#define MARGIN_TOP 2
-#define MARGIN_TOP_PX 2 * TILE_SIZE
-#define DEVICE_SPRITE_OFFSET_Y 2
-#define PAGE_SIZE 3
-
-// Tilesets offsets
-#define TEXT_TILESET_START 0
-#define LEVEL_TILESET_START text_TILE_COUNT
-
 uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
 
 uint16_t camera_x = 0;
@@ -136,9 +125,10 @@ void hud_update_score() {
 }
 
 void hud_update_time() {
-  char time_str[3];
-  itoa(time, time_str, 10);
-  text_print_string_win(DEVICE_SCREEN_WIDTH - 3, 1, time_str);
+  char time_str[4];
+  itoa(time / 40, time_str, 10);
+  text_print_string_win(DEVICE_SCREEN_WIDTH - 3, 1, "000");
+  text_print_string_win(DEVICE_SCREEN_WIDTH - strlen(time_str), 1, time_str);
 }
 
 inline void on_get_coin(int x_right, int y_bottom) {
@@ -483,7 +473,7 @@ void main(void) {
 #endif
 
     time--;
-    // hud_update_time();
+    hud_update_time();
     if (time == 0) {
       time = TIME_INITIAL_VALUE;
       lives--;

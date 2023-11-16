@@ -1,9 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "graphics/mario.h"
-#include "graphics/enemies.h"
-
 #define SPRITE_START_MARIO 0
 #define SPRITE_START_ENEMIES SPRITE_START_MARIO + mario_TILE_COUNT
 
@@ -16,7 +13,7 @@
 #define WINDOW_X MINWNDPOSX
 #define WINDOW_Y MINWNDPOSY
 
-#define TIME_INITIAL_VALUE 400
+#define TIME_INITIAL_VALUE 400 * 40
 #define GRAVITY_SPEED 36
 #define JUMP_SPEED 25
 #define PLAYER_MAX_SPEED_WALK 20
@@ -24,5 +21,16 @@
 #define JUMP_MAX 24
 #define LOOP_PER_ANIMATION_FRAME 5
 #define MARIO_HALF_WIDTH 4
+
+#define DEVICE_SCREEN_PX_WIDTH_HALF DEVICE_SCREEN_PX_WIDTH / 2
+#define LEVEL_HEIGHT 16
+#define MARGIN_TOP 2
+#define MARGIN_TOP_PX 2 * TILE_SIZE
+#define DEVICE_SPRITE_OFFSET_Y 2
+#define PAGE_SIZE 3
+
+// Tilesets offsets
+#define TEXT_TILESET_START 0
+#define LEVEL_TILESET_START text_TILE_COUNT
 
 #endif
