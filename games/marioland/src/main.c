@@ -131,6 +131,13 @@ void hud_update_time() {
   text_print_string_win(DEVICE_SCREEN_WIDTH - strlen(time_str), 1, time_str);
 }
 
+void hud_update_lives() {
+  char lives_str[4];
+  itoa(lives, lives_str, 10);
+  //text_print_string_win(8, 0, "00");
+  text_print_string_win(7, 0, lives_str);
+}
+
 inline void on_get_coin(int x_right, int y_bottom) {
   set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, TILE_EMPTY);
 
@@ -191,7 +198,7 @@ void pause() {
   hUGE_mute_channel(1, HT_CH_PLAY);
   hUGE_mute_channel(2, HT_CH_PLAY);
   hUGE_mute_channel(3, HT_CH_PLAY);
-  
+
   text_print_string_win(DEVICE_SCREEN_WIDTH - 5, 1, "     ");
   hud_update_time();
 }
@@ -267,11 +274,13 @@ void main(void) {
   memset(windata, 15, WINDOW_SIZE);
   set_win_tiles(0, 0, WINDOW_WIDTH_TILE, WINDOW_HEIGHT_TILE, windata);
   move_win(WINDOW_X, WINDOW_Y);
-  text_print_string_win(0, 0, "MARIOx02  WORLD TIME");
-  text_print_string_win(0, 1, "     0  x00 1-1  400");
+  text_print_string_win(0, 0, "MARIOx00  WORLD TIME");
+  text_print_string_win(0, 1, "     0  x00 1-1  000");
 
   // display a coin in the HUD
   set_win_tile_xy(7, 1, TILE_COIN);
+  hud_update_time();
+  hud_update_lives();
 
   // Set music channels channel
   hUGE_mute_channel(0, HT_CH_PLAY);
@@ -463,23 +472,23 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "x%d-xD%d-MC%d;\nxV%d-Cx%d-T%d-L%d-";
+    char fmt[] = "p%d-PD%d-MS%d-\nV%d-C%d-T%d-NL%d-";
     sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
             player_draw_x - camera_x, vel_x, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
                             player_draw_y / TILE_SIZE - 1),
-            (datapos + DEVICE_SCREEN_WIDTH) & (DEVICE_SCREEN_BUFFER_WIDTH - 1));
+            next_page_load);
     text_print_string_win(0, 0, buffer);
-#endif
-
+#else
     time--;
     hud_update_time();
     if (time == 0) {
       time = TIME_INITIAL_VALUE;
       lives--;
-      // hud_update_lives();
+      hud_update_lives();
     }
+#endif
 
     // check coins
     /*
