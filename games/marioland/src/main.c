@@ -27,7 +27,7 @@ INCBIN_EXTERN(level_map_bin_rle)
 INCBIN(level_tiles_bin, "res/level_1_1_tiles.bin")
 INCBIN_EXTERN(level_tiles_bin)
 
-uint8_t coldata[LEVEL_HEIGHT]; // buffer of one columns
+uint8_t coldata[LEVEL_HEIGHT]; // buffer of one column
 
 uint16_t camera_x = 0;
 uint16_t camera_x_mask = 0;
@@ -176,7 +176,7 @@ void pause() {
   hUGE_mute_channel(3, HT_CH_MUTE);
 
   sound_play_jumping();
-  text_print_string_win(15, 1, "PAUSE");
+  text_print_string_win(DEVICE_SCREEN_WIDTH - 5, 1, "PAUSE");
   wait_vbl_done();
 
   while (1) {
@@ -191,8 +191,9 @@ void pause() {
   hUGE_mute_channel(1, HT_CH_PLAY);
   hUGE_mute_channel(2, HT_CH_PLAY);
   hUGE_mute_channel(3, HT_CH_PLAY);
-  text_print_string_win(0, 1, "     0  x00 1-1  400");
-  set_win_tile_xy(7, 1, TILE_COIN);
+  
+  text_print_string_win(DEVICE_SCREEN_WIDTH - 5, 1, "     ");
+  hud_update_time();
 }
 
 inline bool bkg_load_column(uint8_t start_at, uint8_t nb) {
