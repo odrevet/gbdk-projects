@@ -472,7 +472,7 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "p%d-PD%d-MS%d-\nV%d-C%d-T%d-NL%d-";
+    char fmt[] = "P%d.PD%d.MS%d.\nV%d.C%d.T%d.NL%d.";
     sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
             player_draw_x - camera_x, vel_x, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
