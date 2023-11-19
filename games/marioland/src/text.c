@@ -86,9 +86,21 @@ void text_print_char_win(uint8_t x, uint8_t y, unsigned char chr) {
     case '-':
       tile = LETTERS_STARTS_AT + 24;
       break;
+    case '.':
+      tile = LETTERS_STARTS_AT + 25;
+      break;
+    case ',':
+      tile = LETTERS_STARTS_AT + 26;
+      break;
+    case '!':
+      tile = LETTERS_STARTS_AT + 27;
+      break;
+    case '?':
+      tile = LETTERS_STARTS_AT + 28;
+      break;
     case ' ':
     default:
-      tile = LETTERS_STARTS_AT + 27;
+      tile = LETTERS_STARTS_AT + 29;
     }
   }
 
