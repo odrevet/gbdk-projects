@@ -27,8 +27,6 @@ INCBIN_EXTERN(level_map_bin_rle)
 INCBIN(level_tiles_bin, "res/level_1_1_tiles.bin")
 INCBIN_EXTERN(level_tiles_bin)
 
-uint8_t coldata[LEVEL_HEIGHT]; // buffer of one column
-
 uint16_t camera_x = 0;
 uint16_t camera_x_mask = 0;
 uint16_t next_page_load;
@@ -65,6 +63,12 @@ uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 
+// buffer worth of one column to hold map data when decrompressing
+uint8_t coldata[LEVEL_HEIGHT];
+// map buffer in RAM to check collision without access VRAM
+#define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + PAGE_SIZE)
+uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+
 enum tileset_index {
   TILE_EMPTY = LEVEL_TILESET_START + 0x01,
   TILE_UNBREAKABLE = LEVEL_TILESET_START + 0x0B,
@@ -76,20 +80,25 @@ enum tileset_index {
   PIPE_CENTER_RIGHT = LEVEL_TILESET_START + 0x1A,
   TILE_FLOOR = LEVEL_TILESET_START + 0x22,
   TILE_INTEROGATION_BLOCK = LEVEL_TILESET_START + 0x0A,
-  TILE_EMPTIED = LEVEL_TILESET_START + 0X1E
+  TILE_EMPTIED = LEVEL_TILESET_START + 0X1E,
+  TILE_METALIC_LEFT = LEVEL_TILESET_START + 0X0D,
+  TILE_METALIC_RIGHT = LEVEL_TILESET_START + 0X0E
 };
 
 // music
 extern const hUGESong_t cognition;
 
 inline bool is_solid(int x, int y) {
-  const uint8_t tile =
-      get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
-                      y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y);
+  const uint8_t tile = map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
+                                 [(x / TILE_SIZE) % MAP_BUFFER_WIDTH];
+  //    get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
+  //                    y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y);
   return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
          tile == BREAKABLE_BLOCK || tile == TILE_UNBREAKABLE ||
          tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
-         tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT;
+         tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT ||
+         tile == TILE_METALIC_LEFT || tile == TILE_METALIC_RIGHT ||
+         tile == TILE_EMPTIED;
 }
 
 void update_frame_counter() {
@@ -101,8 +110,30 @@ void update_frame_counter() {
 }
 
 inline bool is_coin(int x, int y) {
-  return get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
-                         y / TILE_SIZE) == TILE_COIN;
+  const uint8_t tile = map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
+                                 [(x / TILE_SIZE) % MAP_BUFFER_WIDTH];
+  return tile == TILE_COIN;
+}
+
+inline void on_get_coin(int x, int y) {
+  map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
+            [(x / TILE_SIZE) % MAP_BUFFER_WIDTH] = TILE_EMPTY;
+
+  set_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
+                  y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
+
+  sound_play_bump(); // TODO play sound coin
+
+  coins++;
+  score += 100;
+
+  if (coins == 100) {
+    lives++;
+    coins = 0;
+  }
+
+  hud_update_coins();
+  hud_update_score();
 }
 
 void hud_update_coins() {
@@ -134,25 +165,8 @@ void hud_update_time() {
 void hud_update_lives() {
   char lives_str[4];
   itoa(lives, lives_str, 10);
-  //text_print_string_win(8, 0, "00");
+  // text_print_string_win(8, 0, "00");
   text_print_string_win(7, 0, lives_str);
-}
-
-inline void on_get_coin(int x_right, int y_bottom) {
-  set_bkg_tile_xy(x_right / TILE_SIZE, y_bottom / TILE_SIZE, TILE_EMPTY);
-
-  sound_play_bump(); // TODO play sound coin
-
-  coins++;
-  score += 100;
-
-  if (coins == 100) {
-    lives++;
-    coins = 0;
-  }
-
-  hud_update_coins();
-  hud_update_score();
 }
 
 void player_draw() {
@@ -184,6 +198,23 @@ void pause() {
 
   sound_play_jumping();
   text_print_string_win(DEVICE_SCREEN_WIDTH - 5, 1, "PAUSE");
+
+#if defined(DEBUG)
+  // debug a column of background
+  char buffer[WINDOW_SIZE + 1];
+  char fmt[] = "%d.%d.%d.%d.%d.%d.%d..";
+  uint8_t col = player_draw_x / TILE_SIZE;
+  sprintf(buffer, fmt, map_buffer[0][col], map_buffer[1][col],
+          map_buffer[2][col], map_buffer[3][col], map_buffer[4][col],
+          map_buffer[5][col], map_buffer[6][col]);
+  text_print_string_win(0, 0, buffer);
+
+  sprintf(buffer, fmt, map_buffer[7][col], map_buffer[8][col],
+          map_buffer[9][col], map_buffer[10][col], map_buffer[11][col],
+          map_buffer[12][col], map_buffer[13][col]);
+  text_print_string_win(0, 1, buffer);
+#endif
+
   wait_vbl_done();
 
   while (1) {
@@ -203,6 +234,7 @@ void pause() {
   hud_update_time();
 }
 
+uint8_t set_column_at = 0;
 inline bool bkg_load_column(uint8_t start_at, uint8_t nb) {
   for (int col = 0; col < nb; col++) {
     bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
@@ -210,6 +242,16 @@ inline bool bkg_load_column(uint8_t start_at, uint8_t nb) {
       uint8_t map_x_column =
           (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
       set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+
+      // copy column to map_buffer
+      for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
+        map_buffer[row][set_column_at] = coldata[row];
+      }
+
+      if (++set_column_at >= MAP_BUFFER_WIDTH) {
+        set_column_at = 0;
+      }
+
     } else {
       return false;
     }
@@ -441,10 +483,11 @@ void main(void) {
       else if (vel_x < 0) {
         int16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
         if (is_solid(x_left_next, y_top_draw) ||
-            is_solid(x_left_next, y_bottom_draw)) {
+            is_solid(x_left_next, y_bottom_draw) ||
+            player_draw_x_next - camera_x <= 0) {
           uint8_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH) << 4;
-        } else if (player_draw_x_next > 1) {
+        } else {
           player_x = player_x_next;
         }
       }
@@ -473,11 +516,11 @@ void main(void) {
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
     char fmt[] = "P%d.PD%d.MS%d.\nV%d.C%d.T%d.NL%d.";
-    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x,
+    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x / TILE_SIZE,
             player_draw_x - camera_x, vel_x, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
-                            player_draw_y / TILE_SIZE - 1),
+                            player_draw_y / TILE_SIZE - 2),
             next_page_load);
     text_print_string_win(0, 0, buffer);
 #else
@@ -491,7 +534,6 @@ void main(void) {
 #endif
 
     // check coins
-    /*
     if (is_coin(x_right_draw, y_bottom_draw)) {
       on_get_coin(x_right_draw, y_bottom_draw);
     }
@@ -506,7 +548,7 @@ void main(void) {
 
     if (is_coin(x_left_draw, y_top_draw)) {
       on_get_coin(x_left_draw, y_top_draw);
-    }*/
+    }
 
     wait_vbl_done();
 
