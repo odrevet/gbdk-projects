@@ -62,6 +62,7 @@ int8_t player_max_speed = PLAYER_MAX_SPEED_WALK;
 uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
+uint8_t current_gravity = GRAVITY;
 
 // buffer worth of one column to hold map data when decrompressing
 uint8_t coldata[LEVEL_HEIGHT];
@@ -391,6 +392,7 @@ void main(void) {
         touch_ground) {
       is_jumping = TRUE;
       display_jump_frame = TRUE;
+      vel_y = -JUMP_SPEED;
       // sound_play_jumping();
     }
 
@@ -410,13 +412,9 @@ void main(void) {
     }
 
     if (is_jumping) {
-      vel_y = -JUMP_SPEED;
-      current_jump++;
-      if (current_jump > JUMP_MAX) {
-        is_jumping = FALSE;
-      }
+      vel_y += GRAVITY_JUMP;
     } else {
-      vel_y = GRAVITY_SPEED;
+      vel_y = GRAVITY;
     }
 
     int16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
@@ -515,9 +513,9 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "P%d.PD%d.MS%d.\nV%d.C%d.T%d.NL%d.";
-    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_draw_x / TILE_SIZE,
-            player_draw_x - camera_x, vel_x, camera_x,
+    char fmt[] = "P%d.%d.MS%d.\nV%d.%d.C%d.T%d.NL%d.";
+    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_y,
+            player_draw_x - camera_x, vel_x, vel_y, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
                             player_draw_y / TILE_SIZE - 2),
