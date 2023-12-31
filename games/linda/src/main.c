@@ -164,7 +164,7 @@ int game()
         }
 
         hUGE_dosound();
-        wait_vbl_done();
+        vsync();
     }
 
     // Level screen
@@ -301,7 +301,7 @@ int game()
         }
 
         hUGE_dosound();
-        wait_vbl_done();
+        vsync();
     }
 }
 

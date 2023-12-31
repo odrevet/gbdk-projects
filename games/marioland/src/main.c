@@ -216,7 +216,7 @@ void pause() {
   text_print_string_win(0, 1, buffer);
 #endif
 
-  wait_vbl_done();
+  vsync();
 
   while (1) {
     joypad_previous = joypad_current;
@@ -551,7 +551,7 @@ void main(void) {
       on_get_coin(x_left_draw, y_top_draw);
     }
 
-    wait_vbl_done();
+    vsync();
 
     // scroll
     if (vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {

@@ -231,8 +231,8 @@ DEF .remove_VBL 0x4F0E
 DEF .remove_int 0x4F11
 DEF .add_VBL 0x4F2E
 DEF .add_int 0x4F31
-DEF .wait_vbl_done 0x4F3C
-DEF _wait_vbl_done 0x4F3C
+DEF .vsync 0x4F3C
+DEF _vsync 0x4F3C
 DEF .display_off 0x4F4C
 DEF _display_off 0x4F4C
 DEF _remove_VBL 0x4F64
