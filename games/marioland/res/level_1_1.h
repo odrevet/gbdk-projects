@@ -23,5 +23,6 @@ extern const palette_color_t level_1_1_palettes[4];
 extern const uint8_t level_1_1_tiles[656];
 
 extern const unsigned char level_1_1_map[4800];
+#define level_1_1_map_attributes level_1_1_map
 
 #endif
