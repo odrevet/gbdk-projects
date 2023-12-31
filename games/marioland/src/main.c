@@ -174,11 +174,11 @@ void player_draw() {
   uint16_t player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
   metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
   if (mario_flip) {
-    move_metasprite_vflip(mario_metasprite, 0, 0, player_draw_x_camera_offset,
+    move_metasprite_flipx(mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
                           player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y -
                               TILE_SIZE);
   } else {
-    move_metasprite(mario_metasprite, 0, 0, player_draw_x_camera_offset,
+    move_metasprite_ex(mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
                     player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   }
 }
