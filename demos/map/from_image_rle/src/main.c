@@ -56,7 +56,7 @@ void main(void) {
       }
     }
 
-    wait_vbl_done();
+    vsync();
 
     if ((scrollpos & 0x07u) == 0) {
 

@@ -200,7 +200,7 @@ void main(void) {
     move_sprite(0, cursor_x * TILE_SIZE - camera_x,
                 cursor_y * TILE_SIZE - camera_y);
 
-    wait_vbl_done();
+    vsync();
 
     if (move_camera && redraw) {
       set_camera();

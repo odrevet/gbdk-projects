@@ -66,6 +66,6 @@ void main()
         }
 
         hUGE_dosound();
-        wait_vbl_done();
+        vsync();
     }
 }

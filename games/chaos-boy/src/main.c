@@ -181,7 +181,7 @@ int game(void)
             break;
         }
 
-        wait_vbl_done();
+        vsync();
     }
 }
 
