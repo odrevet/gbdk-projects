@@ -413,6 +413,9 @@ void main(void) {
 
     if (is_jumping) {
       vel_y += GRAVITY_JUMP;
+      if(vel_y > TERMINAL_VELOCITY){
+        vel_y = TERMINAL_VELOCITY;
+      }
     } else {
       vel_y = GRAVITY;
     }
