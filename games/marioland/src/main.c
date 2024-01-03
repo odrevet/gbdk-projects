@@ -29,7 +29,7 @@ INCBIN_EXTERN(level_tiles_bin)
 
 uint16_t camera_x = 0;
 uint16_t camera_x_mask = 0;
-uint16_t next_page_load;
+uint16_t next_col_chunk_load;
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -43,14 +43,14 @@ uint8_t level_index;
 uint8_t joypad_previous, joypad_current;
 
 // player coords and movements
-uint16_t player_x;
-uint16_t player_y;
-uint16_t player_x_next;
-uint16_t player_y_next;
-uint16_t player_draw_x;
-uint16_t player_draw_y;
-uint16_t player_draw_x_next;
-uint16_t player_draw_y_next;
+uint32_t player_x;
+uint32_t player_y;
+uint32_t player_x_next;
+uint32_t player_y_next;
+uint32_t player_draw_x;
+uint32_t player_draw_y;
+uint32_t player_draw_x_next;
+uint32_t player_draw_y_next;
 int8_t vel_x;
 int8_t vel_y;
 bool is_jumping = FALSE;
@@ -67,8 +67,8 @@ uint8_t current_gravity = GRAVITY;
 // buffer worth of one column to hold map data when decrompressing
 uint8_t coldata[LEVEL_HEIGHT];
 // map buffer in RAM to check collision without access VRAM
-#define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + PAGE_SIZE)
-uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+#define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
+uint32_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 
 enum tileset_index {
   TILE_EMPTY = LEVEL_TILESET_START + 0x01,
@@ -174,12 +174,12 @@ void player_draw() {
   uint16_t player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
   metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
   if (mario_flip) {
-    move_metasprite_flipx(mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
-                          player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y -
-                              TILE_SIZE);
+    move_metasprite_flipx(
+        mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
+        player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   } else {
     move_metasprite_ex(mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
-                    player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
+                       player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   }
 }
 
@@ -236,29 +236,28 @@ void pause() {
 }
 
 uint8_t set_column_at = 0;
-inline bool bkg_load_column(uint8_t start_at, uint8_t nb) {
-  for (int col = 0; col < nb; col++) {
-    bool more_data = rle_decompress(coldata, LEVEL_HEIGHT);
-    if (more_data) {
-      uint8_t map_x_column =
-          (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
-      set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-
-      // copy column to map_buffer
-      for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-        map_buffer[row][set_column_at] = coldata[row];
-      }
-
-      if (++set_column_at >= MAP_BUFFER_WIDTH) {
-        set_column_at = 0;
-      }
-
-    } else {
-      return false;
+inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
+  uint8_t col = 0;
+  while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {
+    // copy column to map_buffer
+    for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
+      map_buffer[row][set_column_at] = coldata[row];
     }
+
+    if (++set_column_at >= MAP_BUFFER_WIDTH) {
+      set_column_at = 0;
+    }
+
+    // Get hardware map tile X column
+    uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+
+    // Draw current column
+    set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+
+    col++;
   }
 
-  return true;
+  return col;
 }
 
 void main(void) {
@@ -342,8 +341,8 @@ void main(void) {
   set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
                level_tiles_bin);
   rle_init(level_map_bin_rle);
-  bkg_load_column(0, DEVICE_SCREEN_WIDTH + PAGE_SIZE);
-  next_page_load = PAGE_SIZE;
+  bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
+  next_col_chunk_load = COLUMN_CHUNK_SIZE;
 
   DISPLAY_ON;
   SHOW_BKG;
@@ -413,7 +412,7 @@ void main(void) {
 
     if (is_jumping) {
       vel_y += GRAVITY_JUMP;
-      if(vel_y > TERMINAL_VELOCITY){
+      if (vel_y > TERMINAL_VELOCITY) {
         vel_y = TERMINAL_VELOCITY;
       }
     } else {
@@ -517,12 +516,12 @@ void main(void) {
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
     char fmt[] = "P%d.%d.MS%d.\nV%d.%d.C%d.T%d.NL%d.";
-    sprintf(buffer, fmt, (int16_t)player_x, (int16_t)player_y,
+    sprintf(buffer, fmt, (uint16_t)player_x, (uint16_t)player_y,
             player_draw_x - camera_x, vel_x, vel_y, camera_x,
             get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
                                 DEVICE_SCREEN_BUFFER_WIDTH,
                             player_draw_y / TILE_SIZE - 2),
-            next_page_load);
+            next_col_chunk_load);
     text_print_string_win(0, 0, buffer);
 #else
     time--;
@@ -559,9 +558,10 @@ void main(void) {
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
 
-      if (camera_x / TILE_SIZE >= next_page_load) {
-        bkg_load_column(next_page_load + DEVICE_SCREEN_WIDTH, PAGE_SIZE);
-        next_page_load += PAGE_SIZE;
+      if (camera_x / TILE_SIZE >= next_col_chunk_load) {
+        bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
+                        COLUMN_CHUNK_SIZE);
+        next_col_chunk_load += COLUMN_CHUNK_SIZE;
       }
     }
   }

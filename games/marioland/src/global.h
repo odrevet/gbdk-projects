@@ -29,7 +29,7 @@
 #define MARGIN_TOP 2
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
-#define PAGE_SIZE 3 // how many map columns to decompress at a time
+#define COLUMN_CHUNK_SIZE 3 // how many map columns to decompress at a time
 
 // Tilesets offsets
 #define TEXT_TILESET_START 0
