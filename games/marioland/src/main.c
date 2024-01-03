@@ -244,9 +244,7 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
       map_buffer[row][set_column_at] = coldata[row];
     }
 
-    if (++set_column_at >= MAP_BUFFER_WIDTH) {
-      set_column_at = 0;
-    }
+    set_column_at = ++set_column_at % MAP_BUFFER_WIDTH;
 
     // Get hardware map tile X column
     uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
