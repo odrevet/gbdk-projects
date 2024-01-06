@@ -153,7 +153,7 @@ void hud_update_coins() {
 }
 
 void hud_update_score() {
-  char score_str[4];
+  char score_str[5];
   itoa(score, score_str, 10);
   text_print_string_win(3, 1, score_str);
 }
