@@ -48,6 +48,7 @@ uint32_t player_y;
 uint32_t player_x_next;
 uint32_t player_y_next;
 uint32_t player_draw_x;
+uint32_t player_draw_x_screen;
 uint32_t player_draw_y;
 uint32_t player_draw_x_next;
 uint32_t player_draw_y_next;
@@ -69,7 +70,7 @@ bool lock_camera = false;
 uint8_t coldata[LEVEL_HEIGHT];
 // map buffer in RAM to check collision without access VRAM
 #define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
-uint32_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 
 enum tileset_index {
   TILE_EMPTY = LEVEL_TILESET_START + 0x01,
@@ -172,14 +173,13 @@ void hud_update_lives() {
 }
 
 void player_draw() {
-  uint16_t player_draw_x_camera_offset = player_draw_x - camera_x + TILE_SIZE;
-  metasprite_t *mario_metasprite = mario_metasprites[player_current_frame];
+  metasprite_t * const mario_metasprite = mario_metasprites[player_current_frame];
   if (mario_flip) {
     move_metasprite_flipx(
-        mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
+        mario_metasprite, 0, 0, 0, player_draw_x_screen + TILE_SIZE,
         player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   } else {
-    move_metasprite_ex(mario_metasprite, 0, 0, 0, player_draw_x_camera_offset,
+    move_metasprite_ex(mario_metasprite, 0, 0, 0, player_draw_x_screen + TILE_SIZE,
                        player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   }
 }
@@ -556,8 +556,10 @@ void main(void) {
 
     vsync();
 
+    player_draw_x_screen = player_draw_x - camera_x;
+
     // scroll
-    if (!lock_camera && vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {
+    if (!lock_camera && vel_x > 0 && player_draw_x_screen > DEVICE_SCREEN_PX_WIDTH_HALF) {
       camera_x_mask += vel_x;
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
