@@ -63,6 +63,7 @@ uint8_t player_current_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 uint8_t current_gravity = GRAVITY;
+bool lock_camera = false;
 
 // buffer worth of one column to hold map data when decrompressing
 uint8_t coldata[LEVEL_HEIGHT];
@@ -548,17 +549,25 @@ void main(void) {
       on_get_coin(x_left_draw, y_top_draw);
     }
 
+    if (player_draw_y > DEVICE_SCREEN_PX_HEIGHT) {
+      lives--;
+      player_y = 0;
+    }
+
     vsync();
 
     // scroll
-    if (vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {
+    if (!lock_camera && vel_x > 0 && player_draw_x - camera_x > DEVICE_SCREEN_PX_WIDTH_HALF) {
       camera_x_mask += vel_x;
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
 
       if (camera_x / TILE_SIZE >= next_col_chunk_load) {
-        bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
-                        COLUMN_CHUNK_SIZE);
+        uint8_t nb = bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
+                                     COLUMN_CHUNK_SIZE);
+        if (nb < COLUMN_CHUNK_SIZE) {
+          lock_camera = true;
+        }
         next_col_chunk_load += COLUMN_CHUNK_SIZE;
       }
     }
