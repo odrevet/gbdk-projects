@@ -91,7 +91,7 @@ enum tileset_index {
 // music
 extern const hUGESong_t cognition;
 
-inline bool is_solid(int x, int y) {
+inline bool is_solid(uint16_t x, uint16_t y) {
   const uint8_t tile = map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
                                  [(x / TILE_SIZE) % MAP_BUFFER_WIDTH];
   //    get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
@@ -173,13 +173,15 @@ void hud_update_lives() {
 }
 
 void player_draw() {
-  metasprite_t * const mario_metasprite = mario_metasprites[player_current_frame];
+  metasprite_t *const mario_metasprite =
+      mario_metasprites[player_current_frame];
   if (mario_flip) {
     move_metasprite_flipx(
         mario_metasprite, 0, 0, 0, player_draw_x_screen + TILE_SIZE,
         player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   } else {
-    move_metasprite_ex(mario_metasprite, 0, 0, 0, player_draw_x_screen + TILE_SIZE,
+    move_metasprite_ex(mario_metasprite, 0, 0, 0,
+                       player_draw_x_screen + TILE_SIZE,
                        player_draw_y + DEVICE_SPRITE_PX_OFFSET_Y - TILE_SIZE);
   }
 }
@@ -418,8 +420,8 @@ void main(void) {
       vel_y = GRAVITY;
     }
 
-    int16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
-    int16_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
+    uint16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
+    uint16_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
 
     // apply velocity to player coords
     if (vel_y != 0) {
@@ -428,7 +430,7 @@ void main(void) {
 
       // move down
       if (vel_y > 0) {
-        int16_t y_bottom_next = player_draw_y_next;
+        uint16_t y_bottom_next = player_draw_y_next;
         if (is_solid(x_left_draw, y_bottom_next) ||
             is_solid(x_right_draw, y_bottom_next)) {
           uint8_t index_y = y_bottom_next / TILE_SIZE;
@@ -460,8 +462,8 @@ void main(void) {
       player_draw_y = player_y >> 4;
     }
 
-    int16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
-    int16_t y_bottom_draw = player_draw_y - 1;
+    uint16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
+    uint16_t y_bottom_draw = player_draw_y - 1;
 
     if (vel_x != 0) {
       player_x_next = player_x + vel_x;
@@ -469,10 +471,10 @@ void main(void) {
 
       // move right
       if (vel_x > 0) {
-        int16_t x_right_next = player_draw_x_next + MARIO_HALF_WIDTH;
+        uint16_t x_right_next = player_draw_x_next + MARIO_HALF_WIDTH;
         if (is_solid(x_right_next, y_top_draw) ||
             is_solid(x_right_next, y_bottom_draw)) {
-          uint8_t index_x = player_draw_x_next / TILE_SIZE;
+          uint16_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + MARIO_HALF_WIDTH) << 4;
         } else {
           player_x = player_x_next;
@@ -480,11 +482,11 @@ void main(void) {
       }
       // move left
       else if (vel_x < 0) {
-        int16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
+        uint16_t x_left_next = player_draw_x_next - MARIO_HALF_WIDTH;
         if (is_solid(x_left_next, y_top_draw) ||
             is_solid(x_left_next, y_bottom_draw) ||
             player_draw_x_next - camera_x <= 0) {
-          uint8_t index_x = player_draw_x_next / TILE_SIZE;
+          uint16_t index_x = player_draw_x_next / TILE_SIZE;
           player_x = (index_x * TILE_SIZE + TILE_SIZE - MARIO_HALF_WIDTH) << 4;
         } else {
           player_x = player_x_next;
@@ -514,13 +516,8 @@ void main(void) {
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "P%d.%d.MS%d.\nV%d.%d.C%d.T%d.NL%d.";
-    sprintf(buffer, fmt, (uint16_t)player_x, (uint16_t)player_y,
-            player_draw_x - camera_x, vel_x, vel_y, camera_x,
-            get_bkg_tile_xy((player_draw_x / TILE_SIZE) %
-                                DEVICE_SCREEN_BUFFER_WIDTH,
-                            player_draw_y / TILE_SIZE - 2),
-            next_col_chunk_load);
+    char fmt[] = "P%d.%d.V%d.%d.";
+    sprintf(buffer, fmt, (uint16_t)player_x, (uint16_t)player_y, vel_x, vel_y);
     text_print_string_win(0, 0, buffer);
 #else
     time--;
@@ -559,7 +556,8 @@ void main(void) {
     player_draw_x_screen = player_draw_x - camera_x;
 
     // scroll
-    if (!lock_camera && vel_x > 0 && player_draw_x_screen > DEVICE_SCREEN_PX_WIDTH_HALF) {
+    if (!lock_camera && vel_x > 0 &&
+        player_draw_x_screen > DEVICE_SCREEN_PX_WIDTH_HALF) {
       camera_x_mask += vel_x;
       camera_x = camera_x_mask >> 4;
       SCX_REG = camera_x;
