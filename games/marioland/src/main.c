@@ -531,6 +531,11 @@ void main(void) {
         if (is_solid(x_next, y_top_draw) ||
             is_solid(x_next, y_bottom_draw)) {
           vel_x = 0;
+          uint8_t diff = camera_x % TILE_SIZE;
+          uint8_t x_i = 1;
+          player_draw_x = ((((player_draw_x_next / TILE_SIZE) + x_i) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff > 4 ? 8 : 0);
+          player_x_subpixel = player_draw_x << 4;
+          
         } else {
           player_x_subpixel = player_x_subpixel_next;
           player_draw_x = player_x_subpixel >> 4;
