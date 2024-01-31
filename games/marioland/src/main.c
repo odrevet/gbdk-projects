@@ -47,10 +47,10 @@ uint16_t player_x_subpixel;
 uint16_t player_y_subpixel;
 uint16_t player_x_subpixel_next;
 uint16_t player_y_subpixel_next;
-uint16_t player_draw_x;
-uint16_t player_draw_y;
-uint16_t player_draw_x_next;
-uint16_t player_draw_y_next;
+uint8_t player_draw_x;
+uint8_t player_draw_y;
+uint8_t player_draw_x_next;
+uint8_t player_draw_y_next;
 int8_t vel_x;
 int8_t vel_y;
 bool is_jumping = FALSE;
@@ -64,7 +64,7 @@ uint8_t frame_counter = 0;
 bool mario_flip;
 uint8_t current_gravity = GRAVITY;
 bool lock_camera = false;
-uint16_t x_next;
+uint8_t x_next;
 uint8_t scroll;
 
 // buffer worth of one column to hold map data when decrompressing
@@ -419,8 +419,8 @@ void main(void) {
       vel_y = GRAVITY;
     }
 
-    uint16_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
-    uint16_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
+    uint8_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
+    uint8_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
 
     // apply velocity to player coords
     if (vel_y != 0) {
@@ -429,7 +429,7 @@ void main(void) {
 
       // move down
       if (vel_y > 0) {
-        uint16_t y_bottom_next = player_draw_y_next;
+        uint8_t y_bottom_next = player_draw_y_next;
         if (is_solid(x_left_draw, y_bottom_next) ||
             is_solid(x_right_draw, y_bottom_next)) {
           uint8_t index_y = y_bottom_next / TILE_SIZE;
@@ -446,7 +446,7 @@ void main(void) {
 
       // move up
       else if (vel_y < 0) {
-        int16_t y_top_next = player_draw_y_next - 6;
+        int8_t y_top_next = player_draw_y_next - 6;
         if (is_solid(x_left_draw, y_top_next) ||
             is_solid(x_right_draw, y_top_next)) {
           uint8_t index_y = player_draw_y_next / TILE_SIZE;
@@ -461,8 +461,8 @@ void main(void) {
       player_draw_y = player_y_subpixel >> 4;
     }
 
-    uint16_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
-    uint16_t y_bottom_draw = player_draw_y - 1;
+    uint8_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
+    uint8_t y_bottom_draw = player_draw_y - 1;
 
     // set player frame
     if (display_jump_frame) {
@@ -532,8 +532,7 @@ void main(void) {
             is_solid(x_next, y_bottom_draw)) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
-          uint8_t x_i = 1;
-          player_draw_x = ((((player_draw_x_next / TILE_SIZE) + x_i) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff > 4 ? 8 : 0);
+          player_draw_x = ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff > 4 ? 8 : 0);
           player_x_subpixel = player_draw_x << 4;
           
         } else {
@@ -571,8 +570,7 @@ void main(void) {
             is_solid(x_next, y_bottom_draw)) {
               vel_x = 0;
               uint8_t diff = camera_x % TILE_SIZE;
-              uint8_t x_i = 1;
-              player_draw_x = ((((player_draw_x_next / TILE_SIZE) + x_i) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff < 4 ? 0 : 8);
+              player_draw_x = ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff < 4 ? 0 : 8);
               player_x_subpixel = player_draw_x << 4;
         } else {
           player_x_subpixel = player_x_subpixel_next;
