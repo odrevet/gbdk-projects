@@ -93,8 +93,9 @@ enum tileset_index {
 extern const hUGESong_t cognition;
 
 inline bool is_solid(uint16_t x, uint16_t y) {
-  const uint8_t tile = map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-                                 [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
+  const uint8_t tile =
+      map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
+                [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
   //    get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
   //                    y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y);
   return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
@@ -484,7 +485,9 @@ void main(void) {
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
     char fmt[] = "P%d.%d.D%d.V%d.%d.\nxN%d.C%d.SC%d";
-    sprintf(buffer, fmt, (uint16_t)player_x_subpixel, (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y, x_next, camera_x, scroll);
+    sprintf(buffer, fmt, (uint16_t)player_x_subpixel,
+            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y, x_next,
+            camera_x, scroll);
     text_print_string_win(0, 0, buffer);
 #else
     time--;
@@ -528,19 +531,19 @@ void main(void) {
       // move right
       if (vel_x > 0) {
         x_next = player_draw_x_next + MARIO_HALF_WIDTH;
-        if (is_solid(x_next, y_top_draw) ||
-            is_solid(x_next, y_bottom_draw)) {
+        if (is_solid(x_next, y_top_draw) || is_solid(x_next, y_bottom_draw)) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
-          player_draw_x = ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff > 4 ? 8 : 0);
+          player_draw_x =
+              ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff -
+               MARIO_HALF_WIDTH) +
+              (diff > 4 ? 8 : 0);
           player_x_subpixel = player_draw_x << 4;
-          
+
         } else {
           player_x_subpixel = player_x_subpixel_next;
           player_draw_x = player_x_subpixel >> 4;
         }
-
-        
 
         // scroll
         if (!lock_camera && player_draw_x >= DEVICE_SCREEN_PX_WIDTH_HALF) {
@@ -566,20 +569,24 @@ void main(void) {
       // move left
       else if (vel_x < 0) {
         x_next = player_draw_x_next - MARIO_HALF_WIDTH;
-        if (is_solid(x_next, y_top_draw) ||
-            is_solid(x_next, y_bottom_draw)) {
-              vel_x = 0;
-              uint8_t diff = camera_x % TILE_SIZE;
-              player_draw_x = ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff - MARIO_HALF_WIDTH) + (diff < 4 ? 0 : 8);
-              player_x_subpixel = player_draw_x << 4;
+        if (player_draw_x_next < MARIO_HALF_WIDTH) {
+          player_draw_x = MARIO_HALF_WIDTH;
+          player_x_subpixel = player_draw_x << 4;
         } else {
-          player_x_subpixel = player_x_subpixel_next;
-          player_draw_x = player_x_subpixel >> 4;
+          if (is_solid(x_next, y_top_draw) || is_solid(x_next, y_bottom_draw)) {
+            vel_x = 0;
+            uint8_t diff = camera_x % TILE_SIZE;
+            player_draw_x =
+                ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff -
+                 MARIO_HALF_WIDTH) +
+                (diff < 4 ? 0 : 8);
+            player_x_subpixel = player_draw_x << 4;
+          } else {
+            player_x_subpixel = player_x_subpixel_next;
+            player_draw_x = player_x_subpixel >> 4;
+          }
         }
-        
       }
     }
-
-
   }
 }
