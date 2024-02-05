@@ -351,7 +351,14 @@ void main(void) {
   SHOW_SPRITES;
   SPRITES_8x16;
 
+  uint8_t x_right_draw;
+  uint8_t x_left_draw;
+  uint8_t y_top_draw;
+  uint8_t y_bottom_draw;
+
   while (1) {
+    vsync();
+
     // inputs
     joypad_previous = joypad_current;
     joypad_current = joypad();
@@ -407,10 +414,6 @@ void main(void) {
       player_max_speed = PLAYER_MAX_SPEED_WALK;
     }
 
-    if (is_solid(player_draw_x, player_draw_y + 1)) {
-      touch_ground = TRUE;
-    }
-
     if (is_jumping) {
       vel_y += GRAVITY_JUMP;
       if (vel_y > TERMINAL_VELOCITY) {
@@ -420,110 +423,12 @@ void main(void) {
       vel_y = GRAVITY;
     }
 
-    uint8_t x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
-    uint8_t x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
+    x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
+    x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
+    y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
+    y_bottom_draw = player_draw_y - 1;
 
     // apply velocity to player coords
-    if (vel_y != 0) {
-      player_y_subpixel_next = player_y_subpixel + vel_y;
-      player_draw_y_next = player_y_subpixel_next >> 4;
-
-      // move down
-      if (vel_y > 0) {
-        uint8_t y_bottom_next = player_draw_y_next;
-        if (is_solid(x_left_draw, y_bottom_next) ||
-            is_solid(x_right_draw, y_bottom_next)) {
-          uint8_t index_y = y_bottom_next / TILE_SIZE;
-          player_y_subpixel = (index_y * TILE_SIZE) << 4;
-          touch_ground = TRUE;
-          current_jump = 0;
-          is_jumping = FALSE;
-          display_jump_frame = FALSE;
-        } else {
-          touch_ground = FALSE;
-          player_y_subpixel = player_y_subpixel_next;
-        }
-      }
-
-      // move up
-      else if (vel_y < 0) {
-        int8_t y_top_next = player_draw_y_next - 6;
-        if (is_solid(x_left_draw, y_top_next) ||
-            is_solid(x_right_draw, y_top_next)) {
-          uint8_t index_y = player_draw_y_next / TILE_SIZE;
-          player_y_subpixel = (index_y * TILE_SIZE + TILE_SIZE) << 4;
-          current_jump = 0;
-          is_jumping = FALSE;
-          sound_play_bump();
-        } else {
-          player_y_subpixel = player_y_subpixel_next;
-        }
-      }
-      player_draw_y = player_y_subpixel >> 4;
-    }
-
-    uint8_t y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
-    uint8_t y_bottom_draw = player_draw_y - 1;
-
-    // set player frame
-    if (display_jump_frame) {
-      player_frame = 4;
-    } else if (vel_x != 0) {
-      if (display_slide_frame) {
-        player_frame = 5;
-      } else {
-        update_frame_counter();
-      }
-    } else {
-      player_frame = 0;
-    }
-
-    // enemy_update();
-    // enemy_draw(SPRITE_START_ENEMIES);
-
-    // print DEBUG text
-#if defined(DEBUG)
-    char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "P%d.%d.D%d.V%d.%d.\nxN%d.C%d.SC%d";
-    sprintf(buffer, fmt, (uint16_t)player_x_subpixel,
-            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y, x_next,
-            camera_x, scroll);
-    text_print_string_win(0, 0, buffer);
-#else
-    time--;
-    hud_update_time();
-    if (time == 0) {
-      time = TIME_INITIAL_VALUE;
-      lives--;
-      hud_update_lives();
-    }
-#endif
-
-    // check coins
-    if (is_coin(x_right_draw, y_bottom_draw)) {
-      on_get_coin(x_right_draw, y_bottom_draw);
-    }
-
-    if (is_coin(x_right_draw, y_top_draw)) {
-      on_get_coin(x_right_draw, y_top_draw);
-    }
-
-    if (is_coin(x_left_draw, y_bottom_draw - TILE_SIZE)) {
-      on_get_coin(x_left_draw, y_bottom_draw - TILE_SIZE);
-    }
-
-    if (is_coin(x_left_draw, y_top_draw)) {
-      on_get_coin(x_left_draw, y_top_draw);
-    }
-
-    if (player_draw_y > DEVICE_SCREEN_PX_HEIGHT) {
-      lives--;
-      player_y_subpixel = 0;
-    }
-
-    vsync();
-    player_draw();
-
     if (vel_x != 0) {
       player_x_subpixel_next = player_x_subpixel + vel_x;
       player_draw_x_next = player_x_subpixel_next >> 4;
@@ -588,5 +493,101 @@ void main(void) {
         }
       }
     }
+
+    if (vel_y != 0) {
+      player_y_subpixel_next = player_y_subpixel + vel_y;
+      player_draw_y_next = player_y_subpixel_next >> 4;
+
+      // move down
+      if (vel_y > 0) {
+        uint8_t y_bottom_next = player_draw_y_next;
+        if (is_solid(x_left_draw, y_bottom_next) ||
+            is_solid(x_right_draw, y_bottom_next)) {
+          uint8_t index_y = y_bottom_next / TILE_SIZE;
+          player_y_subpixel = (index_y * TILE_SIZE) << 4;
+          touch_ground = TRUE;
+          current_jump = 0;
+          is_jumping = FALSE;
+          display_jump_frame = FALSE;
+        } else {
+          touch_ground = FALSE;
+          player_y_subpixel = player_y_subpixel_next;
+        }
+      }
+
+      // move up
+      else if (vel_y < 0) {
+        int8_t y_top_next = player_draw_y_next - 6;
+        if (is_solid(x_left_draw, y_top_next) ||
+            is_solid(x_right_draw, y_top_next)) {
+          uint8_t index_y = player_draw_y_next / TILE_SIZE;
+          player_y_subpixel = (index_y * TILE_SIZE + TILE_SIZE) << 4;
+          current_jump = 0;
+          is_jumping = FALSE;
+          sound_play_bump();
+        } else {
+          player_y_subpixel = player_y_subpixel_next;
+        }
+      }
+      player_draw_y = player_y_subpixel >> 4;
+    }
+
+    // set player frame
+    if (display_jump_frame) {
+      player_frame = 4;
+    } else if (vel_x != 0) {
+      if (display_slide_frame) {
+        player_frame = 5;
+      } else {
+        update_frame_counter();
+      }
+    } else {
+      player_frame = 0;
+    }
+
+    // enemy_update();
+    // enemy_draw(SPRITE_START_ENEMIES);
+
+    // print DEBUG text
+#if defined(DEBUG)
+    char buffer[WINDOW_SIZE + 1];
+    char fmt[] = "P%d.%d.D%d.V%d.%d.\nxN%d.C%d.SC%d";
+    sprintf(buffer, fmt, (uint16_t)player_x_subpixel,
+            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y, x_next,
+            camera_x, scroll);
+    text_print_string_win(0, 0, buffer);
+#else
+    time--;
+    hud_update_time();
+    if (time == 0) {
+      time = TIME_INITIAL_VALUE;
+      lives--;
+      hud_update_lives();
+    }
+#endif
+
+    // check coins
+    /*if (is_coin(x_right_draw, y_bottom_draw)) {
+      on_get_coin(x_right_draw, y_bottom_draw);
+    }
+
+    if (is_coin(x_right_draw, y_top_draw)) {
+      on_get_coin(x_right_draw, y_top_draw);
+    }
+
+    if (is_coin(x_left_draw, y_bottom_draw - TILE_SIZE)) {
+      on_get_coin(x_left_draw, y_bottom_draw - TILE_SIZE);
+    }
+
+    if (is_coin(x_left_draw, y_top_draw)) {
+      on_get_coin(x_left_draw, y_top_draw);
+    }*/
+
+    if (player_draw_y > DEVICE_SCREEN_PX_HEIGHT) {
+      lives--;
+      player_y_subpixel = 0;
+    }
+
+    player_draw();
   }
 }
