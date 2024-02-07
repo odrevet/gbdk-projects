@@ -92,12 +92,12 @@ enum tileset_index {
 // music
 extern const hUGESong_t cognition;
 
-inline bool is_solid(uint16_t x, uint16_t y) {
-  const uint8_t tile =
-      map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-                [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
-  //    get_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
-  //                    y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y);
+inline uint8_t get_tile(uint8_t x, uint8_t y) {
+  return map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
+                   [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
+}
+
+inline bool is_tile_solid(uint8_t tile) {
   return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
          tile == BREAKABLE_BLOCK || tile == TILE_UNBREAKABLE ||
          tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
@@ -436,7 +436,10 @@ void main(void) {
       // move right
       if (vel_x > 0) {
         x_next = player_draw_x_next + MARIO_HALF_WIDTH;
-        if (is_solid(x_next, y_top_draw) || is_solid(x_next, y_bottom_draw)) {
+        uint8_t tile_right_top = get_tile(x_next, y_top_draw);
+        uint8_t tile_right_bottom = get_tile(x_next, y_bottom_draw);
+
+        if (is_tile_solid(tile_right_top) || is_tile_solid(tile_right_bottom)) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
           player_draw_x =
@@ -474,11 +477,14 @@ void main(void) {
       // move left
       else if (vel_x < 0) {
         x_next = player_draw_x_next - MARIO_HALF_WIDTH;
+        uint8_t tile_left_top = get_tile(x_next, y_top_draw);
+        uint8_t tile_left_bottom = get_tile(x_next, y_bottom_draw);
+
         if (player_draw_x_next < MARIO_HALF_WIDTH) {
           player_draw_x = MARIO_HALF_WIDTH;
           player_x_subpixel = player_draw_x << 4;
         } else {
-          if (is_solid(x_next, y_top_draw) || is_solid(x_next, y_bottom_draw)) {
+          if (is_tile_solid(tile_left_top) || is_tile_solid(tile_left_bottom)) {
             vel_x = 0;
             uint8_t diff = camera_x % TILE_SIZE;
             player_draw_x =
@@ -501,8 +507,11 @@ void main(void) {
       // move down
       if (vel_y > 0) {
         uint8_t y_bottom_next = player_draw_y_next;
-        if (is_solid(x_left_draw, y_bottom_next) ||
-            is_solid(x_right_draw, y_bottom_next)) {
+        uint8_t tile_left_bottom = get_tile(x_left_draw, y_bottom_next);
+        uint8_t tile_right_bottom = get_tile(x_right_draw, y_bottom_next);
+
+        if (is_tile_solid(tile_left_bottom) ||
+            is_tile_solid(tile_right_bottom)) {
           uint8_t index_y = y_bottom_next / TILE_SIZE;
           player_y_subpixel = (index_y * TILE_SIZE) << 4;
           touch_ground = TRUE;
@@ -518,8 +527,10 @@ void main(void) {
       // move up
       else if (vel_y < 0) {
         int8_t y_top_next = player_draw_y_next - 6;
-        if (is_solid(x_left_draw, y_top_next) ||
-            is_solid(x_right_draw, y_top_next)) {
+        uint8_t tile_left_top = get_tile(x_left_draw, y_top_next);
+        uint8_t tile_right_top = get_tile(x_right_draw, y_top_next);
+
+        if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
           uint8_t index_y = player_draw_y_next / TILE_SIZE;
           player_y_subpixel = (index_y * TILE_SIZE + TILE_SIZE) << 4;
           current_jump = 0;
