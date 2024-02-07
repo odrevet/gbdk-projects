@@ -66,6 +66,8 @@ uint8_t current_gravity = GRAVITY;
 bool lock_camera = false;
 
 uint8_t next_pos;
+uint8_t tile_next_1;
+uint8_t tile_next_2;
 
 uint8_t scroll;
 
@@ -434,10 +436,10 @@ void main(void) {
       // move right
       if (vel_x > 0) {
         next_pos = player_draw_x_next + MARIO_HALF_WIDTH;
-        uint8_t tile_right_top = get_tile(next_pos, y_top_draw);
-        uint8_t tile_right_bottom = get_tile(next_pos, y_bottom_draw);
+        tile_next_1 = get_tile(next_pos, y_top_draw);    // tile_right_top
+        tile_next_2 = get_tile(next_pos, y_bottom_draw); // tile_right_bottom
 
-        if (is_tile_solid(tile_right_top) || is_tile_solid(tile_right_bottom)) {
+        if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
           player_draw_x =
@@ -447,11 +449,11 @@ void main(void) {
           player_x_subpixel = player_draw_x << 4;
 
         } else {
-          if (is_coin(tile_right_top)) {
+          if (is_coin(tile_next_1)) {
             on_get_coin(next_pos, y_top_draw);
           }
 
-          if (is_coin(tile_right_bottom)) {
+          if (is_coin(tile_next_2)) {
             on_get_coin(next_pos, y_bottom_draw);
           }
           player_x_subpixel = player_x_subpixel_next;
@@ -470,9 +472,8 @@ void main(void) {
           player_draw_x = DEVICE_SCREEN_PX_WIDTH_HALF;
 
           if (camera_x / TILE_SIZE >= next_col_chunk_load) {
-            uint8_t nb = bkg_load_column(
-                next_col_chunk_load + DEVICE_SCREEN_WIDTH, COLUMN_CHUNK_SIZE);
-            if (nb < COLUMN_CHUNK_SIZE) {
+            if (bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
+                                COLUMN_CHUNK_SIZE) < COLUMN_CHUNK_SIZE) {
               lock_camera = true;
             }
             next_col_chunk_load += COLUMN_CHUNK_SIZE;
@@ -482,14 +483,14 @@ void main(void) {
       // move left
       else if (vel_x < 0) {
         next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
-        uint8_t tile_left_top = get_tile(next_pos, y_top_draw);
-        uint8_t tile_left_bottom = get_tile(next_pos, y_bottom_draw);
+        tile_next_1 = get_tile(next_pos, y_top_draw);  // tile_left_top
+        tile_next_2 = get_tile(next_pos, y_bottom_draw);  // tile_left_bottom
 
         if (player_draw_x_next < MARIO_HALF_WIDTH) {
           player_draw_x = MARIO_HALF_WIDTH;
           player_x_subpixel = player_draw_x << 4;
         } else {
-          if (is_tile_solid(tile_left_top) || is_tile_solid(tile_left_bottom)) {
+          if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
             vel_x = 0;
             uint8_t diff = camera_x % TILE_SIZE;
             player_draw_x =
@@ -498,11 +499,11 @@ void main(void) {
                 (diff < 4 ? 0 : 8);
             player_x_subpixel = player_draw_x << 4;
           } else {
-            if (is_coin(tile_left_top)) {
+            if (is_coin(tile_next_1)) {
               on_get_coin(next_pos, y_top_draw);
             }
 
-            if (is_coin(tile_left_bottom)) {
+            if (is_coin(tile_next_2)) {
               on_get_coin(next_pos, y_bottom_draw);
             }
 
