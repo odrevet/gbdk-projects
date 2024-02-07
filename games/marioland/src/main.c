@@ -121,7 +121,7 @@ inline void on_get_coin(uint8_t x, uint8_t y) {
             [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH] = TILE_EMPTY;
 
   // WIP
-  set_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH, y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
+  set_bkg_tile_xy(((x + camera_x) / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH, y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
 
   sound_play_bump(); // TODO play sound coin
 
