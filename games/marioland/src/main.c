@@ -64,7 +64,9 @@ uint8_t frame_counter = 0;
 bool mario_flip;
 uint8_t current_gravity = GRAVITY;
 bool lock_camera = false;
-uint8_t x_next;
+
+uint8_t next_pos;
+
 uint8_t scroll;
 
 // buffer worth of one column to hold map data when decrompressing
@@ -431,9 +433,9 @@ void main(void) {
 
       // move right
       if (vel_x > 0) {
-        x_next = player_draw_x_next + MARIO_HALF_WIDTH;
-        uint8_t tile_right_top = get_tile(x_next, y_top_draw);
-        uint8_t tile_right_bottom = get_tile(x_next, y_bottom_draw);
+        next_pos = player_draw_x_next + MARIO_HALF_WIDTH;
+        uint8_t tile_right_top = get_tile(next_pos, y_top_draw);
+        uint8_t tile_right_bottom = get_tile(next_pos, y_bottom_draw);
 
         if (is_tile_solid(tile_right_top) || is_tile_solid(tile_right_bottom)) {
           vel_x = 0;
@@ -446,11 +448,11 @@ void main(void) {
 
         } else {
           if (is_coin(tile_right_top)) {
-            on_get_coin(x_next, y_top_draw);
+            on_get_coin(next_pos, y_top_draw);
           }
 
           if (is_coin(tile_right_bottom)) {
-            on_get_coin(x_next, y_bottom_draw);
+            on_get_coin(next_pos, y_bottom_draw);
           }
           player_x_subpixel = player_x_subpixel_next;
           player_draw_x = player_x_subpixel >> 4;
@@ -479,9 +481,9 @@ void main(void) {
       }
       // move left
       else if (vel_x < 0) {
-        x_next = player_draw_x_next - MARIO_HALF_WIDTH;
-        uint8_t tile_left_top = get_tile(x_next, y_top_draw);
-        uint8_t tile_left_bottom = get_tile(x_next, y_bottom_draw);
+        next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
+        uint8_t tile_left_top = get_tile(next_pos, y_top_draw);
+        uint8_t tile_left_bottom = get_tile(next_pos, y_bottom_draw);
 
         if (player_draw_x_next < MARIO_HALF_WIDTH) {
           player_draw_x = MARIO_HALF_WIDTH;
@@ -497,11 +499,11 @@ void main(void) {
             player_x_subpixel = player_draw_x << 4;
           } else {
             if (is_coin(tile_left_top)) {
-              on_get_coin(x_next, y_top_draw);
+              on_get_coin(next_pos, y_top_draw);
             }
 
             if (is_coin(tile_left_bottom)) {
-              on_get_coin(x_next, y_bottom_draw);
+              on_get_coin(next_pos, y_bottom_draw);
             }
 
             player_x_subpixel = player_x_subpixel_next;
@@ -517,13 +519,13 @@ void main(void) {
 
       // move down
       if (vel_y > 0) {
-        uint8_t y_bottom_next = player_draw_y_next;
-        uint8_t tile_left_bottom = get_tile(x_left_draw, y_bottom_next);
-        uint8_t tile_right_bottom = get_tile(x_right_draw, y_bottom_next);
+        next_pos = player_draw_y_next;
+        uint8_t tile_left_bottom = get_tile(x_left_draw, next_pos);
+        uint8_t tile_right_bottom = get_tile(x_right_draw, next_pos);
 
         if (is_tile_solid(tile_left_bottom) ||
             is_tile_solid(tile_right_bottom)) {
-          uint8_t index_y = y_bottom_next / TILE_SIZE;
+          uint8_t index_y = next_pos / TILE_SIZE;
           player_y_subpixel = (index_y * TILE_SIZE) << 4;
           touch_ground = TRUE;
           current_jump = 0;
@@ -531,11 +533,11 @@ void main(void) {
           display_jump_frame = FALSE;
         } else {
           if (is_coin(tile_left_bottom)) {
-            on_get_coin(x_left_draw, y_bottom_next);
+            on_get_coin(x_left_draw, next_pos);
           }
 
           if (is_coin(tile_right_bottom)) {
-            on_get_coin(x_right_draw, y_bottom_next);
+            on_get_coin(x_right_draw, next_pos);
           }
 
           touch_ground = FALSE;
@@ -545,9 +547,9 @@ void main(void) {
 
       // move up
       else if (vel_y < 0) {
-        int8_t y_top_next = player_draw_y_next - 6;
-        uint8_t tile_left_top = get_tile(x_left_draw, y_top_next);
-        uint8_t tile_right_top = get_tile(x_right_draw, y_top_next);
+        next_pos = player_draw_y_next - 6;
+        uint8_t tile_left_top = get_tile(x_left_draw, next_pos);
+        uint8_t tile_right_top = get_tile(x_right_draw, next_pos);
 
         if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
           uint8_t index_y = player_draw_y_next / TILE_SIZE;
@@ -557,11 +559,11 @@ void main(void) {
           sound_play_bump();
         } else {
           if (is_coin(tile_left_top)) {
-            on_get_coin(x_left_draw, y_top_next);
+            on_get_coin(x_left_draw, next_pos);
           }
 
           if (is_coin(tile_right_top)) {
-            on_get_coin(x_right_draw, y_top_next);
+            on_get_coin(x_right_draw, next_pos);
           }
           player_y_subpixel = player_y_subpixel_next;
         }
