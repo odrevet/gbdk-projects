@@ -120,8 +120,8 @@ inline void on_get_coin(uint8_t x, uint8_t y) {
   map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
             [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH] = TILE_EMPTY;
 
-  // WIP
-  set_bkg_tile_xy(((x + camera_x) / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH, y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
+  set_bkg_tile_xy(((x + camera_x) / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
+                  y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
 
   sound_play_bump(); // TODO play sound coin
 
@@ -496,6 +496,14 @@ void main(void) {
                 (diff < 4 ? 0 : 8);
             player_x_subpixel = player_draw_x << 4;
           } else {
+            if (is_coin(tile_left_top)) {
+              on_get_coin(x_next, y_top_draw);
+            }
+
+            if (is_coin(tile_left_bottom)) {
+              on_get_coin(x_next, y_bottom_draw);
+            }
+
             player_x_subpixel = player_x_subpixel_next;
             player_draw_x = player_x_subpixel >> 4;
           }
@@ -522,6 +530,14 @@ void main(void) {
           is_jumping = FALSE;
           display_jump_frame = FALSE;
         } else {
+          if (is_coin(tile_left_bottom)) {
+            on_get_coin(x_left_draw, y_bottom_next);
+          }
+
+          if (is_coin(tile_right_bottom)) {
+            on_get_coin(x_right_draw, y_bottom_next);
+          }
+
           touch_ground = FALSE;
           player_y_subpixel = player_y_subpixel_next;
         }
@@ -540,6 +556,13 @@ void main(void) {
           is_jumping = FALSE;
           sound_play_bump();
         } else {
+          if (is_coin(tile_left_top)) {
+            on_get_coin(x_left_draw, y_top_next);
+          }
+
+          if (is_coin(tile_right_top)) {
+            on_get_coin(x_right_draw, y_top_next);
+          }
           player_y_subpixel = player_y_subpixel_next;
         }
       }
