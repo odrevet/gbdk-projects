@@ -114,18 +114,13 @@ void update_frame_counter() {
   }
 }
 
-inline bool is_coin(int x, int y) {
-  const uint8_t tile = map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-                                 [(x / TILE_SIZE) % MAP_BUFFER_WIDTH];
-  return tile == TILE_COIN;
-}
+inline bool is_coin(uint8_t tile) { return tile == TILE_COIN; }
 
-inline void on_get_coin(int x, int y) {
+inline void on_get_coin(uint8_t x, uint8_t y) {
   map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-            [(x / TILE_SIZE) % MAP_BUFFER_WIDTH] = TILE_EMPTY;
+            [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH] = TILE_EMPTY;
 
-  set_bkg_tile_xy((x / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
-                  y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
+  set_bkg_tile_xy(x / TILE_SIZE, y / TILE_SIZE, TILE_EMPTY);
 
   sound_play_bump(); // TODO play sound coin
 
@@ -276,7 +271,7 @@ void main(void) {
   sound_init();
   __critical {
     hUGE_init(&cognition);
-    add_VBL(hUGE_dosound);
+    // add_VBL(hUGE_dosound);
   };
 
   // joypad
@@ -449,6 +444,13 @@ void main(void) {
           player_x_subpixel = player_draw_x << 4;
 
         } else {
+          /*if (is_coin(tile_right_top)) {
+            on_get_coin(x_next, y_top_draw);
+          }
+
+          if (is_coin(tile_right_bottom)) {
+            on_get_coin(x_next, y_bottom_draw);
+          }*/
           player_x_subpixel = player_x_subpixel_next;
           player_draw_x = player_x_subpixel >> 4;
         }
@@ -576,23 +578,6 @@ void main(void) {
       hud_update_lives();
     }
 #endif
-
-    // check coins
-    /*if (is_coin(x_right_draw, y_bottom_draw)) {
-      on_get_coin(x_right_draw, y_bottom_draw);
-    }
-
-    if (is_coin(x_right_draw, y_top_draw)) {
-      on_get_coin(x_right_draw, y_top_draw);
-    }
-
-    if (is_coin(x_left_draw, y_bottom_draw - TILE_SIZE)) {
-      on_get_coin(x_left_draw, y_bottom_draw - TILE_SIZE);
-    }
-
-    if (is_coin(x_left_draw, y_top_draw)) {
-      on_get_coin(x_left_draw, y_top_draw);
-    }*/
 
     if (player_draw_y > DEVICE_SCREEN_PX_HEIGHT) {
       lives--;
