@@ -483,8 +483,8 @@ void main(void) {
       // move left
       else if (vel_x < 0) {
         next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
-        tile_next_1 = get_tile(next_pos, y_top_draw);  // tile_left_top
-        tile_next_2 = get_tile(next_pos, y_bottom_draw);  // tile_left_bottom
+        tile_next_1 = get_tile(next_pos, y_top_draw);    // tile_left_top
+        tile_next_2 = get_tile(next_pos, y_bottom_draw); // tile_left_bottom
 
         if (player_draw_x_next < MARIO_HALF_WIDTH) {
           player_draw_x = MARIO_HALF_WIDTH;
@@ -526,8 +526,7 @@ void main(void) {
 
         if (is_tile_solid(tile_left_bottom) ||
             is_tile_solid(tile_right_bottom)) {
-          uint8_t index_y = next_pos / TILE_SIZE;
-          player_y_subpixel = (index_y * TILE_SIZE) << 4;
+          player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
           touch_ground = TRUE;
           current_jump = 0;
           is_jumping = FALSE;
@@ -553,8 +552,8 @@ void main(void) {
         uint8_t tile_right_top = get_tile(x_right_draw, next_pos);
 
         if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
-          uint8_t index_y = player_draw_y_next / TILE_SIZE;
-          player_y_subpixel = (index_y * TILE_SIZE + TILE_SIZE) << 4;
+          player_y_subpixel =
+              ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) << 4;
           current_jump = 0;
           is_jumping = FALSE;
           sound_play_bump();
