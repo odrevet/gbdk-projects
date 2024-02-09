@@ -41,6 +41,7 @@ uint16_t time;
 uint8_t lives;
 uint8_t level_index;
 uint8_t joypad_previous, joypad_current;
+uint8_t nb_col = COLUMN_CHUNK_SIZE;
 
 // player coords and movements
 uint16_t player_x_subpixel;
@@ -473,12 +474,14 @@ void main(void) {
           player_x_subpixel = DEVICE_SCREEN_PX_WIDTH_HALF << 4;
           player_draw_x = DEVICE_SCREEN_PX_WIDTH_HALF;
 
-          if (camera_x / TILE_SIZE >= next_col_chunk_load) {
-            if (bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
-                                COLUMN_CHUNK_SIZE) < COLUMN_CHUNK_SIZE) {
+          if (camera_x >> 3 >= next_col_chunk_load) {
+            nb_col = bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
+                                     nb_col);
+            if (nb_col == 0) {
               lock_camera = true;
+            } else {
+              next_col_chunk_load += nb_col;
             }
-            next_col_chunk_load += COLUMN_CHUNK_SIZE;
           }
         }
       }
