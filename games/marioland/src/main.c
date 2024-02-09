@@ -442,8 +442,10 @@ void main(void) {
         if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
+
+          // equivalent to: (((player_draw_x_next / TILE_SIZE) + 1) *TILE_SIZE)
           player_draw_x =
-              ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff -
+              (((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE) - diff -
                MARIO_HALF_WIDTH) +
               (diff > 4 ? 8 : 0);
           player_x_subpixel = player_draw_x << 4;
@@ -493,8 +495,10 @@ void main(void) {
           if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
             vel_x = 0;
             uint8_t diff = camera_x % TILE_SIZE;
+
+            // bitwize operation equivalent to (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
             player_draw_x =
-                ((((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE) - diff -
+                ((((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE)) - diff -
                  MARIO_HALF_WIDTH) +
                 (diff < 4 ? 0 : 8);
             player_x_subpixel = player_draw_x << 4;
