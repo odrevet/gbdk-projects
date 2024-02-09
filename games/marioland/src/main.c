@@ -443,7 +443,7 @@ void main(void) {
           vel_x = 0;
           uint8_t diff = camera_x % TILE_SIZE;
 
-          // equivalent to: (((player_draw_x_next / TILE_SIZE) + 1) *TILE_SIZE)
+          // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
           player_draw_x =
               (((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE) - diff -
                MARIO_HALF_WIDTH) +
@@ -496,10 +496,10 @@ void main(void) {
             vel_x = 0;
             uint8_t diff = camera_x % TILE_SIZE;
 
-            // bitwize operation equivalent to (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
+            // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
             player_draw_x =
-                ((((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE)) - diff -
-                 MARIO_HALF_WIDTH) +
+                ((((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE)) -
+                 diff - MARIO_HALF_WIDTH) +
                 (diff < 4 ? 0 : 8);
             player_x_subpixel = player_draw_x << 4;
           } else {
@@ -530,7 +530,9 @@ void main(void) {
 
         if (is_tile_solid(tile_left_bottom) ||
             is_tile_solid(tile_right_bottom)) {
-          player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
+          // player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
+          player_y_subpixel = (next_pos & ~(TILE_SIZE - 1)) << 4;
+
           touch_ground = TRUE;
           current_jump = 0;
           is_jumping = FALSE;
@@ -556,8 +558,12 @@ void main(void) {
         uint8_t tile_right_top = get_tile(x_right_draw, next_pos);
 
         if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
+          // player_y_subpixel =
+          //     ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) <<
+          //     4;
           player_y_subpixel =
-              ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) << 4;
+              ((player_draw_y_next + TILE_SIZE) & ~(TILE_SIZE - 1)) << 4;
+
           current_jump = 0;
           is_jumping = FALSE;
           sound_play_bump();
