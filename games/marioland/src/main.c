@@ -262,17 +262,9 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
   return col;
 }
 
-void die() {
-  hUGE_mute_channel(0, HT_CH_PLAY);
-  hUGE_mute_channel(1, HT_CH_PLAY);
-  hUGE_mute_channel(2, HT_CH_PLAY);
-  hUGE_mute_channel(3, HT_CH_PLAY);
-
-  lives--;
-  hud_update_lives();
-  
+void init() {
   time = TIME_INITIAL_VALUE;
-  
+
   camera_x = 0;
   camera_x_subpixel = 0;
   SCX_REG = 0;
@@ -282,12 +274,33 @@ void die() {
   player_draw_x = player_x_subpixel >> 4;
   player_draw_y = player_y_subpixel >> 4;
 
+  vel_x = 0;
+  vel_y = 0;
+
+  display_jump_frame = FALSE;
+  display_slide_frame = FALSE;
+
+  frame_counter = 0;
+  mario_flip = FALSE;
+
   set_column_at = 0;
   set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
                level_tiles_bin);
   rle_init(level_map_bin_rle);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
+}
+
+void die() {
+  hUGE_mute_channel(0, HT_CH_PLAY);
+  hUGE_mute_channel(1, HT_CH_PLAY);
+  hUGE_mute_channel(2, HT_CH_PLAY);
+  hUGE_mute_channel(3, HT_CH_PLAY);
+
+  lives--; // TODO game over if no more life
+  hud_update_lives();
+
+  init();
 }
 
 void main(void) {
@@ -322,23 +335,11 @@ void main(void) {
 
   level_index = 0;
 
-  SCX_REG = 0;
-  camera_x = 0;
-  camera_x_subpixel = 0;
+  init();
 
   score = 0;
-  time = TIME_INITIAL_VALUE;
   lives = 3;
   coins = 0;
-
-  vel_x = 0;
-  vel_y = 0;
-
-  display_jump_frame = FALSE;
-  display_slide_frame = FALSE;
-
-  frame_counter = 0;
-  mario_flip = FALSE;
 
   // HUD
   // text
@@ -366,13 +367,6 @@ void main(void) {
 
   // HUD
   set_bkg_data(TEXT_TILESET_START, text_TILE_COUNT, text_tiles);
-
-  // map
-  set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
-               level_tiles_bin);
-  rle_init(level_map_bin_rle);
-  bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
-  next_col_chunk_load = COLUMN_CHUNK_SIZE;
 
   DISPLAY_ON;
   SHOW_BKG;
