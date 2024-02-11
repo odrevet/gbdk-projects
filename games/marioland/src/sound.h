@@ -6,7 +6,8 @@
 #include <stdbool.h>
 
 void sound_init();
-void sound_play_jumping();
+void sound_play_jump();
 void sound_play_bump();
+void sound_play_coin();
 
 #endif

@@ -128,7 +128,7 @@ inline void on_get_coin(uint8_t x, uint8_t y) {
   set_bkg_tile_xy(((x + camera_x) / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
                   y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
 
-  sound_play_bump(); // TODO play sound coin
+  sound_play_coin();
 
   coins++;
   score += 100;
@@ -201,7 +201,7 @@ void pause() {
   hUGE_mute_channel(2, HT_CH_MUTE);
   hUGE_mute_channel(3, HT_CH_MUTE);
 
-  sound_play_jumping();
+  sound_play_bump();
   text_print_string_win(DEVICE_SCREEN_WIDTH - 5, 1, "PAUSE");
 
 #if defined(DEBUG)
@@ -423,7 +423,7 @@ void main(void) {
       is_jumping = TRUE;
       display_jump_frame = TRUE;
       vel_y = -JUMP_SPEED;
-      // sound_play_jumping();
+      sound_play_jump();
     }
 
     // pause
