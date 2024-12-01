@@ -95,7 +95,7 @@ enum tileset_index {
 };
 
 // music
-extern const hUGESong_t cognition;
+extern const hUGESong_t overworld;
 
 inline uint8_t get_tile(uint8_t x, uint8_t y) {
   return map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
@@ -317,8 +317,8 @@ void main(void) {
 
   sound_init();
   __critical {
-    hUGE_init(&cognition);
-    // add_VBL(hUGE_dosound);
+    hUGE_init(&overworld);
+    add_VBL(hUGE_dosound);
   };
 
   // joypad
