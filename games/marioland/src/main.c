@@ -24,8 +24,13 @@
 INCBIN(level_map_bin_rle, "res/level_1_1_map.bin.rle")
 INCBIN_EXTERN(level_map_bin_rle)
 
-INCBIN(level_tiles_bin, "res/level_1_1_tiles.bin")
-INCBIN_EXTERN(level_tiles_bin)
+#include "../res/common.h"
+INCBIN(common_tiles_bin, "res/common_tiles.bin")
+INCBIN_EXTERN(common_tiles_bin)
+
+#include "../res/birabuto.h"
+INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
+INCBIN_EXTERN(birabuto_tiles_bin)
 
 uint16_t camera_x = 0;
 uint16_t camera_x_subpixel = 0;
@@ -79,19 +84,19 @@ uint8_t coldata[LEVEL_HEIGHT];
 uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 
 enum tileset_index {
-  TILE_EMPTY = LEVEL_TILESET_START + 0x01,
-  TILE_UNBREAKABLE = LEVEL_TILESET_START + 0x0B,
-  TILE_COIN = LEVEL_TILESET_START + 0x13,
-  BREAKABLE_BLOCK = LEVEL_TILESET_START + 0x14,
-  PIPE_TOP_LEFT = LEVEL_TILESET_START + 0x17,
-  PIPE_TOP_RIGHT = LEVEL_TILESET_START + 0x18,
-  PIPE_CENTER_LEFT = LEVEL_TILESET_START + 0x19,
-  PIPE_CENTER_RIGHT = LEVEL_TILESET_START + 0x1A,
-  TILE_FLOOR = LEVEL_TILESET_START + 0x22,
-  TILE_INTEROGATION_BLOCK = LEVEL_TILESET_START + 0x0A,
-  TILE_EMPTIED = LEVEL_TILESET_START + 0X1E,
-  TILE_METALIC_LEFT = LEVEL_TILESET_START + 0X0D,
-  TILE_METALIC_RIGHT = LEVEL_TILESET_START + 0X0E
+  TILE_EMPTY = common_TILE_ORIGIN + 0x01,
+  TILE_UNBREAKABLE = common_TILE_ORIGIN + 0x0B,
+  TILE_COIN = common_TILE_ORIGIN + 0x13,
+  BREAKABLE_BLOCK = common_TILE_ORIGIN + 0x14,
+  PIPE_TOP_LEFT = common_TILE_ORIGIN + 0x17,
+  PIPE_TOP_RIGHT = common_TILE_ORIGIN + 0x18,
+  PIPE_CENTER_LEFT = common_TILE_ORIGIN + 0x19,
+  PIPE_CENTER_RIGHT = common_TILE_ORIGIN + 0x1A,
+  TILE_FLOOR = common_TILE_ORIGIN + 0x22,
+  TILE_INTEROGATION_BLOCK = common_TILE_ORIGIN + 0x0A,
+  TILE_EMPTIED = common_TILE_ORIGIN + 0X1E,
+  TILE_METALIC_LEFT = common_TILE_ORIGIN + 0X0D,
+  TILE_METALIC_RIGHT = common_TILE_ORIGIN + 0X0E
 };
 
 // music
@@ -284,8 +289,8 @@ void init() {
   mario_flip = FALSE;
 
   set_column_at = 0;
-  set_bkg_data(LEVEL_TILESET_START, INCBIN_SIZE(level_tiles_bin) >> 4,
-               level_tiles_bin);
+  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
+  set_bkg_data(birabuto_TILE_ORIGIN, INCBIN_SIZE(birabuto_tiles_bin) >> 4, birabuto_tiles_bin);
   rle_init(level_map_bin_rle);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
@@ -366,7 +371,7 @@ void main(void) {
   // enemy_new(70, 136, ENEMY_TYPE_KOOPA);
 
   // HUD
-  set_bkg_data(TEXT_TILESET_START, text_TILE_COUNT, text_tiles);
+  set_bkg_data(text_TILE_ORIGIN, text_TILE_COUNT, text_tiles);
 
   DISPLAY_ON;
   SHOW_BKG;

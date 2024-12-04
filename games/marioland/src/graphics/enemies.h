@@ -19,12 +19,11 @@
 #define enemies_PIVOT_Y 8
 #define enemies_PIVOT_W 16
 #define enemies_PIVOT_H 16
+extern const metasprite_t* const enemies_metasprites[5];
 
 BANKREF_EXTERN(enemies)
 
 extern const palette_color_t enemies_palettes[4];
 extern const uint8_t enemies_tiles[224];
-
-extern const metasprite_t* const enemies_metasprites[5];
 
 #endif

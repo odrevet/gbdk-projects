@@ -31,8 +31,4 @@
 #define DEVICE_SPRITE_OFFSET_Y 2
 #define COLUMN_CHUNK_SIZE 3 // how many map columns to decompress at a time
 
-// Tilesets offsets
-#define TEXT_TILESET_START 0
-#define LEVEL_TILESET_START text_TILE_COUNT
-
 #endif

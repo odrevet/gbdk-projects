@@ -19,12 +19,11 @@
 #define mario_PIVOT_Y 8
 #define mario_PIVOT_W 16
 #define mario_PIVOT_H 16
+extern const metasprite_t* const mario_metasprites[7];
 
 BANKREF_EXTERN(mario)
 
 extern const palette_color_t mario_palettes[4];
 extern const uint8_t mario_tiles[416];
-
-extern const metasprite_t* const mario_metasprites[7];
 
 #endif
