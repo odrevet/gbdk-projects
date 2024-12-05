@@ -21,8 +21,17 @@
 #include "text.h"
 
 #include "../res/level_1_1.h"
-INCBIN(level_map_bin_rle, "res/level_1_1_map.bin.rle")
-INCBIN_EXTERN(level_map_bin_rle)
+INCBIN(map_1_1, "res/level_1_1_map.bin.rle")
+INCBIN_EXTERN(map_1_1)
+
+#include "../res/level_1_2.h"
+INCBIN(map_1_2, "res/level_1_2_map.bin.rle")
+INCBIN_EXTERN(map_1_2)
+
+#include "../res/level_1_3.h"
+INCBIN(map_1_3, "res/level_1_3_map.bin.rle")
+INCBIN_EXTERN(map_1_3)
+
 
 #include "../res/common.h"
 INCBIN(common_tiles_bin, "res/common_tiles.bin")
@@ -291,7 +300,7 @@ void init() {
   set_column_at = 0;
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   set_bkg_data(birabuto_TILE_ORIGIN, INCBIN_SIZE(birabuto_tiles_bin) >> 4, birabuto_tiles_bin);
-  rle_init(level_map_bin_rle);
+  rle_init(map_1_1);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
 }
