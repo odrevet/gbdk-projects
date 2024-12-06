@@ -6,15 +6,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <gb/gb.h>
+#include <gb/metasprites.h>
+#include <gbdk/incbin.h>
+#include <gbdk/platform.h>
+#include <gbdk/rledecompress.h>
+
+#include "global.h"
+
+#define LEVEL_HEIGHT 16
+#define COLUMN_CHUNK_SIZE 3 // how many map columns to decompress at a time
+
 // buffer worth of one column to hold map data when decrompressing
-uint8_t coldata[LEVEL_HEIGHT];
+extern uint8_t coldata[LEVEL_HEIGHT];
 // map buffer in RAM to check collision without access VRAM
 #define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
-uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+extern uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 
-uint16_t camera_x = 0;
-uint16_t camera_x_subpixel = 0;
-uint16_t next_col_chunk_load;
+extern uint16_t camera_x;
+extern uint16_t camera_x_subpixel;
+extern uint16_t next_col_chunk_load;
+extern const unsigned char* current_map;
+extern uint8_t set_column_at;
+extern int current_map_tile_origin;
+extern const unsigned char*  current_map_tiles_bin;
+extern size_t current_map_size;
 
 enum tileset_index {
   TILE_EMPTY = 0x27,
@@ -46,7 +62,7 @@ inline bool is_tile_solid(uint8_t tile) {
          tile == TILE_EMPTIED;
 }
 
-uint8_t set_column_at = 0;
+
 inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
   uint8_t col = 0;
   while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {

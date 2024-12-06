@@ -25,10 +25,9 @@
 #define MARIO_HALF_WIDTH 4
 
 #define DEVICE_SCREEN_PX_WIDTH_HALF DEVICE_SCREEN_PX_WIDTH / 2
-#define LEVEL_HEIGHT 16
 #define MARGIN_TOP 2
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
-#define COLUMN_CHUNK_SIZE 3 // how many map columns to decompress at a time
+
 
 #endif

@@ -42,11 +42,6 @@ INCBIN_EXTERN(common_tiles_bin)
 INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
 INCBIN_EXTERN(birabuto_tiles_bin)
 
-
-const unsigned char* current_map = map_1_1;
-
-
-
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
 uint8_t coins;
@@ -242,12 +237,14 @@ void init() {
   frame_counter = 0;
   mario_flip = FALSE;
 
-  set_column_at = 0;
+  // set current level
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
-  set_bkg_data(birabuto_TILE_ORIGIN, INCBIN_SIZE(birabuto_tiles_bin) >> 4, birabuto_tiles_bin);
-  rle_init(current_map);
-  bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
-  next_col_chunk_load = COLUMN_CHUNK_SIZE;
+  current_map = map_1_1;
+  current_map_tile_origin = birabuto_TILE_ORIGIN;
+  current_map_tiles_bin = birabuto_tiles_bin;
+  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+
+  init_level();
 }
 
 void die() {
