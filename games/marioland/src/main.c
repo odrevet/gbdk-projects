@@ -19,6 +19,7 @@
 #include "hUGEDriver.h"
 #include "sound.h"
 #include "text.h"
+#include "level.h"
 
 #include "../res/level_1_1.h"
 INCBIN(map_1_1, "res/level_1_1_map.bin.rle")
@@ -41,9 +42,10 @@ INCBIN_EXTERN(common_tiles_bin)
 INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
 INCBIN_EXTERN(birabuto_tiles_bin)
 
-uint16_t camera_x = 0;
-uint16_t camera_x_subpixel = 0;
-uint16_t next_col_chunk_load;
+
+const unsigned char* current_map = map_1_1;
+
+
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -86,44 +88,8 @@ uint8_t tile_next_2;
 
 uint8_t scroll;
 
-// buffer worth of one column to hold map data when decrompressing
-uint8_t coldata[LEVEL_HEIGHT];
-// map buffer in RAM to check collision without access VRAM
-#define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
-uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
-
-enum tileset_index {
-  TILE_EMPTY = common_TILE_ORIGIN + 0x01,
-  TILE_UNBREAKABLE = common_TILE_ORIGIN + 0x0B,
-  TILE_COIN = common_TILE_ORIGIN + 0x13,
-  BREAKABLE_BLOCK = common_TILE_ORIGIN + 0x14,
-  PIPE_TOP_LEFT = common_TILE_ORIGIN + 0x17,
-  PIPE_TOP_RIGHT = common_TILE_ORIGIN + 0x18,
-  PIPE_CENTER_LEFT = common_TILE_ORIGIN + 0x19,
-  PIPE_CENTER_RIGHT = common_TILE_ORIGIN + 0x1A,
-  TILE_FLOOR = common_TILE_ORIGIN + 0x22,
-  TILE_INTEROGATION_BLOCK = common_TILE_ORIGIN + 0x0A,
-  TILE_EMPTIED = common_TILE_ORIGIN + 0X1E,
-  TILE_METALIC_LEFT = common_TILE_ORIGIN + 0X0D,
-  TILE_METALIC_RIGHT = common_TILE_ORIGIN + 0X0E
-};
-
 // music
 extern const hUGESong_t overworld;
-
-inline uint8_t get_tile(uint8_t x, uint8_t y) {
-  return map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-                   [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
-}
-
-inline bool is_tile_solid(uint8_t tile) {
-  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
-         tile == BREAKABLE_BLOCK || tile == TILE_UNBREAKABLE ||
-         tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
-         tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT ||
-         tile == TILE_METALIC_LEFT || tile == TILE_METALIC_RIGHT ||
-         tile == TILE_EMPTIED;
-}
 
 void update_frame_counter() {
   frame_counter++;
@@ -253,28 +219,7 @@ void pause() {
   hud_update_time();
 }
 
-uint8_t set_column_at = 0;
-inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
-  uint8_t col = 0;
-  while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {
-    // copy column to map_buffer
-    for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-      map_buffer[row][set_column_at] = coldata[row];
-    }
 
-    set_column_at = ++set_column_at % MAP_BUFFER_WIDTH;
-
-    // Get hardware map tile X column
-    uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
-
-    // Draw current column
-    set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-
-    col++;
-  }
-
-  return col;
-}
 
 void init() {
   time = TIME_INITIAL_VALUE;
@@ -300,7 +245,7 @@ void init() {
   set_column_at = 0;
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   set_bkg_data(birabuto_TILE_ORIGIN, INCBIN_SIZE(birabuto_tiles_bin) >> 4, birabuto_tiles_bin);
-  rle_init(map_1_1);
+  rle_init(current_map);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
 }
