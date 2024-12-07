@@ -75,7 +75,7 @@ uint8_t player_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 uint8_t current_gravity = GRAVITY;
-bool lock_camera = false;
+bool level_end_reached = false;
 
 uint8_t next_pos;
 uint8_t tile_next_1;
@@ -236,15 +236,26 @@ void init() {
 
   frame_counter = 0;
   mario_flip = FALSE;
+}
 
-  // set current level
+void load_level_1()
+{
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_1;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
   current_map_tiles_bin = birabuto_tiles_bin;
   current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_width = level_1_1_WIDTH;
+}
 
-  init_level();
+void load_level_2()
+{
+  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
+  current_map = map_1_2;
+  current_map_tile_origin = birabuto_TILE_ORIGIN;
+  current_map_tiles_bin = birabuto_tiles_bin;
+  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_width = level_1_2_WIDTH;
 }
 
 void die() {
@@ -257,6 +268,8 @@ void die() {
   hud_update_lives();
 
   init();
+  init_level();
+  load_level_1();
 }
 
 void main(void) {
@@ -292,6 +305,8 @@ void main(void) {
   level_index = 0;
 
   init();
+  init_level();
+  load_level_1();
 
   score = 0;
   lives = 3;
@@ -446,7 +461,7 @@ void main(void) {
         }
 
         // scroll
-        if (!lock_camera && player_draw_x >= DEVICE_SCREEN_PX_WIDTH_HALF) {
+        if (!level_end_reached && player_draw_x >= DEVICE_SCREEN_PX_WIDTH_HALF) {
           scroll = player_x_subpixel - (DEVICE_SCREEN_PX_WIDTH_HALF << 4);
 
           camera_x_subpixel += scroll;
@@ -460,7 +475,7 @@ void main(void) {
             nb_col = bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
                                      nb_col);
             if (nb_col == 0) {
-              lock_camera = true;
+              level_end_reached = true;
             } else {
               next_col_chunk_load += nb_col;
             }
@@ -584,11 +599,17 @@ void main(void) {
 
     // print DEBUG text
 #if defined(DEBUG)
+    if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
+      init();
+      load_level_2();
+      init_level();
+    }
+
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "P%d.%d.D%d.V%d.%d.\nxN%d.C%d.SC%d";
+    char fmt[] = "P%d.%d.D%d.V%d.%d.\n.C%d.SC%d.LW%d.DW%d.";
     sprintf(buffer, fmt, (uint16_t)player_x_subpixel,
-            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y, x_next,
-            camera_x, scroll);
+            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y,
+            camera_x, scroll, current_map_width, (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE);
     text_print_string_win(0, 0, buffer);
 #else
     time--;
@@ -600,8 +621,16 @@ void main(void) {
     }
 #endif
 
+    // if fall under screen
     if (player_draw_y > DEVICE_SCREEN_PX_HEIGHT) {
       die();
+    }
+
+    // if reach end of level
+    if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
+      init();
+      load_level_2();
+      init_level();
     }
 
     player_draw();

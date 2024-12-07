@@ -15,7 +15,7 @@
 #include "global.h"
 
 #define LEVEL_HEIGHT 16
-#define COLUMN_CHUNK_SIZE 3 // how many map columns to decompress at a time
+#define COLUMN_CHUNK_SIZE 1 // how many map columns to decompress at a time
 
 // buffer worth of one column to hold map data when decrompressing
 extern uint8_t coldata[LEVEL_HEIGHT];
@@ -31,6 +31,7 @@ extern uint8_t set_column_at;
 extern int current_map_tile_origin;
 extern const unsigned char*  current_map_tiles_bin;
 extern size_t current_map_size;
+extern size_t current_map_width;
 
 enum tileset_index {
   TILE_EMPTY = 0x27,
@@ -45,7 +46,10 @@ enum tileset_index {
   PIPE_CENTER_RIGHT = 0x3B,
   TILE_FLOOR = 0x65,
   TILE_METALIC_LEFT = 0x4A,
-  TILE_METALIC_RIGHT = 0x4B
+  TILE_METALIC_RIGHT = 0x4B,
+  PALM_PLATEFORM_LEFT = 0x69,
+  PALM_PLATEFORM_CENTER = 0X6A,
+  PALM_PLATEFORM_RIGHT = 0x6B
 };
 
 inline uint8_t get_tile(uint8_t x, uint8_t y) {
@@ -59,7 +63,8 @@ inline bool is_tile_solid(uint8_t tile) {
          tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
          tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT ||
          tile == TILE_METALIC_LEFT || tile == TILE_METALIC_RIGHT ||
-         tile == TILE_EMPTIED;
+         tile == TILE_EMPTIED || 
+         tile == PALM_PLATEFORM_LEFT || tile == PALM_PLATEFORM_CENTER || tile == PALM_PLATEFORM_RIGHT;
 }
 
 

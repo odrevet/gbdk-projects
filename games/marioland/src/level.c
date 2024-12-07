@@ -12,6 +12,7 @@ uint8_t set_column_at;
 int current_map_tile_origin;
 const unsigned char*  current_map_tiles_bin;
 size_t current_map_size;
+size_t current_map_width;
 
 
 void init_level()
