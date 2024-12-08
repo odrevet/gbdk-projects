@@ -23,30 +23,23 @@
 
 #include "../res/level_1_1.h"
 INCBIN(map_1_1, "res/level_1_1_map.bin.rle")
-INCBIN_EXTERN(map_1_1)
 
 #include "../res/level_1_2.h"
 INCBIN(map_1_2, "res/level_1_2_map.bin.rle")
-INCBIN_EXTERN(map_1_2)
 
 #include "../res/level_1_3.h"
 INCBIN(map_1_3, "res/level_1_3_map.bin.rle")
-INCBIN_EXTERN(map_1_3)
-
 
 #include "../res/common.h"
 INCBIN(common_tiles_bin, "res/common_tiles.bin")
-INCBIN_EXTERN(common_tiles_bin)
 
 #include "../res/birabuto.h"
 INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
-INCBIN_EXTERN(birabuto_tiles_bin)
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
 uint8_t coins;
 uint16_t score;
-bool redraw;
 uint8_t joy;
 uint16_t time;
 uint8_t lives;
@@ -75,7 +68,7 @@ uint8_t player_frame = 0;
 uint8_t frame_counter = 0;
 bool mario_flip;
 uint8_t current_gravity = GRAVITY;
-bool level_end_reached = false;
+
 
 uint8_t next_pos;
 uint8_t tile_next_1;
@@ -238,26 +231,6 @@ void init() {
   mario_flip = FALSE;
 }
 
-void load_level_1()
-{
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
-  current_map = map_1_1;
-  current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_tiles_bin = birabuto_tiles_bin;
-  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
-  current_map_width = level_1_1_WIDTH;
-}
-
-void load_level_2()
-{
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
-  current_map = map_1_2;
-  current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_tiles_bin = birabuto_tiles_bin;
-  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
-  current_map_width = level_1_2_WIDTH;
-}
-
 void die() {
   hUGE_mute_channel(0, HT_CH_PLAY);
   hUGE_mute_channel(1, HT_CH_PLAY);
@@ -268,8 +241,8 @@ void die() {
   hud_update_lives();
 
   init();
-  init_level();
-  load_level_1();
+  set_level_1();
+  load_current_level();
 }
 
 void main(void) {
@@ -305,8 +278,8 @@ void main(void) {
   level_index = 0;
 
   init();
-  init_level();
-  load_level_1();
+  load_current_level();
+  set_level_1();
 
   score = 0;
   lives = 3;
@@ -530,8 +503,7 @@ void main(void) {
 
         if (is_tile_solid(tile_left_bottom) ||
             is_tile_solid(tile_right_bottom)) {
-          // player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
-          player_y_subpixel = (next_pos & ~(TILE_SIZE - 1)) << 4;
+           player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
 
           touch_ground = TRUE;
           current_jump = 0;
@@ -558,11 +530,9 @@ void main(void) {
         uint8_t tile_right_top = get_tile(x_right_draw, next_pos);
 
         if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
-          // player_y_subpixel =
-          //     ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) <<
-          //     4;
-          player_y_subpixel =
-              ((player_draw_y_next + TILE_SIZE) & ~(TILE_SIZE - 1)) << 4;
+           player_y_subpixel =
+               ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) <<
+               4;
 
           current_jump = 0;
           is_jumping = FALSE;
@@ -601,15 +571,22 @@ void main(void) {
 #if defined(DEBUG)
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       init();
-      load_level_2();
-      init_level();
+      set_level_2();
+      load_current_level();
     }
 
     char buffer[WINDOW_SIZE + 1];
-    char fmt[] = "P%d.%d.D%d.V%d.%d.\n.C%d.SC%d.LW%d.DW%d.";
-    sprintf(buffer, fmt, (uint16_t)player_x_subpixel,
-            (uint16_t)player_y_subpixel, player_draw_x, vel_x, vel_y,
-            camera_x, scroll, current_map_width, (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE);
+    sprintf(buffer, 
+            "%d.%d.%d.%d.%d.\n.%d.%d.%d.%d.", 
+            (uint16_t)player_x_subpixel,
+            (uint16_t)player_y_subpixel, 
+            player_draw_x, 
+            vel_x, 
+            vel_y,
+            camera_x, 
+            scroll, 
+            current_map_width, 
+            level_end_reached);
     text_print_string_win(0, 0, buffer);
 #else
     time--;
@@ -629,8 +606,8 @@ void main(void) {
     // if reach end of level
     if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
       init();
-      load_level_2();
-      init_level();
+      set_level_2();
+      load_current_level();
     }
 
     player_draw();

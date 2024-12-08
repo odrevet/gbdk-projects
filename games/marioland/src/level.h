@@ -14,6 +14,22 @@
 
 #include "global.h"
 
+// tilesets
+#include "../res/common.h"
+INCBIN_EXTERN(common_tiles_bin)
+
+#include "../res/birabuto.h"
+INCBIN_EXTERN(birabuto_tiles_bin)
+
+// maps
+#include "../res/level_1_1.h"
+INCBIN_EXTERN(map_1_1)
+#include "../res/level_1_2.h"
+INCBIN_EXTERN(map_1_2)
+#include "../res/level_1_3.h"
+INCBIN_EXTERN(map_1_3)
+
+
 #define LEVEL_HEIGHT 16
 #define COLUMN_CHUNK_SIZE 1 // how many map columns to decompress at a time
 
@@ -26,12 +42,15 @@ extern uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 extern uint16_t camera_x;
 extern uint16_t camera_x_subpixel;
 extern uint16_t next_col_chunk_load;
-extern const unsigned char* current_map;
 extern uint8_t set_column_at;
+extern bool level_end_reached;
+
+extern const unsigned char* current_map;
 extern int current_map_tile_origin;
 extern const unsigned char*  current_map_tiles_bin;
 extern size_t current_map_size;
 extern size_t current_map_width;
+
 
 enum tileset_index {
   TILE_EMPTY = 0x27,
@@ -90,6 +109,6 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
   return col;
 }
 
-void init_level();
+void load_current_level();
 
 #endif
