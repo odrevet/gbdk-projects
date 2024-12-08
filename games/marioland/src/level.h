@@ -83,7 +83,7 @@ inline uint8_t get_tile(uint8_t x, uint8_t y) {
                    [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
 }
 
-#define MAX_TILE 255  // Adjust this to the highest tile value in your game
+#define MAX_TILE 255
 
 static inline bool is_tile_solid(uint8_t tile) {
     static const bool solid_tiles[MAX_TILE + 1] = {
