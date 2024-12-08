@@ -76,6 +76,8 @@ uint8_t tile_next_2;
 
 uint8_t scroll;
 
+#define INITIAL_LIVES 3
+
 // music
 extern const hUGESong_t overworld;
 
@@ -237,11 +239,15 @@ void die() {
   hUGE_mute_channel(2, HT_CH_PLAY);
   hUGE_mute_channel(3, HT_CH_PLAY);
 
-  lives--; // TODO game over if no more life
-  hud_update_lives();
-
   init();
-  set_level_1();
+
+  lives--;
+  if(lives == 0){
+    lives = INITIAL_LIVES;
+    set_level_1_1();
+  }
+
+  hud_update_lives();
   load_current_level();
 }
 
@@ -279,10 +285,10 @@ void main(void) {
 
   init();
   load_current_level();
-  set_level_1();
+  set_level_1_1();
 
   score = 0;
-  lives = 3;
+  lives = INITIAL_LIVES;
   coins = 0;
 
   // HUD
@@ -567,14 +573,27 @@ void main(void) {
     // enemy_update();
     // enemy_draw(SPRITE_START_ENEMIES);
 
-    // print DEBUG text
-#if defined(DEBUG)
+
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       init();
-      set_level_2();
+      current_level = (++current_level) % 4;
+      switch(current_level){
+        case 0: 
+          set_level_1_1();
+          break;
+        case 1: 
+          set_level_1_2();
+          break;
+        case 2: 
+          set_level_1_3();
+          break;
+      }
       load_current_level();
     }
 
+    
+    // print DEBUG text
+#if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
     sprintf(buffer, 
             "%d.%d.%d.%d.%d.\n.%d.%d.%d.%d.", 
@@ -606,7 +625,18 @@ void main(void) {
     // if reach end of level
     if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
       init();
-      set_level_2();
+      current_level = (++current_level) % 4;
+      switch(current_level){
+        case 0: 
+          set_level_1_1();
+          break;
+        case 1: 
+          set_level_1_2();
+          break;
+        case 2: 
+          set_level_1_3();
+          break;
+      }
       load_current_level();
     }
 

@@ -44,6 +44,7 @@ extern uint16_t camera_x_subpixel;
 extern uint16_t next_col_chunk_load;
 extern uint8_t set_column_at;
 extern bool level_end_reached;
+extern uint8_t current_level;
 
 extern const unsigned char* current_map;
 extern int current_map_tile_origin;
@@ -68,7 +69,11 @@ enum tileset_index {
   TILE_METALIC_RIGHT = 0x4B,
   PALM_PLATEFORM_LEFT = 0x69,
   PALM_PLATEFORM_CENTER = 0X6A,
-  PALM_PLATEFORM_RIGHT = 0x6B
+  PALM_PLATEFORM_RIGHT = 0x6B,
+  STONE_TILE_LEFT = 0x7F,
+  STONE_TILE_MIDDLE_LEFT = 0x89,
+  STONE_TILE_MIDDLE_RIGHT = 0x8A,
+  STONE_TILE_RIGHT = 0x80,
 };
 
 inline uint8_t get_tile(uint8_t x, uint8_t y) {
@@ -83,7 +88,8 @@ inline bool is_tile_solid(uint8_t tile) {
          tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT ||
          tile == TILE_METALIC_LEFT || tile == TILE_METALIC_RIGHT ||
          tile == TILE_EMPTIED || 
-         tile == PALM_PLATEFORM_LEFT || tile == PALM_PLATEFORM_CENTER || tile == PALM_PLATEFORM_RIGHT;
+         tile == PALM_PLATEFORM_LEFT || tile == PALM_PLATEFORM_CENTER || tile == PALM_PLATEFORM_RIGHT ||
+         tile == STONE_TILE_LEFT || tile == STONE_TILE_RIGHT;
 }
 
 
@@ -110,5 +116,8 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
 }
 
 void load_current_level();
+void set_level_1_1();
+void set_level_1_2();
+void set_level_1_3();
 
 #endif

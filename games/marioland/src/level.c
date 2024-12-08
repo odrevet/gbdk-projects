@@ -9,6 +9,7 @@ uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
 uint8_t coldata[LEVEL_HEIGHT];
 uint8_t set_column_at;
 bool level_end_reached;
+uint8_t current_level;
 
 int current_map_tile_origin;
 const unsigned char*  current_map_tiles_bin;
@@ -28,7 +29,7 @@ void load_current_level()
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
 }
 
-void set_level_1()
+void set_level_1_1()
 {
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_1;
@@ -38,7 +39,7 @@ void set_level_1()
   current_map_width = level_1_1_WIDTH;
 }
 
-void set_level_2()
+void set_level_1_2()
 {
   set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_2;
@@ -46,5 +47,15 @@ void set_level_2()
   current_map_tiles_bin = birabuto_tiles_bin;
   current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
   current_map_width = level_1_2_WIDTH;
+}
+
+void set_level_1_3()
+{
+  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
+  current_map = map_1_3;
+  current_map_tile_origin = birabuto_TILE_ORIGIN;
+  current_map_tiles_bin = birabuto_tiles_bin;
+  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_width = level_1_3_WIDTH;
 }
 
