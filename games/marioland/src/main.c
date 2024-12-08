@@ -576,22 +576,10 @@ void main(void) {
 
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       init();
-      current_level = (++current_level) % 4;
-      switch(current_level){
-        case 0: 
-          set_level_1_1();
-          break;
-        case 1: 
-          set_level_1_2();
-          break;
-        case 2: 
-          set_level_1_3();
-          break;
-      }
-      load_current_level();
+      next_level();
     }
 
-    
+
     // print DEBUG text
 #if defined(DEBUG)
     char buffer[WINDOW_SIZE + 1];
@@ -625,19 +613,7 @@ void main(void) {
     // if reach end of level
     if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
       init();
-      current_level = (++current_level) % 4;
-      switch(current_level){
-        case 0: 
-          set_level_1_1();
-          break;
-        case 1: 
-          set_level_1_2();
-          break;
-        case 2: 
-          set_level_1_3();
-          break;
-      }
-      load_current_level();
+      next_level();
     }
 
     player_draw();

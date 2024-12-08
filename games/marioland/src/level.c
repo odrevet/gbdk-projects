@@ -16,6 +16,22 @@ const unsigned char*  current_map_tiles_bin;
 size_t current_map_size;
 size_t current_map_width;
 
+void next_level()
+{
+  current_level = (++current_level) % 4;
+  switch(current_level){
+    case 0: 
+      set_level_1_1();
+      break;
+    case 1: 
+      set_level_1_2();
+      break;
+    case 2: 
+      set_level_1_3();
+      break;
+  }
+  load_current_level();
+}
 
 void load_current_level()
 {
@@ -58,4 +74,3 @@ void set_level_1_3()
   current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
   current_map_width = level_1_3_WIDTH;
 }
-

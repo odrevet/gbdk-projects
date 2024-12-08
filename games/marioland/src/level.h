@@ -74,6 +74,8 @@ enum tileset_index {
   STONE_TILE_MIDDLE_LEFT = 0x89,
   STONE_TILE_MIDDLE_RIGHT = 0x8A,
   STONE_TILE_RIGHT = 0x80,
+  STONE_BAR = 0x81,
+  STONE_TILE_FLOOR = 0x8B,
 };
 
 inline uint8_t get_tile(uint8_t x, uint8_t y) {
@@ -81,15 +83,30 @@ inline uint8_t get_tile(uint8_t x, uint8_t y) {
                    [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
 }
 
-inline bool is_tile_solid(uint8_t tile) {
-  return tile == TILE_FLOOR || tile == TILE_INTEROGATION_BLOCK ||
-         tile == BREAKABLE_BLOCK || tile == TILE_UNBREAKABLE ||
-         tile == PIPE_TOP_LEFT || tile == PIPE_TOP_RIGHT ||
-         tile == PIPE_CENTER_LEFT || tile == PIPE_CENTER_RIGHT ||
-         tile == TILE_METALIC_LEFT || tile == TILE_METALIC_RIGHT ||
-         tile == TILE_EMPTIED || 
-         tile == PALM_PLATEFORM_LEFT || tile == PALM_PLATEFORM_CENTER || tile == PALM_PLATEFORM_RIGHT ||
-         tile == STONE_TILE_LEFT || tile == STONE_TILE_RIGHT;
+#define MAX_TILE 255  // Adjust this to the highest tile value in your game
+
+static inline bool is_tile_solid(uint8_t tile) {
+    static const bool solid_tiles[MAX_TILE + 1] = {
+        [TILE_FLOOR] = true,
+        [TILE_INTEROGATION_BLOCK] = true,
+        [BREAKABLE_BLOCK] = true,
+        [TILE_UNBREAKABLE] = true,
+        [PIPE_TOP_LEFT] = true,
+        [PIPE_TOP_RIGHT] = true,
+        [PIPE_CENTER_LEFT] = true,
+        [PIPE_CENTER_RIGHT] = true,
+        [TILE_METALIC_LEFT] = true,
+        [TILE_METALIC_RIGHT] = true,
+        [TILE_EMPTIED] = true,
+        [PALM_PLATEFORM_LEFT] = true,
+        [PALM_PLATEFORM_CENTER] = true,
+        [PALM_PLATEFORM_RIGHT] = true,
+        [STONE_TILE_LEFT] = true,
+        [STONE_TILE_RIGHT] = true,
+        [STONE_BAR] = true,
+        [STONE_TILE_FLOOR] = true
+    };
+    return tile <= MAX_TILE && solid_tiles[tile];
 }
 
 
@@ -115,6 +132,7 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
   return col;
 }
 
+void next_level();
 void load_current_level();
 void set_level_1_1();
 void set_level_1_2();
