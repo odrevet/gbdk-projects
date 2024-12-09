@@ -348,7 +348,7 @@ void main(void) {
     if (joypad_current & J_RIGHT) {
       if (vel_x < player_max_speed) {
         vel_x += 1;
-        if(is_jumping == FALSE){
+        if(display_jump_frame == FALSE){
           mario_flip = FALSE;
           }
         if (vel_x < 0) {
@@ -366,7 +366,7 @@ void main(void) {
     if ((joypad_current & J_LEFT)) {
       if (abs(vel_x) < player_max_speed) {
         vel_x -= 1;
-        if(is_jumping == FALSE){
+        if(display_jump_frame == FALSE){
           mario_flip = TRUE;
         }
         if (vel_x > 0) {
