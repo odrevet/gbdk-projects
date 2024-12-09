@@ -180,16 +180,21 @@ void pause() {
   char buffer[WINDOW_SIZE + 1];
   char fmt[] = "%d.%d.%d.%d.%d.%d.%d..";
   uint8_t col = player_draw_x / TILE_SIZE;
-  sprintf(buffer, fmt, map_buffer[0][col], map_buffer[1][col],
-          map_buffer[2][col], map_buffer[3][col], map_buffer[4][col],
-          map_buffer[5][col], map_buffer[6][col]);
-  text_print_string_win(0, 0, buffer);
-
-  sprintf(buffer, fmt, map_buffer[7][col], map_buffer[8][col],
-          map_buffer[9][col], map_buffer[10][col], map_buffer[11][col],
-          map_buffer[12][col], map_buffer[13][col]);
-  text_print_string_win(0, 1, buffer);
+  
+  for (uint8_t row = 0; row < 7; row++) {
+    uint16_t index = (row * MAP_BUFFER_WIDTH) + col;
+    sprintf(buffer, fmt, 
+            map_buffer[index], 
+            map_buffer[index + MAP_BUFFER_WIDTH], 
+            map_buffer[index + 2 * MAP_BUFFER_WIDTH], 
+            map_buffer[index + 3 * MAP_BUFFER_WIDTH], 
+            map_buffer[index + 4 * MAP_BUFFER_WIDTH], 
+            map_buffer[index + 5 * MAP_BUFFER_WIDTH], 
+            map_buffer[index + 6 * MAP_BUFFER_WIDTH]);
+    text_print_string_win(0, row, buffer);
+  }
 #endif
+
 
   vsync();
 
@@ -245,6 +250,7 @@ void die() {
   lives--;
   if(lives == 0){
     lives = INITIAL_LIVES;
+    current_map = 0;
     set_level_1_1();
   }
 
