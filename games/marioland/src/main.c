@@ -38,6 +38,8 @@ INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
+#include <gbdk/emu_debug.h>
+
 uint8_t coins;
 uint16_t score;
 uint8_t joy;
@@ -460,8 +462,10 @@ void main(void) {
           if (camera_x >> 3 >= next_col_chunk_load) {
             nb_col = bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
                                      nb_col);
+
             if (nb_col == 0) {
               level_end_reached = true;
+              nb_col = COLUMN_CHUNK_SIZE;
             } else {
               next_col_chunk_load += nb_col;
             }
