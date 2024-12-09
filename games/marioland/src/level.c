@@ -5,7 +5,7 @@ uint16_t camera_x;
 uint16_t camera_x_subpixel;
 uint16_t next_col_chunk_load;
 const unsigned char* current_map;
-uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+uint8_t map_buffer[MAP_BUFFER_SIZE];
 uint8_t coldata[LEVEL_HEIGHT];
 uint8_t set_column_at;
 bool level_end_reached;

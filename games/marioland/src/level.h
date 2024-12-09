@@ -37,7 +37,10 @@ INCBIN_EXTERN(map_1_3)
 extern uint8_t coldata[LEVEL_HEIGHT];
 // map buffer in RAM to check collision without access VRAM
 #define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
-extern uint8_t map_buffer[LEVEL_HEIGHT][MAP_BUFFER_WIDTH];
+#define MAP_BUFFER_HEIGHT (LEVEL_HEIGHT)
+#define MAP_BUFFER_SIZE (MAP_BUFFER_WIDTH * MAP_BUFFER_HEIGHT)
+
+extern uint8_t map_buffer[MAP_BUFFER_SIZE];
 
 extern uint16_t camera_x;
 extern uint16_t camera_x_subpixel;
@@ -79,8 +82,9 @@ enum tileset_index {
 };
 
 inline uint8_t get_tile(uint8_t x, uint8_t y) {
-  return map_buffer[y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y]
-                   [((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH];
+  uint16_t index = ((y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y) * MAP_BUFFER_WIDTH) + 
+                   (((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH);
+  return map_buffer[index];
 }
 
 #define MAX_TILE 255
@@ -112,13 +116,15 @@ static inline bool is_tile_solid(uint8_t tile) {
 
 inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
   uint8_t col = 0;
+
   while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {
-    // copy column to map_buffer
+    // Copy column to map_buffer
     for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-      map_buffer[row][set_column_at] = coldata[row];
+      uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
+      map_buffer[index] = coldata[row];
     }
 
-    set_column_at = ++set_column_at % MAP_BUFFER_WIDTH;
+    set_column_at = (set_column_at + 1) % MAP_BUFFER_WIDTH;
 
     // Get hardware map tile X column
     uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
@@ -131,6 +137,7 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
 
   return col;
 }
+
 
 void next_level();
 void load_current_level();
