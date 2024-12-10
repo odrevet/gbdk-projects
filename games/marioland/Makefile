@@ -1,7 +1,8 @@
 LCC = $(GBDK_HOME)/bin/lcc
 PROJECTNAME = marioland
 BINS	    = $(PROJECTNAME).gb
-CSOURCES   := $(wildcard src/*.c) $(wildcard src/graphics/*.c) $(wildcard src/maps/*.c) $(wildcard src/songs/*.c)
+CSOURCES := $(shell find src -name '*.c')
+CFLAGS = -autobank -Wl-yt0x1A -Wl-yo4 -Wl-ya4
 
 DEBUG=no
 ifeq ($(DEBUG),yes)
@@ -11,9 +12,6 @@ endif
 
 all:	$(BINS)
 
-# Compile and link all source files in a single call to LCC
-$(BINS):	$(CSOURCES) $(ASMSOURCES)
-	$(LCC)  -o $@ hUGEDriver.o $(CSOURCES) $(ASMSOURCES) $(CPPFLAGS)
+$(BINS):	$(CSOURCES)
+	$(LCC) $(CFLAGS) -o $@ hUGEDriver.o $(CSOURCES) $(CPPFLAGS)
 
-clean:
-	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm

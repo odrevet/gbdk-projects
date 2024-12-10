@@ -30,15 +30,15 @@ INCBIN(map_1_2, "res/level_1_2_map.bin.rle")
 #include "../res/level_1_3.h"
 INCBIN(map_1_3, "res/level_1_3_map.bin.rle")
 
+
 #include "../res/common.h"
 INCBIN(common_tiles_bin, "res/common_tiles.bin")
 
 #include "../res/birabuto.h"
 INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
 
-const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
-#include <gbdk/emu_debug.h>
+const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
 uint8_t coins;
 uint16_t score;
@@ -324,8 +324,10 @@ void main(void) {
   // enemy_new(50, 136, ENEMY_TYPE_GOOMBA);
   // enemy_new(70, 136, ENEMY_TYPE_KOOPA);
 
-  // HUD
+  // text and common bkg data
   set_bkg_data(text_TILE_ORIGIN, text_TILE_COUNT, text_tiles);
+  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
+
 
   DISPLAY_ON;
   SHOW_BKG;

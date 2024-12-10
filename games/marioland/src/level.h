@@ -21,6 +21,7 @@ INCBIN_EXTERN(common_tiles_bin)
 #include "../res/birabuto.h"
 INCBIN_EXTERN(birabuto_tiles_bin)
 
+
 // maps
 #include "../res/level_1_1.h"
 INCBIN_EXTERN(map_1_1)
@@ -29,7 +30,7 @@ INCBIN_EXTERN(map_1_2)
 #include "../res/level_1_3.h"
 INCBIN_EXTERN(map_1_3)
 
-
+#define NB_LEVELS 3
 #define LEVEL_HEIGHT 16
 #define COLUMN_CHUNK_SIZE 1 // how many map columns to decompress at a time
 
@@ -39,6 +40,7 @@ extern uint8_t coldata[LEVEL_HEIGHT];
 #define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
 #define MAP_BUFFER_HEIGHT (LEVEL_HEIGHT)
 #define MAP_BUFFER_SIZE (MAP_BUFFER_WIDTH * MAP_BUFFER_HEIGHT)
+
 
 extern uint8_t map_buffer[MAP_BUFFER_SIZE];
 

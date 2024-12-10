@@ -18,7 +18,7 @@ size_t current_map_width;
 
 void next_level()
 {
-  current_level = (++current_level) % 4;
+  current_level = (++current_level) % NB_LEVELS;
   switch(current_level){
     case 0: 
       set_level_1_1();
@@ -47,7 +47,6 @@ void load_current_level()
 
 void set_level_1_1()
 {
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_1;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
   current_map_tiles_bin = birabuto_tiles_bin;
@@ -57,7 +56,6 @@ void set_level_1_1()
 
 void set_level_1_2()
 {
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_2;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
   current_map_tiles_bin = birabuto_tiles_bin;
@@ -67,10 +65,10 @@ void set_level_1_2()
 
 void set_level_1_3()
 {
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
   current_map = map_1_3;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
   current_map_tiles_bin = birabuto_tiles_bin;
   current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
   current_map_width = level_1_3_WIDTH;
 }
+
