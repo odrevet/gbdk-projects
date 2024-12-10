@@ -11,7 +11,7 @@ muda_tiles_count=60
 png2asset "assets/text.png" -o "src/graphics/text" -keep_palette_order -map -tiles_only -noflip -b 255
 png2asset "assets/tilesets/common.png" -o "res/common" -map -bin -tiles_only -noflip -keep_duplicate_tiles -b 255 -tile_origin $text_tiles_count
 png2asset "assets/tilesets/birabuto.png" -o "res/birabuto" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
-png2asset "assets/tilesets/muda.png" -o "res/muda" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count + $birabuto_tiles_count))
+png2asset "assets/tilesets/muda.png" -o "res/muda" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
 
 convert_level_asset() {
     local level_number=$1
@@ -35,7 +35,7 @@ convert_level_asset() {
 convert_level_asset 1_1 birabuto
 convert_level_asset 1_2 birabuto
 convert_level_asset 1_3 birabuto
-
+convert_level_asset 2_1 muda
 
 # force compilation
 touch src/main.c
