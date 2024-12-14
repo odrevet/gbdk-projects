@@ -32,9 +32,16 @@ convert_level_asset() {
     rm "res/level_${level_number}_map.bin"
 }
 
+echo "level 1_1"
 convert_level_asset 1_1 birabuto
+
+echo "level 1_2"
 convert_level_asset 1_2 birabuto
+
+echo "level 1_3"
 convert_level_asset 1_3 birabuto
+
+echo "level 2_1"
 convert_level_asset 2_1 muda
 
 # force compilation
