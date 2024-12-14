@@ -1,8 +1,5 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
-#include <gbdk/incbin.h>
-#include <gbdk/platform.h>
-#include <gbdk/rledecompress.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,23 +17,6 @@
 #include "sound.h"
 #include "text.h"
 #include "level.h"
-
-#include "../res/level_1_1.h"
-INCBIN(map_1_1, "res/level_1_1_map.bin.rle")
-
-#include "../res/level_1_2.h"
-INCBIN(map_1_2, "res/level_1_2_map.bin.rle")
-
-#include "../res/level_1_3.h"
-INCBIN(map_1_3, "res/level_1_3_map.bin.rle")
-
-
-#include "../res/common.h"
-INCBIN(common_tiles_bin, "res/common_tiles.bin")
-
-#include "../res/birabuto.h"
-INCBIN(birabuto_tiles_bin, "res/birabuto_tiles.bin")
-
 
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
@@ -326,7 +306,7 @@ void main(void) {
 
   // text and common bkg data
   set_bkg_data(text_TILE_ORIGIN, text_TILE_COUNT, text_tiles);
-  set_bkg_data(common_TILE_ORIGIN, INCBIN_SIZE(common_tiles_bin) >> 4, common_tiles_bin);
+  set_bkg_data(common_TILE_ORIGIN, common_TILE_COUNT, common_tiles);
 
 
   DISPLAY_ON;

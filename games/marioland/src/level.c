@@ -16,59 +16,62 @@ const unsigned char*  current_map_tiles_bin;
 size_t current_map_size;
 size_t current_map_width;
 
-void next_level()
+void next_level() NONBANKED
 {
+  uint8_t current_bank = CURRENT_BANK;
+
   current_level = (++current_level) % NB_LEVELS;
   switch(current_level){
     case 0: 
+      SWITCH_ROM(( BANK(level_1_1)));
       set_level_1_1();
       break;
     case 1: 
+     SWITCH_ROM(( BANK(level_1_2)));
       set_level_1_2();
       break;
     case 2: 
+     SWITCH_ROM(( BANK(level_1_3)));
       set_level_1_3();
       break;
   }
+  SWITCH_ROM(current_bank);
+
   load_current_level();
 }
 
-void load_current_level()
+void load_current_level() NONBANKED
 {
   set_column_at = 0;
   camera_x = 0;
   camera_x_subpixel = 0;
   level_end_reached = false;
   set_bkg_data(current_map_tile_origin, current_map_size, current_map_tiles_bin);
-  rle_init(current_map);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
 }
 
-void set_level_1_1()
+void set_level_1_1() NONBANKED
 {
-  current_map = map_1_1;
+  current_map = level_1_1_map;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_tiles_bin = birabuto_tiles_bin;
-  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_size = birabuto_TILE_COUNT;
   current_map_width = level_1_1_WIDTH;
 }
 
-void set_level_1_2()
+void set_level_1_2() NONBANKED
 {
-  current_map = map_1_2;
+  current_map = level_1_2_map;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_tiles_bin = birabuto_tiles_bin;
-  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_size = birabuto_TILE_COUNT;
   current_map_width = level_1_2_WIDTH;
 }
 
-void set_level_1_3()
+void set_level_1_3() NONBANKED
 {
-  current_map = map_1_3;
+  current_map = level_1_3_map;
   current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_tiles_bin = birabuto_tiles_bin;
-  current_map_size = INCBIN_SIZE(birabuto_tiles_bin) >> 4;
+  current_map_size = birabuto_TILE_COUNT;
   current_map_width = level_1_3_WIDTH;
 }
 

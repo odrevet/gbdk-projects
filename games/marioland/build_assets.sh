@@ -8,28 +8,22 @@ birabuto_tiles_count=60
 muda_tiles_count=60
 
 # background
-png2asset "assets/text.png" -o "src/graphics/text" -keep_palette_order -map -tiles_only -noflip -b 255
-png2asset "assets/tilesets/common.png" -o "res/common" -map -bin -tiles_only -noflip -keep_duplicate_tiles -b 255 -tile_origin $text_tiles_count
-png2asset "assets/tilesets/birabuto.png" -o "res/birabuto" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
-png2asset "assets/tilesets/muda.png" -o "res/muda" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
+png2asset "assets/text.png" -o "src/graphics/text" -keep_palette_order -map -tiles_only -noflip
+png2asset "assets/tilesets/common.png" -o "src/graphics/common" -map -bin -tiles_only -noflip -keep_duplicate_tiles -tile_origin $text_tiles_count
+png2asset "assets/tilesets/birabuto.png" -o "src/graphics/birabuto" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
+png2asset "assets/tilesets/muda.png" -o "src/graphics/muda" -map -bin -tiles_only -noflip  -keep_duplicate_tiles -b 255 -tile_origin $(($text_tiles_count + $common_tiles_count))
 
 convert_level_asset() {
     local level_number=$1
     local source_tileset=$2
 
     png2asset "assets/level_${level_number}.png" \
-        -o "res/level_${level_number}" \
+        -o "src/levels/level_${level_number}.c" \
         -source_tileset "assets/tilesets/common.png" \
         -source_tileset "assets/tilesets/${source_tileset}.png" \
-        -map -bin -transposed -noflip -keep_duplicate_tiles \
+        -map -noflip -keep_duplicate_tiles \
         -tile_origin "$text_tiles_count" \
         -b 255
-
-    # Compress the map file using RLE algorithm
-    gbcompress --alg=rle "res/level_${level_number}_map.bin" "res/level_${level_number}_map.bin.rle"
-
-    # Remove the original map file
-    rm "res/level_${level_number}_map.bin"
 }
 
 echo "level 1_1"

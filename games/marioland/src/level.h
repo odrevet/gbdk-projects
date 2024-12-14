@@ -10,25 +10,25 @@
 #include <gb/metasprites.h>
 #include <gbdk/incbin.h>
 #include <gbdk/platform.h>
-#include <gbdk/rledecompress.h>
 
 #include "global.h"
 
 // tilesets
-#include "../res/common.h"
-INCBIN_EXTERN(common_tiles_bin)
+#include "graphics/common.h"
+BANKREF_EXTERN(common)
 
-#include "../res/birabuto.h"
-INCBIN_EXTERN(birabuto_tiles_bin)
-
+#include "graphics/birabuto.h"
+BANKREF_EXTERN(birabuto)
 
 // maps
-#include "../res/level_1_1.h"
-INCBIN_EXTERN(map_1_1)
-#include "../res/level_1_2.h"
-INCBIN_EXTERN(map_1_2)
-#include "../res/level_1_3.h"
-INCBIN_EXTERN(map_1_3)
+#include "levels/level_1_1.h"
+BANKREF_EXTERN(level_1_1)
+
+#include "levels/level_1_2.h"
+BANKREF_EXTERN(level_1_2)
+
+#include "levels/level_1_3.h"
+BANKREF_EXTERN(level_1_3)
 
 #define NB_LEVELS 3
 #define LEVEL_HEIGHT 16
@@ -53,8 +53,7 @@ extern uint8_t current_level;
 
 extern const unsigned char* current_map;
 extern int current_map_tile_origin;
-extern const unsigned char*  current_map_tiles_bin;
-extern size_t current_map_size;
+extern const unsigned char*  current_map_tiles;
 extern size_t current_map_width;
 
 
@@ -91,7 +90,7 @@ inline uint8_t get_tile(uint8_t x, uint8_t y) {
 
 #define MAX_TILE 255
 
-static inline bool is_tile_solid(uint8_t tile) {
+static inline bool is_tile_solid(uint8_t tile) NONBANKED {
     static const bool solid_tiles[MAX_TILE + 1] = {
         [TILE_FLOOR] = true,
         [TILE_INTEROGATION_BLOCK] = true,
@@ -116,10 +115,10 @@ static inline bool is_tile_solid(uint8_t tile) {
 }
 
 
-inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
+inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) NONBANKED {
   uint8_t col = 0;
 
-  while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {
+  /*while (col < nb && rle_decompress(coldata, LEVEL_HEIGHT)) {
     // Copy column to map_buffer
     for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
       uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
@@ -135,7 +134,7 @@ inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) {
     set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
 
     col++;
-  }
+  }*/
 
   return col;
 }
