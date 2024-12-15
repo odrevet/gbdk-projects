@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "graphics/enemies.h"
+//#include "graphics/enemies.h"
 #include "graphics/mario.h"
 
 #include "enemy.h"
@@ -18,6 +18,9 @@
 #include "text.h"
 #include "level.h"
 
+//#include "graphics/text.h"
+//#include "graphics/common.h"
+
 const uint8_t window_location = WINDOW_Y + WINDOW_HEIGHT_TILE * TILE_SIZE;
 
 uint8_t coins;
@@ -25,7 +28,6 @@ uint16_t score;
 uint8_t joy;
 uint16_t time;
 uint8_t lives;
-uint8_t level_index;
 uint8_t joypad_previous, joypad_current;
 uint8_t nb_col = COLUMN_CHUNK_SIZE;
 
@@ -232,7 +234,7 @@ void die() {
   lives--;
   if(lives == 0){
     lives = INITIAL_LIVES;
-    current_map = 0;
+    current_level = 0;
     set_level_1_1();
   }
 
@@ -268,13 +270,13 @@ void main(void) {
   player_draw_y = player_y_subpixel >> 4;
 
   set_sprite_data(SPRITE_START_MARIO, mario_TILE_COUNT, mario_tiles);
-  set_sprite_data(SPRITE_START_ENEMIES, enemies_TILE_COUNT, enemies_tiles);
+  //set_sprite_data(SPRITE_START_ENEMIES, enemies_TILE_COUNT, enemies_tiles);
 
-  level_index = 0;
+  current_level = 0;
 
   init();
+  set_current_level();
   load_current_level();
-  set_level_1_1();
 
   score = 0;
   lives = INITIAL_LIVES;
@@ -305,8 +307,8 @@ void main(void) {
   // enemy_new(70, 136, ENEMY_TYPE_KOOPA);
 
   // text and common bkg data
-  set_bkg_data(text_TILE_ORIGIN, text_TILE_COUNT, text_tiles);
-  set_bkg_data(common_TILE_ORIGIN, common_TILE_COUNT, common_tiles);
+  //set_bkg_data(text_TILE_ORIGIN, text_TILE_COUNT, text_tiles);
+  //set_bkg_data(common_TILE_ORIGIN, common_TILE_COUNT, common_tiles);
 
 
   DISPLAY_ON;
@@ -569,7 +571,8 @@ void main(void) {
 
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       init();
-      next_level();
+      (++current_level) % NB_LEVELS;
+      set_current_level();
     }
 
 
@@ -606,7 +609,8 @@ void main(void) {
     // if reach end of level
     if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
       init();
-      next_level();
+      (++current_level) % NB_LEVELS;
+      set_current_level();
     }
 
     player_draw();

@@ -16,28 +16,29 @@ const unsigned char*  current_map_tiles_bin;
 size_t current_map_size;
 size_t current_map_width;
 
-void next_level() NONBANKED
+void set_current_level() NONBANKED
 {
-  uint8_t current_bank = CURRENT_BANK;
+  uint8_t _current_bank = CURRENT_BANK;
 
-  current_level = (++current_level) % NB_LEVELS;
   switch(current_level){
     case 0: 
-      SWITCH_ROM(( BANK(level_1_1)));
+      //SWITCH_ROM(( BANK(level_1_1)));
       set_level_1_1();
       break;
-    case 1: 
-     SWITCH_ROM(( BANK(level_1_2)));
-      set_level_1_2();
-      break;
-    case 2: 
-     SWITCH_ROM(( BANK(level_1_3)));
-      set_level_1_3();
-      break;
+    //case 1: 
+    //  //SWITCH_ROM(( BANK(level_1_2)));
+    //  set_level_1_2();
+    //  break;
+    //case 2: 
+    //  //SWITCH_ROM(( BANK(level_1_3)));
+    //  set_level_1_3();
+    //  break;
   }
-  SWITCH_ROM(current_bank);
 
   load_current_level();
+  SWITCH_ROM(_current_bank);
+
+  
 }
 
 void load_current_level() NONBANKED
@@ -53,25 +54,25 @@ void load_current_level() NONBANKED
 
 void set_level_1_1() NONBANKED
 {
-  current_map = level_1_1_map;
-  current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_size = birabuto_TILE_COUNT;
-  current_map_width = level_1_1_WIDTH;
+  //current_map = level_1_1_map;
+  //current_map_tile_origin = birabuto_TILE_ORIGIN;
+  //current_map_size = birabuto_TILE_COUNT;
+  //current_map_width = level_1_1_WIDTH;
 }
 
 void set_level_1_2() NONBANKED
 {
-  current_map = level_1_2_map;
-  current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_size = birabuto_TILE_COUNT;
-  current_map_width = level_1_2_WIDTH;
+  //current_map = level_1_2_map;
+  //current_map_tile_origin = birabuto_TILE_ORIGIN;
+  //current_map_size = birabuto_TILE_COUNT;
+  //current_map_width = level_1_2_WIDTH;
 }
 
 void set_level_1_3() NONBANKED
 {
-  current_map = level_1_3_map;
-  current_map_tile_origin = birabuto_TILE_ORIGIN;
-  current_map_size = birabuto_TILE_COUNT;
-  current_map_width = level_1_3_WIDTH;
+//  current_map = level_1_3_map;
+//  current_map_tile_origin = birabuto_TILE_ORIGIN;
+//  current_map_size = birabuto_TILE_COUNT;
+//  current_map_width = level_1_3_WIDTH;
 }
 
