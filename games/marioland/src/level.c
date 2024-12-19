@@ -1,10 +1,11 @@
 #include "level.h"
+#include "graphics/birabuto.h"
 #include <stddef.h>
 
 uint16_t camera_x;
 uint16_t camera_x_subpixel;
 uint16_t next_col_chunk_load;
-const unsigned char* current_map;
+
 uint8_t map_buffer[MAP_BUFFER_SIZE];
 uint8_t coldata[LEVEL_HEIGHT];
 uint8_t set_column_at;
@@ -12,7 +13,7 @@ bool level_end_reached;
 uint8_t current_level;
 
 int current_map_tile_origin;
-const unsigned char*  current_map_tiles_bin;
+const unsigned char*  current_map_tiles;
 size_t current_map_size;
 size_t current_map_width;
 
@@ -22,45 +23,44 @@ void set_current_level() NONBANKED
 
   switch(current_level){
     case 0: 
-      //SWITCH_ROM(( BANK(level_1_1)));
+      SWITCH_ROM(( BANK(level_1_1)));
       set_level_1_1();
       break;
-    //case 1: 
-    //  //SWITCH_ROM(( BANK(level_1_2)));
-    //  set_level_1_2();
-    //  break;
-    //case 2: 
-    //  //SWITCH_ROM(( BANK(level_1_3)));
-    //  set_level_1_3();
-    //  break;
+    case 1: 
+      //SWITCH_ROM(( BANK(level_1_2)));
+      set_level_1_2();
+      break;
+    case 2: 
+      //SWITCH_ROM(( BANK(level_1_3)));
+      set_level_1_3();
+      break;
   }
 
-  load_current_level();
   SWITCH_ROM(_current_bank);
 
   
 }
 
-void load_current_level() NONBANKED
+void load_current_level() 
 {
   set_column_at = 0;
   camera_x = 0;
   camera_x_subpixel = 0;
   level_end_reached = false;
-  set_bkg_data(current_map_tile_origin, current_map_size, current_map_tiles_bin);
+  set_bkg_data(current_map_tile_origin, current_map_size, current_map_tiles);
   bkg_load_column(0, DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE);
   next_col_chunk_load = COLUMN_CHUNK_SIZE;
 }
 
-void set_level_1_1() NONBANKED
+void set_level_1_1() 
 {
-  //current_map = level_1_1_map;
-  //current_map_tile_origin = birabuto_TILE_ORIGIN;
-  //current_map_size = birabuto_TILE_COUNT;
-  //current_map_width = level_1_1_WIDTH;
+  current_map_tiles = birabuto_tiles;
+  current_map_tile_origin = birabuto_TILE_ORIGIN;
+  current_map_size = birabuto_TILE_COUNT;
+  current_map_width = level_1_1_WIDTH;
 }
 
-void set_level_1_2() NONBANKED
+void set_level_1_2() 
 {
   //current_map = level_1_2_map;
   //current_map_tile_origin = birabuto_TILE_ORIGIN;
@@ -68,7 +68,7 @@ void set_level_1_2() NONBANKED
   //current_map_width = level_1_2_WIDTH;
 }
 
-void set_level_1_3() NONBANKED
+void set_level_1_3() 
 {
 //  current_map = level_1_3_map;
 //  current_map_tile_origin = birabuto_TILE_ORIGIN;

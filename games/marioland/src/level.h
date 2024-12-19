@@ -14,25 +14,21 @@
 #include "global.h"
 
 // tilesets
-//#include "graphics/common.h"
-//BANKREF_EXTERN(common)
+#include "graphics/common.h"
+BANKREF_EXTERN(common)
 
-//#include "graphics/birabuto.h"
-//BANKREF_EXTERN(birabuto)
+#include "graphics/birabuto.h"
+BANKREF_EXTERN(birabuto)
 
 // maps
-//#include "levels/level_1_1.h"
-//BANKREF_EXTERN(level_1_1)
+#include "levels/level_1_1.h"
+BANKREF_EXTERN(level_1_1)
 
 //#include "levels/level_1_2.h"
 //BANKREF_EXTERN(level_1_2)
 //
 //#include "levels/level_1_3.h"
 //BANKREF_EXTERN(level_1_3)
-
-#define NB_LEVELS 1
-#define LEVEL_HEIGHT 16
-#define COLUMN_CHUNK_SIZE 1 // how many map columns to load at a time
 
 // buffer worth of one column to hold map data when reading
 extern uint8_t coldata[LEVEL_HEIGHT];
@@ -51,9 +47,8 @@ extern uint8_t set_column_at;
 extern bool level_end_reached;
 extern uint8_t current_level;
 
-extern const unsigned char* current_map;
-extern int current_map_tile_origin;
 extern const unsigned char*  current_map_tiles;
+extern int current_map_tile_origin;
 extern size_t current_map_width;
 
 
@@ -115,35 +110,36 @@ static inline bool is_tile_solid(uint8_t tile) NONBANKED {
 }
 
 
-inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb) NONBANKED {
+inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb)  NONBANKED {
   uint8_t col = 0;
 
-  // Copy column to map_buffer
-  for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-    uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
-    coldata[row] = TILE_FLOOR;
-    map_buffer[index] = coldata[row];
+  while (col < nb) {
+    // Copy column to map_buffer
+    for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
+      uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
+      coldata[row] = TILE_EMPTY;
+      map_buffer[index] = coldata[row];
+    }
+
+    set_column_at = (set_column_at + 1) % MAP_BUFFER_WIDTH;
+
+    // Get hardware map tile X column
+    uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
+
+    // Draw current column
+    set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
+
+    col++;
   }
-
-  set_column_at = (set_column_at + 1) % MAP_BUFFER_WIDTH;
-
-  // Get hardware map tile X column
-  uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
-
-  // Draw current column
-  set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-
-  col++;
-  
 
   return col;
 }
 
 
 void set_current_level() NONBANKED;
-void load_current_level() NONBANKED;
-void set_level_1_1() NONBANKED;
-void set_level_1_2() NONBANKED;
-void set_level_1_3() NONBANKED;
+void load_current_level();
+void set_level_1_1() ;
+void set_level_1_2() ;
+void set_level_1_3() ;
 
 #endif

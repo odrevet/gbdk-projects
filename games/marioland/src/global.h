@@ -1,6 +1,16 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#include <gb/gb.h>
+#include <gb/metasprites.h>
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
 #define SPRITE_START_MARIO 0
 #define SPRITE_START_ENEMIES SPRITE_START_MARIO + mario_TILE_COUNT
 
@@ -28,5 +38,19 @@
 #define MARGIN_TOP_PX 2 * TILE_SIZE
 #define DEVICE_SPRITE_OFFSET_Y 2
 
+#define NB_LEVELS 1
+#define LEVEL_HEIGHT 16
+#define COLUMN_CHUNK_SIZE 1 // how many map columns to load at a time
+#define INITIAL_LIVES 3
+
+extern const uint8_t window_location;
+extern uint8_t coins;
+extern uint16_t score;
+extern uint8_t joy;
+extern uint16_t time;
+extern uint8_t lives;
+extern uint8_t joypad_previous, joypad_current;
+extern uint8_t nb_col;
+extern uint8_t scroll;
 
 #endif

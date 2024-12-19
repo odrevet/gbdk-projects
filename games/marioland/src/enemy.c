@@ -1,10 +1,11 @@
 #include "enemy.h"
 #include <stdint.h>
 
+
 uint8_t enemy_count = 0;
 enemy_t enemies[ENEMY_MAX];
 
-void enemy_new(uint16_t x, uint16_t y, uint8_t type) {
+void enemy_new(uint16_t x, uint16_t y, uint8_t type) BANKED {
   if (enemy_count < ENEMY_MAX) {
     uint8_t current_frame;
     int16_t vel_x;
@@ -31,8 +32,8 @@ void enemy_new(uint16_t x, uint16_t y, uint8_t type) {
   }
 }
 
-void enemy_update() {
-  for (uint8_t index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
+void enemy_update() BANKED {
+  for (uint8_t index_enemy = 0; index_enemy < enemy_count; index_enemy++){
     enemies[index_enemy].x += enemies[index_enemy].vel_x;
 
     switch (enemies[index_enemy].type) {
@@ -56,7 +57,7 @@ void enemy_update() {
   }
 }
 
-void enemy_draw(int start) {
+void enemy_draw(int start) BANKED {
   /*for (int index_enemy = 0; index_enemy < enemy_count; index_enemy++) {
     uint16_t draw_x = enemies[index_enemy].x >> 4;
     int enemy_draw_x_camera_offset = draw_x - camera_x;

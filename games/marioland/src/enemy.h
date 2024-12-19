@@ -32,8 +32,8 @@ typedef struct enemy_t {
 extern uint8_t enemy_count;
 extern enemy_t enemies[ENEMY_MAX];
 
-void enemy_new(uint16_t x, uint16_t y, uint8_t type);
-void enemy_update();
-void enemy_draw(int start);
+void enemy_new(uint16_t x, uint16_t y, uint8_t type) BANKED;
+void enemy_update() BANKED;
+void enemy_draw(int start) BANKED;
 
 #endif
