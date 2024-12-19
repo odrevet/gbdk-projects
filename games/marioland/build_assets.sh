@@ -22,7 +22,7 @@ convert_level_asset() {
         -o "src/levels/level_${level_number}.c" \
         -source_tileset "assets/tilesets/common.png" \
         -source_tileset "assets/tilesets/${source_tileset}.png" \
-        -map -noflip -keep_duplicate_tiles \
+        -map -transposed -noflip -keep_duplicate_tiles \
         -tile_origin $text_tiles_count \
         -b $bank
 }

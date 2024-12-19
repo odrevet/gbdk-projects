@@ -184,11 +184,11 @@ void die() {
   if(lives == 0){
     lives = INITIAL_LIVES;
     current_level = 0;
-    set_level_1_1();
+    level_set_1_1();
   }
 
   hud_update_lives();
-  load_current_level();
+  level_load_current();
 }
 
 void main(void) {
@@ -256,8 +256,8 @@ void main(void) {
   set_bkg_data(common_TILE_ORIGIN, common_TILE_COUNT, common_tiles);
 
   current_level = 0;
-  set_current_level();
-  load_current_level();
+  level_set_current();
+  level_load_current();
 
 
   DISPLAY_ON;
@@ -315,10 +315,10 @@ void main(void) {
       // move right
       if (vel_x > 0) {
 //        next_pos = player_draw_x_next + MARIO_HALF_WIDTH;
-//        tile_next_1 = get_tile(next_pos, y_top_draw);    // tile_right_top
-//        tile_next_2 = get_tile(next_pos, y_bottom_draw); // tile_right_bottom
+//        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_right_top
+//        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_right_bottom
 //
-//        if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
+//        if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
 //          vel_x = 0;
 //          uint8_t diff = camera_x % TILE_SIZE;
 //
@@ -367,14 +367,14 @@ void main(void) {
       }
       else if (vel_x < 0) {
 //        next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
-//        tile_next_1 = get_tile(next_pos, y_top_draw);    // tile_left_top
-//        tile_next_2 = get_tile(next_pos, y_bottom_draw); // tile_left_bottom
+//        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_left_top
+//        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_left_bottom
 //
 //        if (player_draw_x_next < MARIO_HALF_WIDTH) {
 //          player_draw_x = MARIO_HALF_WIDTH;
 //          player_x_subpixel = player_draw_x << 4;
 //        } else {
-//          if (is_tile_solid(tile_next_1) || is_tile_solid(tile_next_2)) {
+//          if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
 //            vel_x = 0;
 //            uint8_t diff = camera_x % TILE_SIZE;
 //
@@ -407,11 +407,11 @@ void main(void) {
 //      // move down
 //      if (vel_y > 0) {
 //        next_pos = player_draw_y_next;
-//        uint8_t tile_left_bottom = get_tile(x_left_draw, next_pos);
-//        uint8_t tile_right_bottom = get_tile(x_right_draw, next_pos);
+//        uint8_t tile_left_bottom = level_get_tile(x_left_draw, next_pos);
+//        uint8_t tile_right_bottom = level_get_tile(x_right_draw, next_pos);
 //
-//        if (is_tile_solid(tile_left_bottom) ||
-//            is_tile_solid(tile_right_bottom)) {
+//        if (level_is_tile_solid(tile_left_bottom) ||
+//            level_is_tile_solid(tile_right_bottom)) {
 //           player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
 //
 //          touch_ground = TRUE;
@@ -435,10 +435,10 @@ void main(void) {
 //      // move up
 //      else if (vel_y < 0) {
 //        next_pos = player_draw_y_next - 6;
-//        uint8_t tile_left_top = get_tile(x_left_draw, next_pos);
-//        uint8_t tile_right_top = get_tile(x_right_draw, next_pos);
+//        uint8_t tile_left_top = level_get_tile(x_left_draw, next_pos);
+//        uint8_t tile_right_top = level_get_tile(x_right_draw, next_pos);
 //
-//        if (is_tile_solid(tile_left_top) || is_tile_solid(tile_right_top)) {
+//        if (level_is_tile_solid(tile_left_top) || level_is_tile_solid(tile_right_top)) {
 //           player_y_subpixel =
 //               ((player_draw_y_next / TILE_SIZE) * TILE_SIZE + TILE_SIZE) <<
 //               4;
@@ -480,7 +480,7 @@ void main(void) {
     if (joypad_current & J_SELECT && !(joypad_previous & J_SELECT)) {
       init();
       (++current_level) % NB_LEVELS;
-      set_current_level();
+      level_set_current();
     }
 
 
@@ -518,7 +518,7 @@ void main(void) {
     if(level_end_reached && player_draw_x >= (DEVICE_SCREEN_WIDTH - 2) * TILE_SIZE){
       init();
       (++current_level) % NB_LEVELS;
-      set_current_level();
+      level_set_current();
     }
 
     player_draw();

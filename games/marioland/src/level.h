@@ -26,7 +26,7 @@ BANKREF_EXTERN(level_1_1)
 
 //#include "levels/level_1_2.h"
 //BANKREF_EXTERN(level_1_2)
-//
+
 //#include "levels/level_1_3.h"
 //BANKREF_EXTERN(level_1_3)
 
@@ -36,7 +36,7 @@ extern uint8_t coldata[LEVEL_HEIGHT];
 #define MAP_BUFFER_WIDTH (DEVICE_SCREEN_WIDTH + COLUMN_CHUNK_SIZE)
 #define MAP_BUFFER_HEIGHT (LEVEL_HEIGHT)
 #define MAP_BUFFER_SIZE (MAP_BUFFER_WIDTH * MAP_BUFFER_HEIGHT)
-
+#define MAX_TILE 255
 
 extern uint8_t map_buffer[MAP_BUFFER_SIZE];
 
@@ -47,7 +47,8 @@ extern uint8_t set_column_at;
 extern bool level_end_reached;
 extern uint8_t current_level;
 
-extern const unsigned char*  current_map_tiles;
+extern const unsigned char* current_map_data;
+extern const unsigned char* current_map_tiles;
 extern int current_map_tile_origin;
 extern size_t current_map_width;
 
@@ -77,69 +78,15 @@ enum tileset_index {
   STONE_TILE_FLOOR = 0x8B,
 };
 
-inline uint8_t get_tile(uint8_t x, uint8_t y) NONBANKED {
-  uint16_t index = ((y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y) * MAP_BUFFER_WIDTH) + 
-                   (((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH);
-  return map_buffer[index];
-}
+uint8_t level_get_tile(uint8_t x, uint8_t y) NONBANKED;
+bool level_is_tile_solid(uint8_t tile) NONBANKED;
+uint8_t level_load_column(uint8_t start_at, uint8_t nb) NONBANKED;
 
-#define MAX_TILE 255
-
-static inline bool is_tile_solid(uint8_t tile) NONBANKED {
-    static const bool solid_tiles[MAX_TILE + 1] = {
-        [TILE_FLOOR] = true,
-        [TILE_INTEROGATION_BLOCK] = true,
-        [BREAKABLE_BLOCK] = true,
-        [TILE_UNBREAKABLE] = true,
-        [PIPE_TOP_LEFT] = true,
-        [PIPE_TOP_RIGHT] = true,
-        [PIPE_CENTER_LEFT] = true,
-        [PIPE_CENTER_RIGHT] = true,
-        [TILE_METALIC_LEFT] = true,
-        [TILE_METALIC_RIGHT] = true,
-        [TILE_EMPTIED] = true,
-        [PALM_PLATEFORM_LEFT] = true,
-        [PALM_PLATEFORM_CENTER] = true,
-        [PALM_PLATEFORM_RIGHT] = true,
-        [STONE_TILE_LEFT] = true,
-        [STONE_TILE_RIGHT] = true,
-        [STONE_BAR] = true,
-        [STONE_TILE_FLOOR] = true
-    };
-    return tile <= MAX_TILE && solid_tiles[tile];
-}
-
-
-inline uint8_t bkg_load_column(uint8_t start_at, uint8_t nb)  NONBANKED {
-  uint8_t col = 0;
-
-  while (col < nb) {
-    // Copy column to map_buffer
-    for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-      uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
-      coldata[row] = TILE_EMPTY;
-      map_buffer[index] = coldata[row];
-    }
-
-    set_column_at = (set_column_at + 1) % MAP_BUFFER_WIDTH;
-
-    // Get hardware map tile X column
-    uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
-
-    // Draw current column
-    set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
-
-    col++;
-  }
-
-  return col;
-}
-
-
-void set_current_level() NONBANKED;
-void load_current_level();
-void set_level_1_1() ;
-void set_level_1_2() ;
-void set_level_1_3() ;
+void level_set_tileset_birabuto();
+void level_set_current() NONBANKED;
+void level_load_current();
+void level_set_1_1() ;
+void level_set_1_2() ;
+void level_set_1_3() ;
 
 #endif
