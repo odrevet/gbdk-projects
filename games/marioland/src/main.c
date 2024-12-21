@@ -7,13 +7,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "player.h"
-#include "enemy.h"
 #include "global.h"
 #include "hUGEDriver.h"
+#include "game.h"
+#include "player.h"
+#include "enemy.h"
+
 #include "sound.h"
 #include "text.h"
 #include "level.h"
+
 
 // Graphics
 #include "graphics/enemies.h"
@@ -26,70 +29,6 @@
 // music
 extern const hUGESong_t overworld;
 
-void update_frame_counter() {
-  frame_counter++;
-  if (frame_counter == LOOP_PER_ANIMATION_FRAME) {
-    frame_counter = 0;
-    player_frame = (player_frame % 3) + 1;
-  }
-}
-
-inline bool is_coin(uint8_t tile) { return tile == TILE_COIN; }
-
-inline void on_get_coin(uint8_t x, uint8_t y) {
-  uint16_t index = ((y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y) * MAP_BUFFER_WIDTH) + 
-                   (((x + camera_x) / TILE_SIZE) % MAP_BUFFER_WIDTH);
-  map_buffer[index] = TILE_EMPTY;
-
-  set_bkg_tile_xy(((x + camera_x) / TILE_SIZE) % DEVICE_SCREEN_BUFFER_WIDTH,
-                  y / TILE_SIZE - DEVICE_SPRITE_OFFSET_Y, TILE_EMPTY);
-
-  sound_play_coin();
-
-  coins++;
-  score += 100;
-
-  if (coins == 100) {
-    lives++;
-    coins = 0;
-  }
-
-  hud_update_coins();
-  hud_update_score();
-}
-
-void hud_update_coins() {
-  char coins_str[3];
-
-  if (coins < 10) {
-    coins_str[0] = '0'; // Add leading zero
-    itoa(coins, coins_str + 1, 10);
-  } else {
-    itoa(coins, coins_str, 10);
-  }
-
-  text_print_string_win(9, 1, coins_str);
-}
-
-void hud_update_score() {
-  char score_str[5];
-  itoa(score, score_str, 10);
-  text_print_string_win(3, 1, score_str);
-}
-
-void hud_update_time() {
-  char time_str[4];
-  itoa(time / 40, time_str, 10);
-  text_print_string_win(DEVICE_SCREEN_WIDTH - 3, 1, "000");
-  text_print_string_win(DEVICE_SCREEN_WIDTH - strlen(time_str), 1, time_str);
-}
-
-void hud_update_lives() {
-  char lives_str[4];
-  itoa(lives, lives_str, 10);
-  // text_print_string_win(8, 0, "00");
-  text_print_string_win(7, 0, lives_str);
-}
 
 void interruptLCD() {
   while (STAT_REG & 3)
@@ -150,46 +89,7 @@ void pause() {
 
 
 
-void init() {
-  time = TIME_INITIAL_VALUE;
 
-  camera_x = 0;
-  camera_x_subpixel = 0;
-  SCX_REG = 0;
-
-  player_x_subpixel = 43 << 4;
-  player_y_subpixel = (16 * TILE_SIZE) << 4;
-  player_draw_x = player_x_subpixel >> 4;
-  player_draw_y = player_y_subpixel >> 4;
-
-  vel_x = 0;
-  vel_y = 0;
-
-  display_jump_frame = FALSE;
-  display_slide_frame = FALSE;
-
-  frame_counter = 0;
-  mario_flip = FALSE;
-}
-
-void die() {
-  hUGE_mute_channel(0, HT_CH_PLAY);
-  hUGE_mute_channel(1, HT_CH_PLAY);
-  hUGE_mute_channel(2, HT_CH_PLAY);
-  hUGE_mute_channel(3, HT_CH_PLAY);
-
-  init();
-
-  lives--;
-  if(lives == 0){
-    lives = INITIAL_LIVES;
-    current_level = 0;
-    level_set_1_1();
-  }
-
-  hud_update_lives();
-  level_load_current();
-}
 
 void main(void) {
   STAT_REG = 0x40;
@@ -266,11 +166,6 @@ void main(void) {
   SHOW_SPRITES;
   SPRITES_8x16;
 
-  uint8_t x_right_draw;
-  uint8_t x_left_draw;
-  uint8_t y_top_draw;
-  uint8_t y_bottom_draw;
-
   while (1) {
     vsync();
 
@@ -286,22 +181,6 @@ void main(void) {
       pause();
     }
 
-    if (joypad_current & J_B) {
-      player_max_speed = PLAYER_MAX_SPEED_RUN;
-    } else {
-      player_max_speed = PLAYER_MAX_SPEED_WALK;
-    }
-
-    if (is_jumping) {
-      vel_y += GRAVITY_JUMP;
-      if (vel_y > TERMINAL_VELOCITY) {
-        vel_y = TERMINAL_VELOCITY;
-      }
-    } else {
-      vel_y = GRAVITY;
-    }
-
-
     x_right_draw = player_draw_x + MARIO_HALF_WIDTH - 1;
     x_left_draw = player_draw_x - MARIO_HALF_WIDTH;
     y_top_draw = player_draw_y - MARIO_HALF_WIDTH;
@@ -314,126 +193,122 @@ void main(void) {
 
       // move right
       if (vel_x > 0) {
-//        next_pos = player_draw_x_next + MARIO_HALF_WIDTH;
-//        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_right_top
-//        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_right_bottom
-//
-//        if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
-//          vel_x = 0;
-//          uint8_t diff = camera_x % TILE_SIZE;
-//
-//          // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
-//          player_draw_x =
-//              (((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE) - diff -
-//               MARIO_HALF_WIDTH) +
-//              (diff > 4 ? 8 : 0);
-//          player_x_subpixel = player_draw_x << 4;
-//
-//        } else {
-//          if (is_coin(tile_next_1)) {
-//            on_get_coin(next_pos, y_top_draw);
-//          }
-//
-//          if (is_coin(tile_next_2)) {
-//            on_get_coin(next_pos, y_bottom_draw);
-//          }
-//          player_x_subpixel = player_x_subpixel_next;
-//          player_draw_x = player_x_subpixel >> 4;
-//        }
-//
-//        // scroll
-//        if (!level_end_reached && player_draw_x >= DEVICE_SCREEN_PX_WIDTH_HALF) {
-//          scroll = player_x_subpixel - (DEVICE_SCREEN_PX_WIDTH_HALF << 4);
-//
-//          camera_x_subpixel += scroll;
-//          camera_x = camera_x_subpixel >> 4;
-//          SCX_REG = camera_x;
-//
-//          player_x_subpixel = DEVICE_SCREEN_PX_WIDTH_HALF << 4;
-//          player_draw_x = DEVICE_SCREEN_PX_WIDTH_HALF;
-//
-//          if (camera_x >> 3 >= next_col_chunk_load) {
-//            nb_col = bkg_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH,
-//                                     nb_col);
-//
-//            if (nb_col == 0) {
-//              level_end_reached = true;
-//              nb_col = COLUMN_CHUNK_SIZE;
-//            } else {
-//              next_col_chunk_load += nb_col;
-//            }
-//          }
-//        }
+        next_pos = player_draw_x_next + MARIO_HALF_WIDTH;
+        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_right_top
+        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_right_bottom
+
+        if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
+          vel_x = 0;
+          uint8_t diff = camera_x % TILE_SIZE;
+
+          // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
+          player_draw_x =
+              (((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE) - diff -
+               MARIO_HALF_WIDTH) +
+              (diff > 4 ? 8 : 0);
+          player_x_subpixel = player_draw_x << 4;
+
+        } else {
+          if (is_coin(tile_next_1)) {
+            on_get_coin(next_pos, y_top_draw);
+          }
+
+          if (is_coin(tile_next_2)) {
+            on_get_coin(next_pos, y_bottom_draw);
+          }
+          player_x_subpixel = player_x_subpixel_next;
+          player_draw_x = player_x_subpixel >> 4;
+        }
+
+        // scroll
+        if (!level_end_reached && player_draw_x >= DEVICE_SCREEN_PX_WIDTH_HALF) {
+          scroll = player_x_subpixel - (DEVICE_SCREEN_PX_WIDTH_HALF << 4);
+
+          camera_x_subpixel += scroll;
+          camera_x = camera_x_subpixel >> 4;
+          SCX_REG = camera_x;
+
+          player_x_subpixel = DEVICE_SCREEN_PX_WIDTH_HALF << 4;
+          player_draw_x = DEVICE_SCREEN_PX_WIDTH_HALF;
+
+          if (camera_x >> 3 >= next_col_chunk_load) {
+            nb_col = level_load_column(next_col_chunk_load + DEVICE_SCREEN_WIDTH, COLUMN_CHUNK_SIZE);
+
+            if (nb_col == 0) {
+              level_end_reached = true;
+              nb_col = COLUMN_CHUNK_SIZE;
+            } else {
+              next_col_chunk_load += nb_col;
+            }
+          }
+        }
       }
       else if (vel_x < 0) {
-//        next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
-//        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_left_top
-//        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_left_bottom
-//
-//        if (player_draw_x_next < MARIO_HALF_WIDTH) {
-//          player_draw_x = MARIO_HALF_WIDTH;
-//          player_x_subpixel = player_draw_x << 4;
-//        } else {
-//          if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
-//            vel_x = 0;
-//            uint8_t diff = camera_x % TILE_SIZE;
-//
-//            // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
-//            player_draw_x =
-//                ((((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE)) -
-//                 diff - MARIO_HALF_WIDTH) +
-//                (diff < 4 ? 0 : 8);
-//            player_x_subpixel = player_draw_x << 4;
-//          } else {
-//            if (is_coin(tile_next_1)) {
-//              on_get_coin(next_pos, y_top_draw);
-//            }
-//
-//            if (is_coin(tile_next_2)) {
-//              on_get_coin(next_pos, y_bottom_draw);
-//            }
-//
-//            player_x_subpixel = player_x_subpixel_next;
-//            player_draw_x = player_x_subpixel >> 4;
-//          }
-//        }
+        next_pos = player_draw_x_next - MARIO_HALF_WIDTH;
+        tile_next_1 = level_get_tile(next_pos, y_top_draw);    // tile_left_top
+        tile_next_2 = level_get_tile(next_pos, y_bottom_draw); // tile_left_bottom
+
+        if (player_draw_x_next < MARIO_HALF_WIDTH) {
+          player_draw_x = MARIO_HALF_WIDTH;
+          player_x_subpixel = player_draw_x << 4;
+        } else {
+          if (level_is_tile_solid(tile_next_1) || level_is_tile_solid(tile_next_2)) {
+            vel_x = 0;
+            uint8_t diff = camera_x % TILE_SIZE;
+
+            // (((player_draw_x_next / TILE_SIZE) + 1) * TILE_SIZE)
+            player_draw_x =
+                ((((player_draw_x_next & ~(TILE_SIZE - 1)) + TILE_SIZE)) -
+                 diff - MARIO_HALF_WIDTH) +
+                (diff < 4 ? 0 : 8);
+            player_x_subpixel = player_draw_x << 4;
+          } else {
+            if (is_coin(tile_next_1)) {
+              on_get_coin(next_pos, y_top_draw);
+            }
+
+            if (is_coin(tile_next_2)) {
+              on_get_coin(next_pos, y_bottom_draw);
+            }
+
+            player_x_subpixel = player_x_subpixel_next;
+            player_draw_x = player_x_subpixel >> 4;
+          }
+        }
       }
     }
 
     if (vel_y != 0) {
-//      player_y_subpixel_next = player_y_subpixel + vel_y;
-//      player_draw_y_next = player_y_subpixel_next >> 4;
-//
-//      // move down
-//      if (vel_y > 0) {
-//        next_pos = player_draw_y_next;
-//        uint8_t tile_left_bottom = level_get_tile(x_left_draw, next_pos);
-//        uint8_t tile_right_bottom = level_get_tile(x_right_draw, next_pos);
-//
-//        if (level_is_tile_solid(tile_left_bottom) ||
-//            level_is_tile_solid(tile_right_bottom)) {
-//           player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
-//
-//          touch_ground = TRUE;
-//          current_jump = 0;
-//          is_jumping = FALSE;
-//          display_jump_frame = FALSE;
-//        } else {
-//          if (is_coin(tile_left_bottom)) {
-//            on_get_coin(x_left_draw, next_pos);
-//          }
-//
-//          if (is_coin(tile_right_bottom)) {
-//            on_get_coin(x_right_draw, next_pos);
-//          }
-//
+      player_y_subpixel_next = player_y_subpixel + vel_y;
+      player_draw_y_next = player_y_subpixel_next >> 4;
+
+      // move down
+      if (vel_y > 0) {
+        next_pos = player_draw_y_next;
+        uint8_t tile_left_bottom = level_get_tile(x_left_draw, next_pos);
+        uint8_t tile_right_bottom = level_get_tile(x_right_draw, next_pos);
+
+        if (level_is_tile_solid(tile_left_bottom) || level_is_tile_solid(tile_right_bottom)) {
+           player_y_subpixel = ((next_pos / TILE_SIZE) * TILE_SIZE) << 4;
+
+          touch_ground = TRUE;
+          current_jump = 0;
+          is_jumping = FALSE;
+          display_jump_frame = FALSE;
+        } else {
+          if (is_coin(tile_left_bottom)) {
+            on_get_coin(x_left_draw, next_pos);
+          }
+
+          if (is_coin(tile_right_bottom)) {
+            on_get_coin(x_right_draw, next_pos);
+          }
+
 //          touch_ground = FALSE;
 //          player_y_subpixel = player_y_subpixel_next;
-//        }
-//      }
-//
-//      // move up
-//      else if (vel_y < 0) {
+        }
+      }
+      else if (vel_y < 0) {
 //        next_pos = player_draw_y_next - 6;
 //        uint8_t tile_left_top = level_get_tile(x_left_draw, next_pos);
 //        uint8_t tile_right_top = level_get_tile(x_right_draw, next_pos);
@@ -456,22 +331,11 @@ void main(void) {
 //          }
 //          player_y_subpixel = player_y_subpixel_next;
 //        }
-//      }
-//      player_draw_y = player_y_subpixel >> 4;
+      }
+      player_draw_y = player_y_subpixel >> 4;
     }
 
-    // set player frame
-    if (display_jump_frame) {
-      player_frame = 4;
-    } else if (vel_x != 0) {
-      if (display_slide_frame) {
-        player_frame = 5;
-      } else {
-        update_frame_counter();
-      }
-    } else {
-      player_frame = 0;
-    }
+
 
     // enemy_update();
     // enemy_draw(SPRITE_START_ENEMIES);

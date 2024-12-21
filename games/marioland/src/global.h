@@ -40,7 +40,7 @@
 
 #define NB_LEVELS 1
 #define LEVEL_HEIGHT 16
-#define COLUMN_CHUNK_SIZE 1 // how many map columns to load at a time
+#define COLUMN_CHUNK_SIZE 3 // how many map columns to load at a time
 #define INITIAL_LIVES 3
 
 extern const uint8_t window_location;

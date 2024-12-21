@@ -22,7 +22,7 @@ convert_level_asset() {
         -o "src/levels/level_${level_number}.c" \
         -source_tileset "assets/tilesets/common.png" \
         -source_tileset "assets/tilesets/${source_tileset}.png" \
-        -map -transposed -noflip -keep_duplicate_tiles \
+        -map -noflip -keep_duplicate_tiles \
         -tile_origin $text_tiles_count \
         -b $bank
 }
@@ -30,11 +30,11 @@ convert_level_asset() {
 echo "level 1_1"
 convert_level_asset 1_1 birabuto
 
-#echo "level 1_2"
-#convert_level_asset 1_2 birabuto
-#
+echo "level 1_2"
+convert_level_asset 1_2 birabuto
+
 #echo "level 1_3"
 #convert_level_asset 1_3 birabuto
-#
+
 #echo "level 2_1"
 #convert_level_asset 2_1 muda

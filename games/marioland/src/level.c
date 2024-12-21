@@ -1,4 +1,5 @@
 #include "level.h"
+#include "global.h"
 #include "graphics/birabuto.h"
 #include "levels/level_1_1.h"
 #include <stddef.h>
@@ -46,16 +47,13 @@ bool level_is_tile_solid(uint8_t tile) NONBANKED {
 
 uint8_t level_load_column(uint8_t start_at, uint8_t nb) NONBANKED
 {
-  uint8_t col = 0;
-
+  uint8_t col = start_at;    
   while (col < nb) {
-    // Copy column from current_map_data to coldata
-    for (uint8_t row = 0; row < LEVEL_HEIGHT; row++) {
-      uint16_t index = (row * MAP_BUFFER_WIDTH) + set_column_at;
-      coldata[row] = current_map_data[index];
+    for (int i = 0; i < LEVEL_HEIGHT; i++) {
+        int pos = (i * (level_1_1_WIDTH / level_1_1_TILE_W)) + col;
+        map_buffer[i] = current_map_data[pos];
+        coldata[i] = current_map_data[pos];
     }
-
-    set_column_at = (set_column_at + 1) % MAP_BUFFER_WIDTH;
 
     // Get hardware map tile X column
     uint8_t map_x_column = (col + start_at) & (DEVICE_SCREEN_BUFFER_WIDTH - 1);
@@ -64,7 +62,7 @@ uint8_t level_load_column(uint8_t start_at, uint8_t nb) NONBANKED
     set_bkg_tiles(map_x_column, 0, 1, LEVEL_HEIGHT, coldata);
 
     col++;
-  }
+  };
 
   return col;
 }
@@ -85,7 +83,7 @@ void level_set_current() NONBANKED
       level_set_1_1();
       break;
     case 1: 
-      //SWITCH_ROM(( BANK(level_1_2)));
+      SWITCH_ROM(( BANK(level_1_2)));
       level_set_1_2();
       break;
     case 2: 
@@ -127,8 +125,8 @@ void level_set_1_1()
 void level_set_1_2() 
 {
   level_set_tileset_birabuto();
-  //current_map_data = level_1_2_map;
-  //current_map_width = level_1_2_WIDTH;
+  current_map_data = level_1_2_map;
+  current_map_width = level_1_2_WIDTH;
 }
 
 void level_set_1_3() 

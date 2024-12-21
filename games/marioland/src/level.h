@@ -24,8 +24,8 @@ BANKREF_EXTERN(birabuto)
 #include "levels/level_1_1.h"
 BANKREF_EXTERN(level_1_1)
 
-//#include "levels/level_1_2.h"
-//BANKREF_EXTERN(level_1_2)
+#include "levels/level_1_2.h"
+BANKREF_EXTERN(level_1_2)
 
 //#include "levels/level_1_3.h"
 //BANKREF_EXTERN(level_1_3)
@@ -77,6 +77,8 @@ enum tileset_index {
   STONE_BAR = 0x81,
   STONE_TILE_FLOOR = 0x8B,
 };
+
+inline bool is_coin(uint8_t tile) { return tile == TILE_COIN; }
 
 uint8_t level_get_tile(uint8_t x, uint8_t y) NONBANKED;
 bool level_is_tile_solid(uint8_t tile) NONBANKED;

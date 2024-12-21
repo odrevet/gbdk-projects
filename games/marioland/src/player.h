@@ -13,6 +13,7 @@
 #include "global.h"
 #include "sound.h"
 #include "graphics/mario.h"
+#include "level.h"
 
 // player coords and movements
 extern uint16_t player_x_subpixel;
@@ -36,13 +37,17 @@ extern uint8_t frame_counter;
 extern bool mario_flip;
 extern uint8_t current_gravity;
 
+extern uint8_t x_right_draw;
+extern uint8_t x_left_draw;
+extern uint8_t y_top_draw;
+extern uint8_t y_bottom_draw;
 
 extern uint8_t next_pos;
 extern uint8_t tile_next_1;
 extern uint8_t tile_next_2;
 
-
-void player_move();
+void update_frame_counter() BANKED;
+void player_move() BANKED;
 void player_draw();
 
 #endif
